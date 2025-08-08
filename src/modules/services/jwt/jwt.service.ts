@@ -3,10 +3,8 @@ import { sign, verify, SignOptions } from 'jsonwebtoken';
 
 @Injectable()
 export class JwtService {
-  private readonly accessSecret =
-    process.env.JWT_ACCESS_SECRET || 'access-secret';
-  private readonly refreshSecret =
-    process.env.JWT_REFRESH_SECRET || 'refresh-secret';
+  private readonly accessSecret = process.env.JWT_ACCESS_SECRET!;
+  private readonly refreshSecret = process.env.JWT_REFRESH_SECRET!;
 
   private readonly accessTokenExpiresIn = '15m';
   private readonly refreshTokenExpiresIn = '7d';
@@ -36,5 +34,4 @@ export class JwtService {
       throw new Error('Invalid or expired refresh token');
     }
   }
-
 }
