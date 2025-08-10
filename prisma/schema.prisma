@@ -14,14 +14,14 @@ model User {
 }
 
 model ContactUs {
-  id       Int      @id @default(autoincrement())
-  name     String
-  email    String
-  phone    String?
-  topic    TopicEnum
-  message  String
-  consent  Boolean
-  createdAt DateTime @default(now())
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String?
+  topic     TopicEnum
+  message   String
+  consent   Boolean
+  createdAt DateTime  @default(now())
 }
 
 enum TopicEnum {
@@ -31,3 +31,28 @@ enum TopicEnum {
   پشتیبانی_فنی
 }
 
+model RequestCollaborate {
+  id              String           @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  roles           String[]
+  experienceYears String?
+  hoursPerWeek    String?
+  expertise       String
+  portfolioUrl    String
+  linkedin        String?
+  githubOrYoutube String?
+  location        String?
+  message         String?
+  acceptTerms     Boolean          @default(false)
+  permission      PermissionStatus @default(pending)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+enum PermissionStatus {
+  pending
+  approved
+  rejected
+}
