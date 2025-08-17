@@ -11,8 +11,6 @@ export class ContactUsService {
       await this.prismaService.contactUs.create({ data: createContactUsDto });
       return { status: 201, messages: 'پیام ارسال شد' };
     } catch (error) {
-      console.log(error);
-      
       return { status: 500, messages: 'اینترنت خود را بررسی کنید' };
     }
   }

@@ -5,8 +5,9 @@ import { RedisModule } from './modules/services/redis/redis.module';
 import { UsersModule } from './modules/http-api/users/users.module';
 import { ContactUsModule } from './modules/http-api/contact-us/contact-us.module';
 import { CollaborateModule } from './modules/http-api/collaborate/collaborate.module';
+import { CoursesModule } from './modules/http-api/courses/courses.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule],
+  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule, CoursesModule],
 })
 export class AppModule {}

@@ -18,4 +18,6 @@ export class CollaborateController {
   create(@Body() dto: CreateCollaborateDto) {
     return this.collaborateService.create(dto);
   }
+
+  
 }

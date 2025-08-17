@@ -8,9 +8,11 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  phone String @unique
-  role  String
+  id         Int          @id @default(autoincrement())
+  phone      String       @unique
+  role       String
+  Enrollment Enrollment[]
+  Like       Like[]
 }
 
 model ContactUs {
@@ -32,7 +34,7 @@ enum TopicEnum {
 }
 
 model RequestCollaborate {
-  id              String           @id @default(cuid())
+  id              Int              @id @default(autoincrement())
   name            String
   email           String
   phone           String?
@@ -55,4 +57,64 @@ enum PermissionStatus {
   pending
   approved
   rejected
+}
+
+//course model /////////////////////////////////////////////////////////////
+
+model Course {
+  id               Int     @id @default(autoincrement())
+  image            String
+  title            String
+  category         String
+  description      String
+  instructor       String
+  instructorAvatar String?
+  duration         Int
+  price            Int
+  originalPrice    Int
+
+  lessons     Lesson[]
+  enrollments Enrollment[]
+  like        Like[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lesson {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String?
+  videoUrl    String
+  duration    Int
+  order       Int
+
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Enrollment {
+  id       Int @id @default(autoincrement())
+  userId   Int
+  courseId Int
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, courseId]) // جلوگیری از ثبت‌نام تکراری
+}
+
+model Like {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
 }
