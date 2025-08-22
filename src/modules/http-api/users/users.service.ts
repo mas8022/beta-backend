@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { parse } from 'cookie';
 import { JwtService } from '../../services/jwt/jwt.service';
+import type { FastifyRequest } from 'fastify';
 
 @Injectable()
 export class UsersService {
@@ -22,5 +23,68 @@ export class UsersService {
     } catch (error) {
       return null;
     }
+  }
+
+  async GetMyProfileData(req: FastifyRequest) {
+    const me = await req.user;
+
+    const data = await this.prismaService.user.findUnique({
+      where: { id: me.id },
+      select: {
+        phone: true,
+        Like: {
+          select: {
+            course: {
+              select: {
+                id: true,
+                category: true,
+                title: true,
+                description: true,
+                author: {
+                  select: {
+                    avatar: true,
+                    name: true,
+                  },
+                },
+                price: true,
+                originalPrice: true,
+              },
+            },
+          },
+        },
+        CourseOrder: {
+          where: { status: 'success' },
+          select: {
+            course: {
+              select: {
+                id: true,
+                category: true,
+                title: true,
+                description: true,
+                author: {
+                  select: {
+                    avatar: true,
+                    name: true,
+                  },
+                },
+                price: true,
+                originalPrice: true,
+              },
+            },
+          },
+        },
+        CourseComment: {
+          include: {
+            course: {
+              select: {
+                title: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return { status: 200, data };
   }
 }
