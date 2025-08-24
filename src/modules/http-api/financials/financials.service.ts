@@ -11,6 +11,7 @@ export class FinancialsService {
   ) {}
 
   async paymentRequest(id: string, req: FastifyRequest) {
+    
     const me = await req.user;
 
     const course = await this.prismaService.course.findUnique({
@@ -24,17 +25,17 @@ export class FinancialsService {
       };
     }
 
-    const existingOrder = await this.prismaService.courseOrder.findFirst({
-      where: {
-        userId: me.id,
-        courseId: course.id,
-        status: 'success',
-      },
-    });
+    // const existingOrder = await this.prismaService.courseOrder.findFirst({
+    //   where: {
+    //     userId: me.id,
+    //     courseId: course.id,
+    //     status: 'success',
+    //   },
+    // });
 
-    if (existingOrder) {
-      throw new ConflictException('شما قبلاً این دوره را سفارش داده‌اید');
-    }
+    // if (!!existingOrder) {
+    //   throw new ConflictException('شما قبلاً این دوره را سفارش داده‌اید');
+    // }
 
     const { success, authority, paymentUrl } =
       await this.zibalService.createPayment(Number(course?.price), me.phone);

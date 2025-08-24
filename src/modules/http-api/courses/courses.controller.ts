@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   Param,
@@ -30,11 +31,11 @@ export class CoursesController {
   }
 
   @Get()
-  findFilteredCourses(
+  findFiltered(
     @Query() query: GetCoursesSearchParamsDto,
     @Headers('cookie') rawCookies: string,
   ) {
-    return this.coursesService.findFilteredCourses(query, rawCookies);
+    return this.coursesService.findFiltered(query, rawCookies);
   }
 
   @Patch('like-toggle')
@@ -46,25 +47,35 @@ export class CoursesController {
   }
 
   @Get(':id')
-  async getCourse(
-    @Param('id') id: string,
-    @Headers('cookie') rawCookie: string,
-  ) {
-    return await this.coursesService.getCourse(id, rawCookie);
+  async getOne(@Param('id') id: string) {
+    return await this.coursesService.getOne(id);
   }
 
   @Get('find-courses-by-searchbar')
-  async findCoursesBySearchBar(@Query('search') search: string) {
-    return this.coursesService.findCoursesBySearchBar(search);
+  async findBySearchBar(@Query('search') search: string) {
+    return this.coursesService.findBySearchBar(search);
   }
 
   @UseGuards(UserGuard)
   @Post('create-course-comment/:courseId')
-  async createCourseComment(
+  async createComment(
     @Param('courseId') courseId: string,
     @Body('text') text: string,
     @Req() req: FastifyRequest,
   ) {
-    return this.coursesService.createCourseComment(courseId, text, req);
+    return this.coursesService.createComment(courseId, text, req);
+  }
+
+  @Delete('delete-course-comment/:commentId')
+  async deleteComment(@Param('commentId') commentId: string) {
+    return this.coursesService.deleteComment(commentId);
+  }
+
+  @Get('get-lessons/:courseId')
+  async getLessons(
+    @Param('courseId') courseId: string,
+    @Headers('cookie') rawCookies: string,
+  ) {
+    return this.coursesService.getLessons(courseId, rawCookies);
   }
 }

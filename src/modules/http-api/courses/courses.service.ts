@@ -107,10 +107,7 @@ export class CoursesService {
     return { status: 201, message: 'create test course successfully' };
   }
 
-  async findFilteredCourses(
-    query: GetCoursesSearchParamsDto,
-    rawCookies: string,
-  ) {
+  async findFiltered(query: GetCoursesSearchParamsDto, rawCookies: string) {
     const me = await this.userService.getMe(rawCookies);
 
     const {
@@ -187,7 +184,6 @@ export class CoursesService {
         _count: {
           select: {
             lessons: true,
-            enrollments: true,
             likes: me
               ? {
                   where: { userId: me.id },
@@ -243,7 +239,7 @@ export class CoursesService {
     });
   }
 
-  async getCourse(courseId: string, rawCookie: string) {
+  async getOne(courseId: string) {
     const course = await this.prismaService.course.findUnique({
       where: { id: Number(courseId) },
       include: {
@@ -252,6 +248,7 @@ export class CoursesService {
             createdAt: true,
             updatedAt: true,
           },
+
           include: {
             _count: {
               select: {
@@ -267,21 +264,42 @@ export class CoursesService {
                 episodes: true,
               },
             },
-            episodes: true,
+            episodes: {
+              omit: {
+                videoUrl: true,
+              },
+            },
           },
         },
         _count: {
           select: {
-            enrollments: true,
             lessons: true,
             likes: true,
+            CourseOrder: {
+              where: {
+                status: 'success',
+              },
+            },
+          },
+        },
+        CourseComment: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                phone: true,
+              },
+            },
+            text: true,
+            createdAt: true,
           },
         },
       },
     });
 
-    const authorStudentsArray = await this.prismaService.enrollment.findMany({
+    const authorStudentsArray = await this.prismaService.courseOrder.findMany({
       where: {
+        status: 'success',
         course: {
           authorId: course?.authorId,
         },
@@ -305,7 +323,7 @@ export class CoursesService {
     };
   }
 
-  async findCoursesBySearchBar(search: string) {
+  async findBySearchBar(search: string) {
     const courses = await this.prismaService.course.findMany({
       where: {
         OR: [
@@ -327,11 +345,7 @@ export class CoursesService {
     return { status: 200, data: courses };
   }
 
-  async createCourseComment(
-    courseId: string,
-    text: string,
-    req: FastifyRequest,
-  ) {
+  async createComment(courseId: string, text: string, req: FastifyRequest) {
     const me = await req.user;
 
     await this.prismaService.courseComment.create({
@@ -343,5 +357,73 @@ export class CoursesService {
     });
 
     return { status: 201, message: 'نظر شما برای بررسی ارسال شد' };
+  }
+
+  async deleteComment(commentId: string) {
+    await this.prismaService.courseComment.delete({
+      where: {
+        id: Number(commentId),
+      },
+    });
+
+    return { status: 200, message: 'نظر شما پاک شد' };
+  }
+
+  async getLessons(courseId: string, rawCookies: string) {
+    const lessons = await this.prismaService.course.findUnique({
+      where: { id: Number(courseId) },
+      select: {
+        lessons: {
+          orderBy: {
+            id: 'asc',
+          },
+          select: {
+            id: true,
+            title: true,
+            duration: true,
+            isFree: true,
+            _count: {
+              select: { episodes: true },
+            },
+            episodes: {
+              orderBy: {
+                id: 'asc',
+              },
+              select: {
+                id: true,
+                title: true,
+                duration: true,
+                description: true,
+                videoUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const me = await this.userService.getMe(rawCookies);
+
+    let isOwn = false;
+    if (me) {
+      let myCoure: any = await this.prismaService.courseOrder.findFirst({
+        where: {
+          userId: me.id,
+          courseId: Number(courseId),
+        },
+      });
+
+      isOwn = !!myCoure;
+    }
+
+    let processedLessons = lessons?.lessons.map((lesson) => ({
+      ...lesson,
+      episodes: lesson.episodes.map((ep) => ({
+        ...ep,
+        videoUrl: lesson.isFree || isOwn ? ep.videoUrl : undefined,
+      })),
+    }));
+
+    return { status: 200, data: { lessons: processedLessons } };
   }
 }

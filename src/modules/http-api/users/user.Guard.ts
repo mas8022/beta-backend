@@ -15,11 +15,11 @@ export class UserGuard implements CanActivate {
 
     const rawCookies = req.headers.cookie;
 
-    if (!rawCookies) throw new UnauthorizedException('ابتدا ثبت نام کنید');
+    if (!rawCookies) throw new UnauthorizedException('ابتدا در ثبت نام کنید');
 
-    const me = this.usersService.getMe(rawCookies);
+    const me = await this.usersService.getMe(rawCookies);
 
-    if (!me) throw new UnauthorizedException('ابتدا ثبت نام کنید');
+    if (!me) throw new UnauthorizedException('ابتدا در ثبت نام کنید');
 
     req.user = me;
 
