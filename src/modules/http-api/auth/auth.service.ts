@@ -69,7 +69,7 @@ export class AuthService {
       user = await this.prismaService.user.create({
         data: {
           phone,
-          role: count === 0 ? 'ADMIN' : 'USER',
+          roles: [count === 0 ? 'MANAGER' : 'USER'],
         },
       });
     }
@@ -78,13 +78,13 @@ export class AuthService {
 
     const refreshToken = this.jwtService.signRefreshToken({
       id: user.id,
-      role: user.role,
+      role: user.roles,
       sessionId,
     });
 
     const accessToken = this.jwtService.signAccessToken({
       id: user.id,
-      role: user.role,
+      role: user.roles,
     });
 
     await this.redisService.set(

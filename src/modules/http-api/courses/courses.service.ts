@@ -3,7 +3,7 @@ import { PrismaService } from 'src/modules/services/prisma/prisma.service';
 import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UsersService } from '../users/users.service';
 import type { FastifyRequest } from 'fastify';
-// import { courseLesseons, courses } from 'staticData';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class CoursesService {
@@ -29,13 +29,23 @@ export class CoursesService {
   // }
 
   async createTestCourse() {
-    const author = await this.prismaService.author.create({
+    const author = await this.prismaService.user.updateManyAndReturn({
+      where: {
+        roles: {
+          has: Role.MANAGER,
+        },
+      },
       data: {
         name: 'Test Author',
         bio: 'This is a sample author for testing purposes.',
         avatar: '/images/modern-workspace-library-ui.png',
+        roles: {
+          push: Role.AUTHOR,
+        },
       },
     });
+
+    console.log('author[0]: ================', author);
 
     await this.prismaService.course.create({
       data: {
@@ -48,7 +58,7 @@ export class CoursesService {
         originalPrice: 150_000,
         requirements: ['Basic Computer Knowledge', 'Internet Connection'],
         whatYouLearn: ['Learn basics', 'Understand core concepts'],
-        authorId: author.id,
+        authorId: author[0].id,
         lessons: {
           create: [
             {
@@ -123,17 +133,14 @@ export class CoursesService {
 
     const where: any = {};
 
-    // جستجو
     if (search) {
       where.title = { contains: search, mode: 'insensitive' };
     }
 
-    // دسته‌بندی
     if (selectedCategory && selectedCategory !== 'all') {
       where.category = selectedCategory;
     }
 
-    // قیمت / رایگان
     if (showFreeOnly === 'true') {
       where.price = 0;
     } else {
@@ -143,7 +150,6 @@ export class CoursesService {
       };
     }
 
-    // مرتب‌سازی
     let orderBy: any = {};
     switch (sortBy) {
       case 'جدیدترین':
@@ -159,7 +165,6 @@ export class CoursesService {
         orderBy = { createdAt: 'desc' };
     }
 
-    // کوئری Prisma
     const courses = await this.prismaService.course.findMany({
       where,
       orderBy,
@@ -189,6 +194,11 @@ export class CoursesService {
                   where: { userId: me.id },
                 }
               : false,
+            CourseOrder: {
+              where: {
+                status: 'success',
+              },
+            },
           },
         },
       },
@@ -206,9 +216,7 @@ export class CoursesService {
 
     const courseIdNum = Number(courseId);
 
-    // اجرای toggle به شکل atomic با transaction
     return await this.prismaService.$transaction(async (prisma) => {
-      // بررسی اینکه آیا قبلاً لایک شده
       const existingLike = await prisma.like.findUnique({
         where: {
           userId_courseId: {
@@ -219,7 +227,6 @@ export class CoursesService {
       });
 
       if (existingLike) {
-        // حذف لایک (dislike)
         await prisma.like.delete({
           where: {
             userId_courseId: {
@@ -230,7 +237,6 @@ export class CoursesService {
         });
         return { status: 200, message: 'لایک حذف شد', like: false };
       } else {
-        // اضافه کردن لایک
         await prisma.like.create({
           data: { userId: me.id, courseId: courseIdNum },
         });
@@ -244,12 +250,11 @@ export class CoursesService {
       where: { id: Number(courseId) },
       include: {
         author: {
-          omit: {
-            createdAt: true,
-            updatedAt: true,
-          },
-
-          include: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+            bio: true,
             _count: {
               select: {
                 courses: true,

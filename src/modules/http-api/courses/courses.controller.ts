@@ -38,7 +38,7 @@ export class CoursesController {
     return this.coursesService.findFiltered(query, rawCookies);
   }
 
-  @Patch('like-toggle')
+  @Patch('toggle-like')
   async toggleLike(
     @Body() { courseId }: { courseId: string },
     @Headers('cookie') rawCookies: string,

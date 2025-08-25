@@ -7,13 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  MANAGER
+  AUTHOR
+}
+
 model User {
-  id            Int             @id @default(autoincrement())
-  phone         String          @unique
-  role          String
+  id    Int    @id @default(autoincrement())
+  phone String @unique
+  roles Role[]
+
+  name   String?
+  bio    String?
+  avatar String?
+
+  courses       Course[]
   Like          Like[]
   CourseOrder   CourseOrder[]
   CourseComment CourseComment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ContactUs {
@@ -62,18 +77,6 @@ enum PermissionStatus {
 
 //course model /////////////////////////////////////////////////////////////
 
-model Author {
-  id     Int     @id @default(autoincrement())
-  name   String
-  bio    String
-  avatar String?
-
-  courses Course[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model Course {
   id            Int      @id @default(autoincrement())
   image         String
@@ -87,7 +90,7 @@ model Course {
   whatYouLearn  String[]
 
   authorId Int
-  author   Author @relation(fields: [authorId], references: [id])
+  author   User @relation(fields: [authorId], references: [id])
 
   lessons Lesson[]
   likes   Like[]
