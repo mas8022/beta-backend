@@ -78,12 +78,13 @@ enum PermissionStatus {
 //course model /////////////////////////////////////////////////////////////
 
 model Course {
-  id            Int      @id @default(autoincrement())
+  id            Int              @id @default(autoincrement())
+  status        CourseStatusEnum @default(creating)
   image         String
   title         String
   category      String
   description   String
-  duration      Int      @default(0)
+  duration      Int              @default(0)
   price         Int
   originalPrice Int
   requirements  String[]
@@ -99,6 +100,12 @@ model Course {
   updatedAt     DateTime        @updatedAt
   CourseOrder   CourseOrder[]
   CourseComment CourseComment[]
+}
+
+enum CourseStatusEnum {
+  creating
+  waiting
+  publish
 }
 
 model Lesson {
@@ -158,8 +165,9 @@ model CourseOrder {
 }
 
 model CourseComment {
-  id   Int    @id @default(autoincrement())
-  text String
+  id     Int                     @id @default(autoincrement())
+  status CourseCommentStatusEnum @default(pending)
+  text   String
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
@@ -167,5 +175,13 @@ model CourseComment {
   courseId Int
   course   Course @relation(fields: [courseId], references: [id])
 
+  reply String? @default("")
+
   createdAt DateTime @default(now())
+}
+
+enum CourseCommentStatusEnum {
+  pending
+  rejected
+  confirm
 }

@@ -29,81 +29,63 @@ export class CoursesService {
   // }
 
   async createTestCourse() {
-    const author = await this.prismaService.user.updateManyAndReturn({
-      where: {
-        roles: {
-          has: Role.MANAGER,
-        },
-      },
-      data: {
-        name: 'Test Author',
-        bio: 'This is a sample author for testing purposes.',
-        avatar: '/images/modern-workspace-library-ui.png',
-        roles: {
-          push: Role.AUTHOR,
-        },
-      },
-    });
-
-    console.log('author[0]: ================', author);
-
     await this.prismaService.course.create({
       data: {
-        title: 'Sample Course',
-        image: '/images/modern-workspace-library-ui.png',
-        category: 'فناوری',
-        description: 'A sample course with lessons and episodes.',
-        duration: 120,
-        price: 100_000,
-        originalPrice: 150_000,
-        requirements: ['Basic Computer Knowledge', 'Internet Connection'],
-        whatYouLearn: ['Learn basics', 'Understand core concepts'],
-        authorId: author[0].id,
+        title: 'مهارت‌های زندگی روزمره',
+        image: '/images/lifestyle-course-banner.png',
+        category: 'سبک زندگی',
+        description:
+          'یک دوره کاربردی برای بهبود زندگی روزمره، مدیریت زمان و افزایش بهره‌وری شخصی.',
+        duration: 100,
+        price: 180_000,
+        originalPrice: 300_000,
+        requirements: ['علاقه به رشد فردی', 'تمایل به یادگیری مهارت‌های عملی'],
+        whatYouLearn: [
+          'مدیریت زمان و برنامه‌ریزی',
+          'بهبود عادات روزانه',
+          'تکنیک‌های افزایش بهره‌وری',
+          'روش‌های ساده برای آرامش ذهنی',
+        ],
+        authorId: 1,
         lessons: {
           create: [
             {
-              title: 'Lesson 1',
-              duration: 60,
+              title: 'مقدمه‌ای بر سبک زندگی سالم',
+              duration: 40,
               order: 1,
               episodes: {
                 create: [
                   {
-                    title: 'Episode 1.1',
+                    title: 'اصول زندگی متعادل',
                     duration: 15,
-                    description: 'Intro to Lesson 1',
+                    description: 'آشنایی با اصول حفظ تعادل در زندگی روزمره',
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
                   },
                   {
-                    title: 'Episode 1.2',
-                    duration: 20,
-                    description: 'Deep dive Lesson 1',
+                    title: 'مدیریت استرس و آرامش ذهن',
+                    duration: 25,
+                    description: 'تمرین تکنیک‌های ساده برای کاهش استرس',
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
                   },
                 ],
               },
             },
             {
-              title: 'Lesson 2',
+              title: 'بهبود عادات و بهره‌وری',
               duration: 60,
               order: 2,
               episodes: {
                 create: [
                   {
-                    title: 'Episode 2.1',
-                    duration: 25,
-                    description: 'Intro to Lesson 2',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                  },
-                  {
-                    title: 'Episode 2.2',
+                    title: 'عادت‌های روزانه موثر',
                     duration: 30,
-                    description: 'Deep dive Lesson 2',
+                    description: 'روش‌های ایجاد عادت‌های مثبت در زندگی',
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
                   },
                   {
-                    title: 'Episode 2.3',
-                    duration: 10,
-                    description: 'Wrap up Lesson 2',
+                    title: 'افزایش بهره‌وری شخصی',
+                    duration: 30,
+                    description: 'تکنیک‌های عملی برای انجام بهتر کارها',
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
                   },
                 ],
@@ -288,6 +270,7 @@ export class CoursesService {
           },
         },
         CourseComment: {
+          where: { status: 'confirm' },
           select: {
             id: true,
             user: {
@@ -296,8 +279,10 @@ export class CoursesService {
               },
             },
             text: true,
+            reply: true,
             createdAt: true,
           },
+          take: 10,
         },
       },
     });

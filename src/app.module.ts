@@ -8,8 +8,9 @@ import { CollaborateModule } from './modules/http-api/collaborate/collaborate.mo
 import { CoursesModule } from './modules/http-api/courses/courses.module';
 import { FinancialsModule } from './modules/http-api/financials/financials.module';
 import { ZibalModule } from './modules/services/zibal/zibal.module';
+import { AuthorsModule } from './modules/http-api/authors/authors.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule, CoursesModule, FinancialsModule, ZibalModule],
+  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule, CoursesModule, FinancialsModule, ZibalModule, AuthorsModule],
 })
 export class AppModule {}

@@ -350,3 +350,141 @@ export const courseLesseons = [
     courseId: 12,
   },
 ];
+
+export const newCourses = [
+  {
+    title: 'Next.js Mastery',
+    image: '/images/nextjs-course-banner.png',
+    category: 'فناوری',
+    description:
+      'دوره‌ای کامل برای یادگیری Next.js از پایه تا پیشرفته همراه با پروژه‌های واقعی.',
+    duration: 180,
+    price: 200_000,
+    originalPrice: 300_000,
+    requirements: ['آشنایی مقدماتی با جاوااسکریپت', 'نصب Node.js و npm'],
+    whatYouLearn: [
+      'یادگیری ساختار App Router',
+      'مدیریت داده با Prisma و MongoDB',
+      'پیاده‌سازی احراز هویت',
+      'بهینه‌سازی SEO در Next.js',
+    ],
+    authorId: 1,
+    lessons: {
+      create: [
+        {
+          title: 'شروع کار با Next.js',
+          duration: 90,
+          order: 1,
+          episodes: {
+            create: [
+              {
+                title: 'معرفی دوره و Next.js',
+                duration: 10,
+                description: 'آشنایی با ویژگی‌ها و امکانات Next.js',
+                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+              },
+              {
+                title: 'راه‌اندازی محیط توسعه',
+                duration: 20,
+                description: 'نصب و راه‌اندازی اولیه پروژه Next.js',
+                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+              },
+              {
+                title: 'ساخت اولین صفحه',
+                duration: 15,
+                description: 'ایجاد یک صفحه ساده در Next.js',
+                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+              },
+            ],
+          },
+        },
+        {
+          title: 'کار با App Router و دیتابیس',
+          duration: 90,
+          order: 2,
+          episodes: {
+            create: [
+              {
+                title: 'مفهوم App Router',
+                duration: 25,
+                description: 'بررسی ساختار App Router در Next.js 14',
+                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+              },
+              {
+                title: 'اتصال به MongoDB با Prisma',
+                duration: 30,
+                description:
+                  'نحوه اتصال پروژه Next.js به دیتابیس MongoDB با Prisma',
+                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+              },
+              {
+                title: 'پیاده‌سازی CRUD',
+                duration: 35,
+                description: 'ساخت API و مدیریت عملیات CRUD با App Router',
+                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+  {
+    title: 'React Advanced',
+    image: '/images/react-course-banner.png',
+    category: 'Front-End',
+    description: 'دوره پیشرفته React همراه با پروژه واقعی و مفاهیم عمیق‌تر.',
+    duration: 150,
+    price: 180_000,
+    originalPrice: 250_000,
+    requirements: ['JS ES6', 'React Basics'],
+    whatYouLearn: ['Hooks پیشرفته', 'Context API', 'Redux Toolkit'],
+    authorId: 1,
+    lessons: {
+      create: [
+        {
+          title: 'مرور مبانی React',
+          duration: 60,
+          order: 1,
+          episodes: {
+            create: [
+              {
+                title: 'JSX و Virtual DOM',
+                duration: 20,
+                description: 'یادآوری پایه‌های React',
+                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+              },
+              {
+                title: 'کامپوننت‌های فانکشنال',
+                duration: 25,
+                description: 'ساختار و مزایای کامپوننت فانکشنال',
+                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+              },
+            ],
+          },
+        },
+        {
+          title: 'State Management',
+          duration: 90,
+          order: 2,
+          episodes: {
+            create: [
+              {
+                title: 'Context API',
+                duration: 30,
+                description: 'مدیریت state بدون Redux',
+                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+              },
+              {
+                title: 'Redux Toolkit',
+                duration: 40,
+                description: 'مدیریت state در پروژه‌های بزرگ',
+                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+];

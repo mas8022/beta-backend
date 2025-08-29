@@ -69,7 +69,7 @@ export class AuthService {
       user = await this.prismaService.user.create({
         data: {
           phone,
-          roles: [count === 0 ? 'MANAGER' : 'USER'],
+          roles: count === 0 ? ['MANAGER', 'USER'] : ['USER'],
         },
       });
     }

@@ -32,6 +32,7 @@ export class UsersService {
       where: { id: me.id },
       select: {
         phone: true,
+        roles: true,
         Like: {
           select: {
             course: {
