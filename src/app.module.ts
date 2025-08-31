@@ -9,8 +9,9 @@ import { CoursesModule } from './modules/http-api/courses/courses.module';
 import { FinancialsModule } from './modules/http-api/financials/financials.module';
 import { ZibalModule } from './modules/services/zibal/zibal.module';
 import { AuthorsModule } from './modules/http-api/authors/authors.module';
+import { PocketModule } from './modules/services/pocket/pocket.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule, CoursesModule, FinancialsModule, ZibalModule, AuthorsModule],
+  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule, CoursesModule, FinancialsModule, ZibalModule, AuthorsModule, PocketModule],
 })
 export class AppModule {}

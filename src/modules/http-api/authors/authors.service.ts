@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
+import { PocketService } from 'src/modules/services/pocket/pocket.service';
 import { PrismaService } from 'src/modules/services/prisma/prisma.service';
 
 @Injectable()
 export class AuthorsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly pocketServic: PocketService,
+  ) {}
 
   async getAuthorProfile(req: FastifyRequest) {
     const { id } = await req.author;
@@ -58,16 +62,28 @@ export class AuthorsService {
     };
   }
 
-  async editProfile(req: FastifyRequest, body: any) {
+  async editProfile(files: any, { name, bio }: any, req: FastifyRequest) {
     const author = await req.author;
 
+    let avatarAddress: string | null = null;
+    if (files?.avatar?.[0]) {
+      avatarAddress = await this.pocketServic.uploadFile(files.avatar[0]);
+    }
+
+    const updateData: any = {
+      name,
+      bio,
+    };
+
+    if (avatarAddress) {
+      updateData.avatar = avatarAddress;
+    }
+
     await this.prismaService.user.update({
-      where: { id: Number(author.id) },
-      data: {
-        name: body.name,
-        bio: body.bio,
-        avatar: body.avatar,
+      where: {
+        id: author.id,
       },
+      data: updateData,
     });
 
     return {

@@ -22,7 +22,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.879.0",
+    "@blazity/nest-file-fastify": "^1.0.0",
     "@fastify/cookie": "^11.0.2",
+    "@fastify/multipart": "^9.0.3",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "*",
@@ -38,7 +41,8 @@
     "jsonwebtoken": "^9.0.2",
     "prisma": "^6.13.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.2",
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

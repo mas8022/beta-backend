@@ -7,10 +7,15 @@ import {
   Put,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthorsService } from './authors.service';
 import { AuthorGuard } from './author.Guard';
 import type { FastifyRequest } from 'fastify';
+import {
+  FileFieldsInterceptor,
+  UploadedFiles,
+} from '@blazity/nest-file-fastify';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -22,9 +27,14 @@ export class AuthorsController {
     return await this.authorsService.getAuthorProfile(req);
   }
 
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'avatar', maxCount: 1 }]))
   @Put('edit-profile')
-  async editProfile(@Body() body: any, @Req() req: FastifyRequest) {
-    return await this.authorsService.editProfile(req, body);
+  async editProfile(
+    @UploadedFiles() files: any,
+    @Body() body: any,
+    @Req() req: FastifyRequest,
+  ) {
+    return this.authorsService.editProfile(files, body, req);
   }
 
   @Get('author-comments')
@@ -42,7 +52,10 @@ export class AuthorsController {
     return await this.authorsService.rejectComment(commentId);
   }
   @Patch('reply-comment/:commentId')
-  async replyComment(@Param('commentId') commentId: string, @Body("replyText") replyText: string) {
+  async replyComment(
+    @Param('commentId') commentId: string,
+    @Body('replyText') replyText: string,
+  ) {
     return await this.authorsService.replyComment(commentId, replyText);
   }
 }

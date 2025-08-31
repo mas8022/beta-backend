@@ -5,6 +5,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import fastifyCookie from '@fastify/cookie';
+import multipart from '@fastify/multipart';
 
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter();
@@ -12,6 +13,8 @@ async function bootstrap() {
   await fastifyAdapter.register(fastifyCookie, {
     secret: process.env.FASTIFY_COOKIE_SECRET,
   });
+
+  await fastifyAdapter.register(multipart)
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
