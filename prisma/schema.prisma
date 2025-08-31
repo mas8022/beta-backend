@@ -116,7 +116,7 @@ model Lesson {
   isFree   Boolean @default(false)
 
   courseId Int
-  course   Course @relation(fields: [courseId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   episodes Episode[]
 
@@ -132,7 +132,7 @@ model Episode {
   videoUrl    String
 
   lessonId Int
-  lesson   Lesson @relation(fields: [lessonId], references: [id])
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -173,7 +173,7 @@ model CourseComment {
   user   User @relation(fields: [userId], references: [id])
 
   courseId Int
-  course   Course @relation(fields: [courseId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   reply String? @default("")
 

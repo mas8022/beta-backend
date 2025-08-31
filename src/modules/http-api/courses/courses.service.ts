@@ -113,7 +113,7 @@ export class CoursesService {
       take,
     } = query;
 
-    const where: any = {};
+    const where: any = { status: 'publish' };
 
     if (search) {
       where.title = { contains: search, mode: 'insensitive' };

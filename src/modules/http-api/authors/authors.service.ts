@@ -165,4 +165,45 @@ export class AuthorsService {
       message: 'پاسخ ارسال شد',
     };
   }
+
+  async getAuthorCourses(req: FastifyRequest) {
+    const { id } = await req.author;
+
+    const courses = await this.prismaService.course.findMany({
+      where: {
+        authorId: id,
+      },
+      omit: {
+        requirements: true,
+        whatYouLearn: true,
+      },
+      include: {
+        _count: {
+          select: {
+            lessons: true,
+            CourseOrder: {
+              where: {
+                status: 'success',
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      status: 200,
+      data: courses,
+    };
+  }
+
+  async deleteCourse(courseId: string) {
+    await this.prismaService.course.delete({
+      where: {
+        id: Number(courseId),
+      },
+    });
+
+    return { status: 200, message: 'با موفقیت دوره حذف شد' };
+  }
 }

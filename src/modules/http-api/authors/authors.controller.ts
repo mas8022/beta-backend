@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -57,5 +58,16 @@ export class AuthorsController {
     @Body('replyText') replyText: string,
   ) {
     return await this.authorsService.replyComment(commentId, replyText);
+  }
+
+  @Get('author-courses')
+  async getAuthorCourses(@Req() req: FastifyRequest) {
+    return await this.authorsService.getAuthorCourses(req);
+  }
+
+  @Delete('delete-course/:courseId')
+  async deleteCourse(@Param('courseId') courseId: string) {
+
+    return await this.authorsService.deleteCourse(courseId);
   }
 }
