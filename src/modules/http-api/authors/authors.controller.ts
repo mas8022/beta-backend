@@ -17,6 +17,8 @@ import {
   FileFieldsInterceptor,
   UploadedFiles,
 } from '@blazity/nest-file-fastify';
+import { EditCourseDto } from './dto/edit-course.dto';
+import { EditLessonsAndEpisodesOrderDto } from './dto/edit-lessons-and-episodes-order.dto';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -67,7 +69,31 @@ export class AuthorsController {
 
   @Delete('delete-course/:courseId')
   async deleteCourse(@Param('courseId') courseId: string) {
-
     return await this.authorsService.deleteCourse(courseId);
+  }
+
+  @Get('over-view-course/:courseId')
+  async getOverViewCourse(@Param('courseId') courseId: string) {
+    return this.authorsService.getOverViewCourse(courseId);
+  }
+
+  @Put('edit-course/:courseId')
+  async editCourse(
+    @Param('courseId') courseId: string,
+    @Body() body: EditCourseDto,
+  ) {
+    return this.authorsService.editCourse(courseId, body);
+  }
+
+  @Get('course-lessons/:courseId')
+  async getCourseLessons(@Param('courseId') courseId: string) {
+    return this.authorsService.getCourseLessons(courseId);
+  }
+
+  @Put('edit-lessons-and-episodes-order')
+  async editLessonsAndEpisodesOrders(
+    @Body() lessons: EditLessonsAndEpisodesOrderDto[],
+  ) {
+    return await this.authorsService.editLessonsAndEpisodesOrder(lessons);
   }
 }

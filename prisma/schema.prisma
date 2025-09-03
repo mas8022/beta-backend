@@ -128,6 +128,7 @@ model Episode {
   id          Int     @id @default(autoincrement())
   title       String
   duration    Int     @default(0)
+  order       Int
   description String?
   videoUrl    String
 

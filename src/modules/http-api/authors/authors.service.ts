@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { PocketService } from 'src/modules/services/pocket/pocket.service';
 import { PrismaService } from 'src/modules/services/prisma/prisma.service';
+import { EditCourseDto } from './dto/edit-course.dto';
+import { EditLessonsAndEpisodesOrderDto } from './dto/edit-lessons-and-episodes-order.dto';
 
 @Injectable()
 export class AuthorsService {
@@ -205,5 +207,94 @@ export class AuthorsService {
     });
 
     return { status: 200, message: 'با موفقیت دوره حذف شد' };
+  }
+
+  async getOverViewCourse(courseId: string) {
+    const cousre = await this.prismaService.course.findUnique({
+      where: {
+        id: Number(courseId),
+      },
+
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        description: true,
+        price: true,
+        originalPrice: true,
+        requirements: true,
+        whatYouLearn: true,
+      },
+    });
+
+    return { status: 200, data: cousre };
+  }
+
+  async editCourse(courseId: string, body: EditCourseDto) {
+    const {
+      title,
+      description,
+      category,
+      originalPrice,
+      price,
+      requirements,
+      whatYouLearn,
+    } = body;
+
+    await this.prismaService.course.update({
+      where: {
+        id: Number(courseId),
+      },
+      data: {
+        title,
+        description,
+        category,
+        originalPrice,
+        price,
+        requirements,
+        whatYouLearn,
+        status: 'waiting',
+      },
+    });
+
+    return { status: 200, message: 'با موفقیت ویرایش شد' };
+  }
+
+  async getCourseLessons(courseId: string) {
+    const lessons = await this.prismaService.course.findUnique({
+      where: {
+        id: Number(courseId),
+      },
+
+      select: {
+        id: true,
+        lessons: {
+          include: {
+            episodes: true,
+          },
+        },
+      },
+    });
+
+    return { status: 200, data: lessons };
+  }
+  async editLessonsAndEpisodesOrder(lessons: EditLessonsAndEpisodesOrderDto[]) {
+    await this.prismaService.$transaction(
+      lessons.flatMap((lesson) => [
+        this.prismaService.lesson.update({
+          where: { id: lesson.id },
+          data: { order: lesson.order },
+        }),
+
+        ...(lesson.episodes?.map((ep) =>
+          this.prismaService.episode.update({
+            where: { id: ep.id },
+            data: { order: ep.order },
+          }),
+        ) ?? []),
+      ]),
+    );
+
+    return { status: 200, message: 'باموفقیت ترتیب عوض شد' };
   }
 }

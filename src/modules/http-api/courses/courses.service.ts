@@ -58,12 +58,14 @@ export class CoursesService {
                   {
                     title: 'اصول زندگی متعادل',
                     duration: 15,
+                    order: 1,
                     description: 'آشنایی با اصول حفظ تعادل در زندگی روزمره',
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
                   },
                   {
                     title: 'مدیریت استرس و آرامش ذهن',
                     duration: 25,
+                    order: 2,
                     description: 'تمرین تکنیک‌های ساده برای کاهش استرس',
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
                   },
@@ -79,12 +81,14 @@ export class CoursesService {
                   {
                     title: 'عادت‌های روزانه موثر',
                     duration: 30,
+                    order: 1,
                     description: 'روش‌های ایجاد عادت‌های مثبت در زندگی',
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
                   },
                   {
                     title: 'افزایش بهره‌وری شخصی',
                     duration: 30,
+                    order: 2,
                     description: 'تکنیک‌های عملی برای انجام بهتر کارها',
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
                   },
