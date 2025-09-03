@@ -73,9 +73,40 @@ export class CoursesService {
               },
             },
             {
+              title: 'مهارت‌های ارتباطی مؤثر',
+              duration: 50,
+              order: 2, // اینو وسط اضافه کردم
+              episodes: {
+                create: [
+                  {
+                    title: 'گوش دادن فعال',
+                    duration: 15,
+                    order: 1,
+                    description:
+                      'یادگیری تکنیک‌های گوش دادن فعال برای ارتباط بهتر',
+                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  },
+                  {
+                    title: 'ارتباط غیرکلامی',
+                    duration: 20,
+                    order: 2,
+                    description: 'درک زبان بدن و نشانه‌های غیرکلامی در گفتگوها',
+                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  },
+                  {
+                    title: 'حل تعارض‌ها',
+                    duration: 15,
+                    order: 3,
+                    description: 'روش‌های ساده برای حل تعارض‌های روزمره',
+                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  },
+                ],
+              },
+            },
+            {
               title: 'بهبود عادات و بهره‌وری',
               duration: 60,
-              order: 2,
+              order: 3,
               episodes: {
                 create: [
                   {
@@ -90,6 +121,13 @@ export class CoursesService {
                     duration: 30,
                     order: 2,
                     description: 'تکنیک‌های عملی برای انجام بهتر کارها',
+                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  },
+                  {
+                    title: 'افزایش بهره‌وری',
+                    duration: 20,
+                    order: 3,
+                    description: 'تکنیک‌های عملی برای انجام بهتر',
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
                   },
                 ],

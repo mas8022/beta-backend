@@ -270,7 +270,14 @@ export class AuthorsService {
         id: true,
         lessons: {
           include: {
-            episodes: true,
+            episodes: {
+              orderBy: {
+                order: 'asc',
+              },
+            },
+          },
+          orderBy: {
+            order: 'asc',
           },
         },
       },
@@ -278,6 +285,7 @@ export class AuthorsService {
 
     return { status: 200, data: lessons };
   }
+
   async editLessonsAndEpisodesOrder(lessons: EditLessonsAndEpisodesOrderDto[]) {
     await this.prismaService.$transaction(
       lessons.flatMap((lesson) => [
@@ -285,7 +293,6 @@ export class AuthorsService {
           where: { id: lesson.id },
           data: { order: lesson.order },
         }),
-
         ...(lesson.episodes?.map((ep) =>
           this.prismaService.episode.update({
             where: { id: ep.id },
