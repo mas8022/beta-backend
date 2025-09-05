@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Put,
   Req,
   UseGuards,
@@ -19,6 +20,9 @@ import {
 } from '@blazity/nest-file-fastify';
 import { EditCourseDto } from './dto/edit-course.dto';
 import { EditLessonsAndEpisodesOrderDto } from './dto/edit-lessons-and-episodes-order.dto';
+import { CreateLessonDto } from './dto/create-lesson.dto';
+import { CreateEpisodeDto } from './dto/create-episode.dto';
+import { EditLessonDto } from './dto/edit-lesson.dto';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -95,5 +99,36 @@ export class AuthorsController {
     @Body() lessons: EditLessonsAndEpisodesOrderDto[],
   ) {
     return await this.authorsService.editLessonsAndEpisodesOrder(lessons);
+  }
+
+  @Post('create-lesson/:courseId')
+  async createLesson(
+    @Param('courseId') courseId: string,
+    @Body() body: CreateLessonDto,
+  ) {
+    return await this.authorsService.createLesson(courseId, body);
+  }
+
+  @Delete('delete-lesson/:lessonId')
+  async deleteLesson(@Param('lessonId') lessonId: string) {
+    return await this.authorsService.deleteLesson(lessonId);
+  }
+
+  @Put('edit-lesson/:lessonId')
+  async editLesson(
+    @Param('lessonId') lessonId: string,
+    @Body() editLessonDto: EditLessonDto,
+  ) {
+    return await this.authorsService.editLesson(lessonId, editLessonDto);
+  }
+
+  @Post('create-episode/:lessonId')
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'video', maxCount: 1 }]))
+  async createEpisode(
+    @Param('lessonId') lessonId: string,
+    @UploadedFiles() files: any,
+    @Body() body: CreateEpisodeDto,
+  ) {
+    return await this.authorsService.createEpisode(lessonId, files, body);
   }
 }

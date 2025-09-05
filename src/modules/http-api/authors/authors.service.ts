@@ -4,6 +4,10 @@ import { PocketService } from 'src/modules/services/pocket/pocket.service';
 import { PrismaService } from 'src/modules/services/prisma/prisma.service';
 import { EditCourseDto } from './dto/edit-course.dto';
 import { EditLessonsAndEpisodesOrderDto } from './dto/edit-lessons-and-episodes-order.dto';
+import { CreateLessonDto } from './dto/create-lesson.dto';
+import { CreateEpisodeDto } from './dto/create-episode.dto';
+import { getVideoDurationInSeconds } from 'get-video-duration';
+import { EditLessonDto } from './dto/edit-lesson.dto';
 
 @Injectable()
 export class AuthorsService {
@@ -303,5 +307,83 @@ export class AuthorsService {
     );
 
     return { status: 200, message: 'باموفقیت ترتیب عوض شد' };
+  }
+
+  async createLesson(courseId: string, body: CreateLessonDto) {
+    const { title, isFree } = body;
+
+    let lastOrder = await this.prismaService.lesson.count({
+      where: {
+        courseId: Number(courseId),
+      },
+    });
+
+    await this.prismaService.lesson.create({
+      data: {
+        courseId: Number(courseId),
+        title,
+        isFree,
+        order: lastOrder + 1,
+      },
+    });
+
+    return { status: 201, message: 'فصل با موفقیت ایجاد شد' };
+  }
+
+  async deleteLesson(lessonId: string) {
+    await this.prismaService.lesson.delete({
+      where: {
+        id: Number(lessonId),
+      },
+    });
+
+    return { status: 201, message: 'فصل با موفقیت حذف شد' };
+  }
+
+  async editLesson(lessonId: string, editLessonDto: EditLessonDto) {
+    const { title, isFree } = editLessonDto;
+
+    await this.prismaService.lesson.update({
+      where: {
+        id: Number(lessonId),
+      },
+      data: {
+        title,
+        isFree,
+      },
+    });
+
+    return { status: 201, message: 'فصل با موفقیت ویرایش شد' };
+  }
+
+  async createEpisode(lessonId: string, files: any, body: CreateEpisodeDto) {
+    const { title, description } = body;
+
+    const lastOrder = await this.prismaService.episode.count({
+      where: {
+        lessonId: Number(lessonId),
+      },
+    });
+
+    const videoAddress: any = await this.pocketServic.uploadFile(
+      files.video[0],
+    );
+
+    const duration = await getVideoDurationInSeconds(videoAddress).then(
+      (result) => Math.round(result),
+    );
+
+    await this.prismaService.episode.create({
+      data: {
+        lessonId: Number(lessonId),
+        title,
+        order: lastOrder + 1,
+        videoUrl: videoAddress,
+        description,
+        duration,
+      },
+    });
+
+    return { status: 201, message: 'درس با موفقیت ایجاد شد' };
   }
 }

@@ -111,7 +111,7 @@ enum CourseStatusEnum {
 model Lesson {
   id       Int     @id @default(autoincrement())
   title    String
-  duration Int
+  duration Int     @default(0)
   order    Int
   isFree   Boolean @default(false)
 
