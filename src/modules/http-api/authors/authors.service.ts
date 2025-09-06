@@ -5,9 +5,10 @@ import { PrismaService } from 'src/modules/services/prisma/prisma.service';
 import { EditCourseDto } from './dto/edit-course.dto';
 import { EditLessonsAndEpisodesOrderDto } from './dto/edit-lessons-and-episodes-order.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
-import { CreateEpisodeDto } from './dto/create-episode.dto';
 import { getVideoDurationInSeconds } from 'get-video-duration';
 import { EditLessonDto } from './dto/edit-lesson.dto';
+import { EpisodeDto } from './dto/episode.dto';
+import { CreateCourseDto } from './dto/create-course.dto';
 
 @Injectable()
 export class AuthorsService {
@@ -73,7 +74,9 @@ export class AuthorsService {
 
     let avatarAddress: string | null = null;
     if (files?.avatar?.[0]) {
-      avatarAddress = await this.pocketServic.uploadFile(files.avatar[0]);
+      avatarAddress = await this.pocketServic.uploadFile(files.avatar[0], [
+        'image',
+      ]);
     }
 
     const updateData: any = {
@@ -203,6 +206,35 @@ export class AuthorsService {
     };
   }
 
+  async createCourse(
+    files: any,
+    createCourseDto: CreateCourseDto,
+    req: FastifyRequest,
+  ) {
+    const { category, title, description } = createCourseDto;
+
+    const author = await req.author;
+
+    const imageAddress: any = await this.pocketServic.uploadFile(
+      files.image[0],
+      ['image'],
+    );
+
+    await this.prismaService.course.create({
+      data: {
+        authorId: author.id,
+        category,
+        title,
+        description,
+        image: imageAddress,
+        price: 0,
+        originalPrice: 0,
+      },
+    });
+
+    return { status: 201, message: 'دوره با موفقیت ایجاد شد' };
+  }
+
   async deleteCourse(courseId: string) {
     await this.prismaService.course.delete({
       where: {
@@ -221,6 +253,7 @@ export class AuthorsService {
 
       select: {
         id: true,
+        image: true,
         title: true,
         category: true,
         description: true,
@@ -234,7 +267,7 @@ export class AuthorsService {
     return { status: 200, data: cousre };
   }
 
-  async editCourse(courseId: string, body: EditCourseDto) {
+  async editCourse(courseId: string, files: any, body: EditCourseDto) {
     const {
       title,
       description,
@@ -245,20 +278,39 @@ export class AuthorsService {
       whatYouLearn,
     } = body;
 
+    let imageAddress: string | null = null;
+    if (files?.image?.[0]) {
+      imageAddress = await this.pocketServic.uploadFile(files.image[0], [
+        'image',
+      ]);
+    }
+
+    const course = await this.prismaService.course.findUnique({
+      where: {
+        id: Number(courseId),
+      },
+      select: {
+        image: true,
+      },
+    });
+
+    const updateData: any = {
+      title,
+      description,
+      category,
+      originalPrice,
+      price,
+      requirements,
+      whatYouLearn,
+      status: 'waiting',
+      image: imageAddress ?? course?.image,
+    };
+
     await this.prismaService.course.update({
       where: {
         id: Number(courseId),
       },
-      data: {
-        title,
-        description,
-        category,
-        originalPrice,
-        price,
-        requirements,
-        whatYouLearn,
-        status: 'waiting',
-      },
+      data: updateData,
     });
 
     return { status: 200, message: 'با موفقیت ویرایش شد' };
@@ -337,7 +389,7 @@ export class AuthorsService {
       },
     });
 
-    return { status: 201, message: 'فصل با موفقیت حذف شد' };
+    return { status: 200, message: 'فصل با موفقیت حذف شد' };
   }
 
   async editLesson(lessonId: string, editLessonDto: EditLessonDto) {
@@ -356,7 +408,7 @@ export class AuthorsService {
     return { status: 201, message: 'فصل با موفقیت ویرایش شد' };
   }
 
-  async createEpisode(lessonId: string, files: any, body: CreateEpisodeDto) {
+  async createEpisode(lessonId: string, files: any, body: EpisodeDto) {
     const { title, description } = body;
 
     const lastOrder = await this.prismaService.episode.count({
@@ -365,9 +417,14 @@ export class AuthorsService {
       },
     });
 
+    console.log('==================== ', files.video[0]);
+
     const videoAddress: any = await this.pocketServic.uploadFile(
       files.video[0],
+      ['video'],
     );
+
+    console.log('==================== ', videoAddress);
 
     const duration = await getVideoDurationInSeconds(videoAddress).then(
       (result) => Math.round(result),
@@ -385,5 +442,52 @@ export class AuthorsService {
     });
 
     return { status: 201, message: 'درس با موفقیت ایجاد شد' };
+  }
+
+  async deleteEpisode(episodeId: string) {
+    await this.prismaService.episode.delete({
+      where: {
+        id: Number(episodeId),
+      },
+    });
+
+    return { status: 200, message: 'درس با موفقیت حذف شد' };
+  }
+
+  async editEpisode(
+    episodeId: string,
+    editEpisodeDto: EpisodeDto,
+    files?: any,
+  ) {
+    const { title, description } = editEpisodeDto;
+
+    const oldEpisode = await this.prismaService.episode.findUnique({
+      where: { id: Number(episodeId) },
+    });
+
+    if (!oldEpisode) {
+      return { status: 404, message: 'اپیزود یافت نشد' };
+    }
+
+    let videoUrl: any = oldEpisode.videoUrl;
+    let duration: any = oldEpisode.duration;
+    if (files?.video?.[0]) {
+      videoUrl = await this.pocketServic.uploadFile(files.video[0], ['video']);
+      duration = await getVideoDurationInSeconds(videoUrl).then((res) =>
+        Math.round(res),
+      );
+    }
+
+    await this.prismaService.episode.update({
+      where: { id: Number(episodeId) },
+      data: {
+        title,
+        description,
+        videoUrl,
+        duration,
+      },
+    });
+
+    return { status: 201, message: 'اپیزود با موفقیت ویرایش شد' };
   }
 }

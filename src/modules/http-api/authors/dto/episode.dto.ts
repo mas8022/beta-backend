@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
-export class CreateEpisodeDto {
+export class EpisodeDto {
   @IsString()
   @IsNotEmpty()
   title!: string;

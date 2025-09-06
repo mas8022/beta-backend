@@ -1,48 +1,69 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
+import * as path from 'path';
+import * as crypto from 'crypto';
+import * as mime from 'mime-types';
 
 @Injectable()
 export class PocketService {
   private s3: S3Client;
 
   constructor() {
-    const accessKey = process.env.LIARA_ACCESS_KEY;
-    const secretKey = process.env.LIARA_SECRET_KEY;
-
-    if (!accessKey || !secretKey) {
-      throw new Error('Liara credentials are not set in environment variables');
-    }
-
     this.s3 = new S3Client({
-      region: 'default',
+      region: 'us-east-1',
       endpoint: process.env.LIARA_ENDPOINT,
+      forcePathStyle: true,
       credentials: {
-        accessKeyId: accessKey,
-        secretAccessKey: secretKey,
+        accessKeyId: process.env.LIARA_ACCESS_KEY!,
+        secretAccessKey: process.env.LIARA_SECRET_KEY!,
       },
     });
   }
 
-  async uploadFile(file: any): Promise<string | null> {
+  async uploadFile(
+    file: any,
+    allowedTypes: ('image' | 'video')[] = ['image', 'video'],
+  ): Promise<string | null> {
     if (!file) return null;
 
-    const fileName = Date.now() + '_' + crypto.randomUUID();
-    const buffer = file.buffer;
+    const ext = file.originalname
+      ? path.extname(file.originalname).toLowerCase()
+      : `.${mime.extension(file.mimetype) || 'bin'}`;
+
+    const contentType = file.mimetype;
+
+    const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const allowedVideoTypes = ['video/mp4'];
 
     let fileBuffer: Buffer;
-    let contentType = file.mimetype;
 
-    if (contentType.startsWith('image/')) {
-      fileBuffer = await sharp(buffer)
+    if (
+      allowedTypes.includes('image') &&
+      allowedImageTypes.includes(contentType)
+    ) {
+      if (!['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
+        throw new BadRequestException('Invalid image file extension');
+      }
+
+      fileBuffer = await sharp(file.buffer)
         .resize({ width: 800 })
         .jpeg({ quality: 50 })
         .toBuffer();
-    } else if (contentType.startsWith('video/')) {
-      fileBuffer = buffer;
+    } else if (
+      allowedTypes.includes('video') &&
+      allowedVideoTypes.includes(contentType)
+    ) {
+      if (ext !== '.mp4') {
+        throw new BadRequestException('Invalid video file extension');
+      }
+
+      fileBuffer = file.buffer;
     } else {
       throw new BadRequestException('Unsupported file type');
     }
+
+    const fileName = `${Date.now()}_${crypto.randomUUID()}${ext}`;
 
     const params = {
       Body: fileBuffer,

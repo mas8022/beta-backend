@@ -21,8 +21,9 @@ import {
 import { EditCourseDto } from './dto/edit-course.dto';
 import { EditLessonsAndEpisodesOrderDto } from './dto/edit-lessons-and-episodes-order.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
-import { CreateEpisodeDto } from './dto/create-episode.dto';
 import { EditLessonDto } from './dto/edit-lesson.dto';
+import { EpisodeDto } from './dto/episode.dto';
+import { CreateCourseDto } from './dto/create-course.dto';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -71,6 +72,16 @@ export class AuthorsController {
     return await this.authorsService.getAuthorCourses(req);
   }
 
+  @Post('create-course')
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
+  async createCourse(
+    @UploadedFiles() files: any,
+    @Body() createCourseDto: CreateCourseDto,
+    @Req() req: FastifyRequest,
+  ) {
+    return await this.authorsService.createCourse(files, createCourseDto, req);
+  }
+
   @Delete('delete-course/:courseId')
   async deleteCourse(@Param('courseId') courseId: string) {
     return await this.authorsService.deleteCourse(courseId);
@@ -82,11 +93,13 @@ export class AuthorsController {
   }
 
   @Put('edit-course/:courseId')
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
   async editCourse(
     @Param('courseId') courseId: string,
+    @UploadedFiles() files: any,
     @Body() body: EditCourseDto,
   ) {
-    return this.authorsService.editCourse(courseId, body);
+    return this.authorsService.editCourse(courseId, files, body);
   }
 
   @Get('course-lessons/:courseId')
@@ -127,8 +140,27 @@ export class AuthorsController {
   async createEpisode(
     @Param('lessonId') lessonId: string,
     @UploadedFiles() files: any,
-    @Body() body: CreateEpisodeDto,
+    @Body() body: EpisodeDto,
   ) {
     return await this.authorsService.createEpisode(lessonId, files, body);
+  }
+
+  @Delete('delete-episode/:episodeId')
+  async deleteEpisode(@Param('episodeId') episodeId: string) {
+    return await this.authorsService.deleteEpisode(episodeId);
+  }
+
+  @Put('edit-episode/:episodeId')
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'video', maxCount: 1 }]))
+  async editEpisode(
+    @Param('episodeId') episodeId: string,
+    @UploadedFiles() files: any,
+    @Body() editEpisodeDto: EpisodeDto,
+  ) {
+    return await this.authorsService.editEpisode(
+      episodeId,
+      editEpisodeDto,
+      files,
+    );
   }
 }
