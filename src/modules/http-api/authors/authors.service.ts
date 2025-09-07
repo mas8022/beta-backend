@@ -324,6 +324,7 @@ export class AuthorsService {
 
       select: {
         id: true,
+        status: true,
         lessons: {
           include: {
             episodes: {
@@ -402,6 +403,7 @@ export class AuthorsService {
       data: {
         title,
         isFree,
+        status: 'waiting',
       },
     });
 
@@ -417,14 +419,10 @@ export class AuthorsService {
       },
     });
 
-    console.log('==================== ', files.video[0]);
-
     const videoAddress: any = await this.pocketServic.uploadFile(
       files.video[0],
       ['video'],
     );
-
-    console.log('==================== ', videoAddress);
 
     const duration = await getVideoDurationInSeconds(videoAddress).then(
       (result) => Math.round(result),

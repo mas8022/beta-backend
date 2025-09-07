@@ -271,7 +271,7 @@ export class CoursesService {
 
   async getOne(courseId: string) {
     const course = await this.prismaService.course.findUnique({
-      where: { id: Number(courseId) },
+      where: { id: Number(courseId), status: 'publish' },
       include: {
         author: {
           select: {
@@ -287,6 +287,7 @@ export class CoursesService {
           },
         },
         lessons: {
+          where: { status: 'publish' },
           include: {
             _count: {
               select: {
@@ -358,6 +359,7 @@ export class CoursesService {
   async findBySearchBar(search: string) {
     const courses = await this.prismaService.course.findMany({
       where: {
+        status: 'publish',
         OR: [
           {
             title: {
@@ -370,6 +372,10 @@ export class CoursesService {
             },
           },
         ],
+      },
+      select: {
+        id: true,
+        title: true,
       },
       take: 5,
     });
@@ -403,12 +409,10 @@ export class CoursesService {
 
   async getLessons(courseId: string, rawCookies: string) {
     const lessons = await this.prismaService.course.findUnique({
-      where: { id: Number(courseId) },
+      where: { id: Number(courseId), status: 'publish' },
       select: {
         lessons: {
-          orderBy: {
-            id: 'asc',
-          },
+          where: { status: 'publish' },
           select: {
             id: true,
             title: true,
@@ -418,9 +422,6 @@ export class CoursesService {
               select: { episodes: true },
             },
             episodes: {
-              orderBy: {
-                id: 'asc',
-              },
               select: {
                 id: true,
                 title: true,
@@ -428,7 +429,13 @@ export class CoursesService {
                 description: true,
                 videoUrl: true,
               },
+              orderBy: {
+                order: 'asc',
+              },
             },
+          },
+          orderBy: {
+            order: 'asc',
           },
         },
       },
@@ -438,10 +445,13 @@ export class CoursesService {
 
     let isOwn = false;
     if (me) {
-      let myCoure: any = await this.prismaService.courseOrder.findFirst({
+      let myCoure: any = await this.prismaService.courseOrder.findUnique({
         where: {
-          userId: me.id,
-          courseId: Number(courseId),
+          userId_courseId: {
+            userId: me.id,
+            courseId: Number(courseId),
+          },
+          status: 'success',
         },
       });
 
