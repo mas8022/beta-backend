@@ -330,7 +330,7 @@ export class CoursesService {
       },
     });
 
-    const authorStudentsArray = await this.prismaService.courseOrder.findMany({
+    const authorStudents = await this.prismaService.courseOrder.count({
       where: {
         status: 'success',
         course: {
@@ -338,8 +338,6 @@ export class CoursesService {
         },
       },
     });
-
-    const authorStudents = authorStudentsArray.length;
 
     const totalVideosCountInCourse = course?.lessons.reduce(
       (sum, item) => sum + item._count.episodes,

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/platform-fastify';
 import fastifyCookie from '@fastify/cookie';
 import multipart from '@fastify/multipart';
+import { HttpExceptionFilter } from './common/exceptions/global-exception-filter';
 
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter();
@@ -20,6 +21,8 @@ async function bootstrap() {
     AppModule,
     fastifyAdapter,
   );
+
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   app.enableCors({
     origin: process.env.FRONTEND_URL,
