@@ -51,26 +51,19 @@ export class AuthController {
 
   @Get('refresh')
   async refreshToken(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
-    try {
-      const { status, message, newAccessToken } =
-        await this.authService.refreshToken(req.cookies);
+    const { status, message, newAccessToken } =
+      await this.authService.refreshToken(req.cookies);
 
-      if (newAccessToken) {
-        res.setCookie('access_token', newAccessToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          maxAge: 60 * 15,
-          path: '/',
-        });
-      }
-      return res.send({ status, message });
-    } catch (error) {
-      return {
-        status: 500,
-        message: 'اینترنت خود را بررسی کنید',
-      };
+    if (newAccessToken) {
+      res.setCookie('access_token', newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 15,
+        path: '/',
+      });
     }
+    return res.send({ status, message });
   }
 
   @Delete()

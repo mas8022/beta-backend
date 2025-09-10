@@ -7,12 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  MANAGER
-  AUTHOR
-}
-
 model User {
   id    Int    @id @default(autoincrement())
   phone String @unique
@@ -30,6 +24,12 @@ model User {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   AuthorRequestFuns AuthorRequestFuns[]
+}
+
+enum Role {
+  USER
+  MANAGER
+  AUTHOR
 }
 
 model ContactUs {
@@ -51,7 +51,7 @@ enum TopicEnum {
 }
 
 model RequestCollaborate {
-  id              Int              @id @default(autoincrement())
+  id              Int                  @id @default(autoincrement())
   name            String
   email           String
   phone           String?
@@ -64,19 +64,17 @@ model RequestCollaborate {
   githubOrYoutube String?
   location        String?
   message         String?
-  acceptTerms     Boolean          @default(false)
-  permission      PermissionStatus @default(pending)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  acceptTerms     Boolean              @default(false)
+  permission      PermissionStatusEnum @default(pending)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 }
 
-enum PermissionStatus {
+enum PermissionStatusEnum {
   pending
   approved
   rejected
 }
-
-//course model /////////////////////////////////////////////////////////////
 
 model Course {
   id            Int              @id @default(autoincrement())
