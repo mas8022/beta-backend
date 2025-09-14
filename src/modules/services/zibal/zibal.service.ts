@@ -81,44 +81,44 @@ export class ZibalService {
     }
   }
 
-  async withdraw(
-    amount: number,
-    cardNumber: string,
-    description?: string,
-  ): Promise<WithdrawResult> {
-    try {
+  // async withdraw(
+  //   amount: number,
+  //   cardNumber: string,
+  //   description?: string,
+  // ): Promise<WithdrawResult> {
+  //   try {
       
-      const response:any = await fetch('https://gateway.zibal.ir/v1/withdraw', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          merchant: process.env.ZIBAL_MERCHANTID,
-          amount,
-          cardNumber,
-          description,
-        }),
-      });
+  //     const response:any = await fetch('https://gateway.zibal.ir/v1/withdraw', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({
+  //         merchant: process.env.ZIBAL_MERCHANTID,
+  //         amount,
+  //         cardNumber,
+  //         description,
+  //       }),
+  //     });
       
-      const result: any = await response.json();
+  //     const result: any = await response.json();
       
 
-      if (result.result === 100) {
-        return {
-          success: true,
-          trackId: result.trackId,
-          message: result.message,
-        };
-      }
+  //     if (result.result === 100) {
+  //       return {
+  //         success: true,
+  //         trackId: result.trackId,
+  //         message: result.message,
+  //       };
+  //     }
 
-      return {
-        success: false,
-        error: result.message || 'برداشت وجه ناموفق بود.',
-      };
-    } catch {
-      throw new HttpException(
-        'خطای سرور رخ داد.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+  //     return {
+  //       success: false,
+  //       error: result.message || 'برداشت وجه ناموفق بود.',
+  //     };
+  //   } catch {
+  //     throw new HttpException(
+  //       'خطای سرور رخ داد.',
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 }

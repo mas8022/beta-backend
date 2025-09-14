@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuthorsService } from './authors.service';
 import { AuthorsController } from './authors.controller';
-import { PocketModule } from 'src/modules/services/pocket/pocket.module';
+import { BucketModule } from 'src/modules/services/bucket/bucket.module';
 
 @Module({
-  imports: [PocketModule],
+  imports: [BucketModule],
   controllers: [AuthorsController],
   providers: [AuthorsService],
 })

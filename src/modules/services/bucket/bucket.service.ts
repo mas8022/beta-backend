@@ -6,7 +6,7 @@ import * as crypto from 'crypto';
 import * as mime from 'mime-types';
 
 @Injectable()
-export class PocketService {
+export class BucketService {
   private s3: S3Client;
 
   constructor() {

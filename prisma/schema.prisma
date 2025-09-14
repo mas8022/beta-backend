@@ -8,9 +8,10 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  phone String @unique
-  roles Role[]
+  id     Int            @id @default(autoincrement())
+  status UserStatusEnum @default(ACCESS)
+  phone  String         @unique
+  roles  UserRoleEnum[]
 
   name   String?
   bio    String?
@@ -26,7 +27,12 @@ model User {
   AuthorRequestFuns AuthorRequestFuns[]
 }
 
-enum Role {
+enum UserStatusEnum {
+  ACCESS
+  BLOCK
+}
+
+enum UserRoleEnum {
   USER
   MANAGER
   AUTHOR
@@ -206,7 +212,7 @@ enum CourseCommentStatusEnum {
 model AuthorRequestFuns {
   id Int @id @default(autoincrement())
 
-  status AuthorRequestFunsStatusEnum @default(pending)
+  status AuthorRequestFunsStatusEnum @default(PENDING)
 
   amount     BigInt
   cardNumber String
@@ -220,7 +226,7 @@ model AuthorRequestFuns {
 }
 
 enum AuthorRequestFunsStatusEnum {
-  pending
-  failed
-  success
+  PENDING
+  REJECTED
+  SUCCESS
 }

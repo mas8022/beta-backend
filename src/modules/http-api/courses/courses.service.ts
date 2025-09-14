@@ -3,7 +3,7 @@ import { PrismaService } from 'src/modules/services/prisma/prisma.service';
 import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UsersService } from '../users/users.service';
 import type { FastifyRequest } from 'fastify';
-import { Role } from '@prisma/client';
+import { UserRoleEnum } from '@prisma/client';
 
 @Injectable()
 export class CoursesService {

@@ -106,7 +106,6 @@ export class FinancialsService {
     const author = await req.author;
     const { amount, cardNumber } = authorRequestFunsDto;
 
-    // محاسبه موجودی
     const totalIncomesResult = await this.prismaService.courseOrder.aggregate({
       where: { course: { authorId: author.id }, status: 'success' },
       _sum: { price: true },
@@ -115,7 +114,7 @@ export class FinancialsService {
 
     const totalWithdrawalsResult =
       await this.prismaService.authorRequestFuns.aggregate({
-        where: { authorId: author.id, status: 'success' },
+        where: { authorId: author.id, status: 'SUCCESS' },
         _sum: { amount: true },
       });
     const totalWithdrawals = totalWithdrawalsResult._sum.amount ?? 0;
@@ -126,34 +125,14 @@ export class FinancialsService {
       return { status: 400, message: 'موجودی کافی نیست' };
     }
 
-    // مرحله ۱: ایجاد درخواست برداشت
-    const request = await this.prismaService.authorRequestFuns.create({
-      data: { authorId: author.id, amount, cardNumber, status: 'pending' },
+    await this.prismaService.authorRequestFuns.create({
+      data: { authorId: author.id, amount, cardNumber, status: 'PENDING' },
     });
 
-    // مرحله ۲: تماس با سرویس زیبال
-    const withdrawRes: any = await this.zibalService.withdraw(
-      amount,
-      cardNumber,
-      'برداشت وجه نویسنده',
-    );
-
-    // مرحله ۳: اگر موفق نشد → آپدیت به failed
-    if (!withdrawRes.success) {
-      await this.prismaService.authorRequestFuns.update({
-        where: { id: request.id },
-        data: { status: 'failed' },
-      });
-      return { status: 400, message: withdrawRes.error };
-    }
-
-    // مرحله ۴: اگر موفق شد → آپدیت به success
-    await this.prismaService.authorRequestFuns.update({
-      where: { id: request.id },
-      data: { status: 'success', transactionId: withdrawRes.trackId },
-    });
-
-    return { status: 201, message: 'برداشت وجه با موفقیت انجام شد' };
+    return {
+      status: 201,
+      message: 'یک الی دو روز اینده به حساب شما واریز می شود',
+    };
   }
 
   async getAuthorWallet(req: FastifyRequest) {
@@ -173,7 +152,7 @@ export class FinancialsService {
 
     const totalWithdrawalsResult =
       await this.prismaService.authorRequestFuns.aggregate({
-        where: { authorId: author.id, status: 'success' },
+        where: { authorId: author.id, status: 'SUCCESS' },
         _sum: { amount: true },
       });
     const totalWithdrawals = totalWithdrawalsResult._sum.amount ?? 0;
@@ -182,7 +161,7 @@ export class FinancialsService {
 
     const totalWithdrawalsCount =
       await this.prismaService.authorRequestFuns.count({
-        where: { authorId: author.id, status: 'success' },
+        where: { authorId: author.id, status: 'SUCCESS' },
       });
 
     /////////////////////////////////////////////////////////////////////////////////////

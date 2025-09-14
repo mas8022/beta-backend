@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
-import { PocketService } from 'src/modules/services/pocket/pocket.service';
+import { BucketService } from 'src/modules/services/bucket/bucket.service';
 import { PrismaService } from 'src/modules/services/prisma/prisma.service';
 import { EditCourseDto } from './dto/edit-course.dto';
 import { EditLessonsAndEpisodesOrderDto } from './dto/edit-lessons-and-episodes-order.dto';
@@ -14,7 +14,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 export class AuthorsService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly pocketServic: PocketService,
+    private readonly pocketServic: BucketService,
   ) {}
 
   async getAuthorProfile(req: FastifyRequest) {
