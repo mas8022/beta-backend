@@ -43,4 +43,23 @@ export class ManagerService {
         updatedUser.status === 'BLOCK' ? 'کاربر بلاک شد' : 'کاربر آزاد شد',
     };
   }
+
+  async getContactUsComments() {
+    const comments = await this.prismaService.contactUs.findMany();
+
+    return { status: 200, data: comments };
+  }
+
+  async deleteContactUsComment(commentId: string) {
+    await this.prismaService.contactUs.delete({
+      where: {
+        id: Number(commentId),
+      },
+    });
+
+    return {
+      status: 200,
+      message: 'حذف شد',
+    };
+  }
 }

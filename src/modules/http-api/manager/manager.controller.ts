@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Patch } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { FindUserParamDto } from './dto/find-user-param.dto';
 
@@ -13,12 +13,16 @@ export class ManagerController {
 
   @Patch('users/:userId')
   async blockToggle(@Param('userId') userId: string) {
-    try {
-      
-      return await this.managerService.blockToggle(userId);
-    } catch (error) {
-      console.log(error);
-      
-    }
+    return await this.managerService.blockToggle(userId);
+  }
+
+  @Get('contact-us-comments')
+  async getContactUsComments() {
+    return await this.managerService.getContactUsComments();
+  }
+
+  @Delete('contact-us-comment/:commentId')
+  async deleteContactUsComment(@Param('commentId') commentId: string) {
+    return await this.managerService.deleteContactUsComment(commentId);
   }
 }
