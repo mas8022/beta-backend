@@ -18,10 +18,7 @@ export class AuthorGuard implements CanActivate {
 
     const author = await this.usersService.getMe(rawCookies);
 
-    const hasRole =
-      author?.roles?.some((role: string) =>
-        ['MANAGER', 'AUTHOR'].includes(role),
-      ) ?? false;
+    const hasRole = author?.roles?.some((role: string) => role === 'AUTHOR');
 
     if (!hasRole) {
       throw new UnauthorizedException('شما اجازه دسترسی ندارید');

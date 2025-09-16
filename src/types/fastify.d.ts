@@ -5,5 +5,6 @@ declare module 'fastify' {
   interface FastifyRequest {
     user?: User;
     author?: User;
+    manager?: User;
   }
 }

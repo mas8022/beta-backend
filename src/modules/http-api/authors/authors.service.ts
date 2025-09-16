@@ -14,7 +14,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 export class AuthorsService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly pocketServic: BucketService,
+    private readonly bucketService: BucketService,
   ) {}
 
   async getAuthorProfile(req: FastifyRequest) {
@@ -74,7 +74,7 @@ export class AuthorsService {
 
     let avatarAddress: string | null = null;
     if (files?.avatar?.[0]) {
-      avatarAddress = await this.pocketServic.uploadFile(files.avatar[0], [
+      avatarAddress = await this.bucketService.uploadFile(files.avatar[0], [
         'image',
       ]);
     }
@@ -215,7 +215,7 @@ export class AuthorsService {
 
     const author = await req.author;
 
-    const imageAddress: any = await this.pocketServic.uploadFile(
+    const imageAddress: any = await this.bucketService.uploadFile(
       files.image[0],
       ['image'],
     );
@@ -280,7 +280,7 @@ export class AuthorsService {
 
     let imageAddress: string | null = null;
     if (files?.image?.[0]) {
-      imageAddress = await this.pocketServic.uploadFile(files.image[0], [
+      imageAddress = await this.bucketService.uploadFile(files.image[0], [
         'image',
       ]);
     }
@@ -419,7 +419,7 @@ export class AuthorsService {
       },
     });
 
-    const videoAddress: any = await this.pocketServic.uploadFile(
+    const videoAddress: any = await this.bucketService.uploadFile(
       files.video[0],
       ['video'],
     );
@@ -470,7 +470,7 @@ export class AuthorsService {
     let videoUrl: any = oldEpisode.videoUrl;
     let duration: any = oldEpisode.duration;
     if (files?.video?.[0]) {
-      videoUrl = await this.pocketServic.uploadFile(files.video[0], ['video']);
+      videoUrl = await this.bucketService.uploadFile(files.video[0], ['video']);
       duration = await getVideoDurationInSeconds(videoUrl).then((res) =>
         Math.round(res),
       );

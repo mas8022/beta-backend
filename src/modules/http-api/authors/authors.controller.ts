@@ -12,7 +12,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthorsService } from './authors.service';
-import { AuthorGuard } from './author.Guard';
+import { AuthorGuard } from './author.guard';
 import type { FastifyRequest } from 'fastify';
 import {
   FileFieldsInterceptor,

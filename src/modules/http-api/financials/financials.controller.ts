@@ -12,8 +12,8 @@ import {
 import { FinancialsService } from './financials.service';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { UserGuard } from '../users/user.Guard';
-import { AuthorGuard } from '../authors/author.Guard';
 import { AuthorRequestFunsDto } from './dto/author-request-funs.dto';
+import { AuthorGuard } from '../authors/author.guard';
 
 @Controller('financials')
 export class FinancialsController {
