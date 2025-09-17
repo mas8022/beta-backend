@@ -3,6 +3,9 @@ import { PrismaService } from 'src/modules/services/prisma/prisma.service';
 import { FindUserParamDto } from './dto/find-user-param.dto';
 import type { FastifyRequest } from 'fastify';
 import { BucketService } from 'src/modules/services/bucket/bucket.service';
+import { GetRequestsCollaborateDto } from './dto/get-request-collaborate.dto';
+import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.dto';
+import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';
 
 @Injectable()
 export class ManagerService {
@@ -147,5 +150,88 @@ export class ManagerService {
       status: 200,
       message: 'ویرایش با موفقیت انجام شد',
     };
+  }
+
+  async getRequestsCollaborate(query: GetRequestsCollaborateDto) {
+    const { search, sort } = query;
+
+    const where: any = {};
+
+    if (search) {
+      where.OR = [
+        {
+          email: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          phone: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+
+    if (sort !== 'all') where.permission = sort;
+
+    const requests = await this.prismaService.requestCollaborate.findMany({
+      where,
+    });
+
+    return {
+      status: 200,
+      data: requests,
+    };
+  }
+
+  async setAuthorPermission(
+    { requestId, status }: SetAuthorPermissionParamDto,
+    request: SetAuthorPermissionBodyDto,
+  ) {
+    if (status === 'rejected') {
+      await this.prismaService.requestCollaborate.update({
+        where: {
+          id: Number(requestId),
+        },
+        data: {
+          permission: 'rejected',
+        },
+      });
+      return { status: 201, message: 'درخواست با موفقیت رد شد' };
+    }
+
+    await this.prismaService.requestCollaborate.update({
+      where: {
+        id: Number(requestId),
+      },
+      data: {
+        permission: 'approved',
+      },
+    });
+
+    const { phone } = request;
+
+    await this.prismaService.user.upsert({
+      where: {
+        phone,
+      },
+      update: {
+        roles: ['USER', 'AUTHOR',"MANAGER"],
+      },
+      create: {
+        phone,
+        roles: ['USER', 'AUTHOR',"MANAGER"],
+      },
+    });
+
+    return { status: 201, message: 'درخواست با موفقیت تایید شد' };
   }
 }

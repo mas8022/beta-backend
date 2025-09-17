@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Put,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -18,6 +19,9 @@ import {
   FileFieldsInterceptor,
   UploadedFiles,
 } from '@blazity/nest-file-fastify';
+import { GetRequestsCollaborateDto } from './dto/get-request-collaborate.dto';
+import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.dto';
+import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';
 
 @UseGuards(ManagerGuard)
 @Controller('manager')
@@ -57,5 +61,18 @@ export class ManagerController {
     @Req() req: FastifyRequest,
   ) {
     return this.managerService.editProfile(files, body, req);
+  }
+
+  @Get('requests-collaborate')
+  async getRequestsCollaborate(@Query() query: GetRequestsCollaborateDto) {
+    return await this.managerService.getRequestsCollaborate(query);
+  }
+
+  @Patch('set-author-permission/:requestId/:status')
+  async setAuthorPermission(
+    @Param() params: SetAuthorPermissionParamDto,
+    @Body() request: SetAuthorPermissionBodyDto,
+  ) {
+    return await this.managerService.setAuthorPermission(params, request);
   }
 }

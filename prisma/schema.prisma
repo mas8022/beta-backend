@@ -61,7 +61,6 @@ model RequestCollaborate {
   name            String
   email           String
   phone           String?
-  roles           String[]
   experienceYears String?
   hoursPerWeek    String?
   expertise       String

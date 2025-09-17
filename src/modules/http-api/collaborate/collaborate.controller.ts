@@ -1,11 +1,7 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
 } from '@nestjs/common';
 import { CollaborateService } from './collaborate.service';
 import { CreateCollaborateDto } from './dto/create-collaborate.dto';
@@ -18,6 +14,5 @@ export class CollaborateController {
   create(@Body() dto: CreateCollaborateDto) {
     return this.collaborateService.create(dto);
   }
-
   
 }
