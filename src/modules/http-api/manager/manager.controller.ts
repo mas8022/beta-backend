@@ -22,6 +22,7 @@ import {
 import { GetRequestsCollaborateDto } from './dto/get-request-collaborate.dto';
 import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.dto';
 import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';
+import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
 
 @UseGuards(ManagerGuard)
 @Controller('manager')
@@ -38,9 +39,9 @@ export class ManagerController {
     return await this.managerService.blockToggle(userId);
   }
 
-  @Get('contact-us-comments')
-  async getContactUsComments() {
-    return await this.managerService.getContactUsComments();
+  @Get('contact-us-comments/:roleFilter/:search')
+  async getContactUsComments(@Param() params: GetContactUsMessageDto) {
+    return await this.managerService.getContactUsComments(params);
   }
 
   @Delete('contact-us-comment/:commentId')
@@ -74,5 +75,10 @@ export class ManagerController {
     @Body() request: SetAuthorPermissionBodyDto,
   ) {
     return await this.managerService.setAuthorPermission(params, request);
+  }
+
+  @Delete('request-collaborate/:requestId')
+  async deleteRequestCollaborate(@Param('requestId') requestId: string) {
+    return await this.managerService.deleteRequestCollaborate(requestId);
   }
 }

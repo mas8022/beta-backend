@@ -6,6 +6,7 @@ import { BucketService } from 'src/modules/services/bucket/bucket.service';
 import { GetRequestsCollaborateDto } from './dto/get-request-collaborate.dto';
 import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.dto';
 import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';
+import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
 
 @Injectable()
 export class ManagerService {
@@ -52,8 +53,45 @@ export class ManagerService {
     };
   }
 
-  async getContactUsComments() {
-    const comments = await this.prismaService.contactUs.findMany();
+  async getContactUsComments(params: GetContactUsMessageDto) {
+    const { search, roleFilter } = params;
+
+    const where: any = {};
+
+    if (search) {
+      where.OR = [
+        {
+          email: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          phone: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+
+    if (roleFilter !== 'ALL') {
+      where.user = {
+        roles: {
+          has: roleFilter,
+        },
+      };
+    }
+
+    const comments = await this.prismaService.contactUs.findMany({
+      where,
+    });
 
     return { status: 200, data: comments };
   }
@@ -224,14 +262,24 @@ export class ManagerService {
         phone,
       },
       update: {
-        roles: ['USER', 'AUTHOR',"MANAGER"],
+        roles: ['USER', 'AUTHOR', 'MANAGER'],
       },
       create: {
         phone,
-        roles: ['USER', 'AUTHOR',"MANAGER"],
+        roles: ['USER', 'AUTHOR', 'MANAGER'],
       },
     });
 
     return { status: 201, message: 'درخواست با موفقیت تایید شد' };
+  }
+
+  async deleteRequestCollaborate(requestId: string) {
+    await this.prismaService.requestCollaborate.delete({
+      where: {
+        id: Number(requestId),
+      },
+    });
+
+    return { status: 201, message: 'حذف شد' };
   }
 }

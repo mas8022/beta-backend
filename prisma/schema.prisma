@@ -25,6 +25,7 @@ model User {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   AuthorRequestFuns AuthorRequestFuns[]
+  ContactUs         ContactUs[]
 }
 
 enum UserStatusEnum {
@@ -47,6 +48,9 @@ model ContactUs {
   message   String
   consent   Boolean
   createdAt DateTime  @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum TopicEnum {
