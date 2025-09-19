@@ -23,6 +23,8 @@ import { GetRequestsCollaborateDto } from './dto/get-request-collaborate.dto';
 import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.dto';
 import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';
 import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
+import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
+import { BigIntInterceptor } from 'src/common/interceptors/bigint.interceptor';
 
 @UseGuards(ManagerGuard)
 @Controller('manager')
@@ -80,5 +82,16 @@ export class ManagerController {
   @Delete('request-collaborate/:requestId')
   async deleteRequestCollaborate(@Param('requestId') requestId: string) {
     return await this.managerService.deleteRequestCollaborate(requestId);
+  }
+
+  @Get('authors-requests-funs')
+  @UseInterceptors(BigIntInterceptor)
+  async getAuthorsRequestsFuns(@Query() query: GetAuthorsRequestsFunsDto) {
+    return await this.managerService.getAuthorsRequestsFuns(query);
+  }
+
+  @Patch('author-request-funs/:requestId')
+  async accepteAuthorRequestFuns(@Param('requestId') requestId: string) {
+    return await this.managerService.accepteAuthorRequestFuns(requestId);
   }
 }

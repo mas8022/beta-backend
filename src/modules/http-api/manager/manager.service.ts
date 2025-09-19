@@ -7,6 +7,7 @@ import { GetRequestsCollaborateDto } from './dto/get-request-collaborate.dto';
 import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.dto';
 import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';
 import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
+import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
 
 @Injectable()
 export class ManagerService {
@@ -281,5 +282,41 @@ export class ManagerService {
     });
 
     return { status: 201, message: 'حذف شد' };
+  }
+
+  async getAuthorsRequestsFuns(query: GetAuthorsRequestsFunsDto) {
+    const { search, status } = query;
+
+    const where: any = { status };
+
+    if (search?.trim()) {
+      where.cardNumber = {
+        contains: search,
+        mode: 'insensitive',
+      };
+    }
+
+    const requests = await this.prismaService.authorRequestFuns.findMany({
+      where,
+      orderBy: {
+        id: 'desc',
+      },
+    });
+
+    return { status: 200, data: requests };
+  }
+
+  async accepteAuthorRequestFuns(requestId: string) {
+    await this.prismaService.authorRequestFuns.update({
+      where: {
+        id: Number(requestId),
+      },
+      data: {
+        status: 'SUCCESS',
+      },
+    });
+
+
+    return {status: ""}
   }
 }
