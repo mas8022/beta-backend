@@ -3,9 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { VerifyOtpCodeDto } from './dto/verify-otp-code.dto';
 import { randomUUID } from 'crypto';
 import { parse } from 'cookie';
-import { PrismaService } from 'src/modules/services/prisma/prisma.service';
-import { RedisService } from 'src/modules/services/redis/redis.service';
-import { JwtService } from 'src/modules/services/jwt/jwt.service';
+import { PrismaService } from 'src/common/services/prisma/prisma.service';
+import { RedisService } from 'src/common/services/redis/redis.service';
+import { JwtService } from 'src/common/services/jwt/jwt.service';
 import axios from 'axios';
 
 @Injectable()

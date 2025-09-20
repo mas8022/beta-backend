@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateContactUsDto } from './dto/create-contact-us.dto';
-import { PrismaService } from 'src/modules/services/prisma/prisma.service';
+import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import type { FastifyRequest } from 'fastify';
 
 @Injectable()

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
-import { BucketService } from 'src/modules/services/bucket/bucket.service';
-import { PrismaService } from 'src/modules/services/prisma/prisma.service';
+import { BucketService } from 'src/common/services/bucket/bucket.service';
+import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import { EditCourseDto } from './dto/edit-course.dto';
 import { EditLessonsAndEpisodesOrderDto } from './dto/edit-lessons-and-episodes-order.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';

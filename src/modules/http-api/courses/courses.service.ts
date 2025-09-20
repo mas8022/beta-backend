@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/modules/services/prisma/prisma.service';
+import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UsersService } from '../users/users.service';
 import type { FastifyRequest } from 'fastify';

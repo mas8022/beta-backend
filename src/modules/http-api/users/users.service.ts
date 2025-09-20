@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../services/prisma/prisma.service';
+import { PrismaService } from '../../../common/services/prisma/prisma.service';
 import { parse } from 'cookie';
-import { JwtService } from '../../services/jwt/jwt.service';
+import { JwtService } from '../../../common/services/jwt/jwt.service';
 import type { FastifyRequest } from 'fastify';
 
 @Injectable()

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/modules/services/prisma/prisma.service';
+import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import { FindUserParamDto } from './dto/find-user-param.dto';
 import type { FastifyRequest } from 'fastify';
-import { BucketService } from 'src/modules/services/bucket/bucket.service';
+import { BucketService } from 'src/common/services/bucket/bucket.service';
 import { GetRequestsCollaborateDto } from './dto/get-request-collaborate.dto';
 import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.dto';
 import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';

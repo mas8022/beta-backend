@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCollaborateDto } from './dto/create-collaborate.dto';
-import { PrismaService } from 'src/modules/services/prisma/prisma.service';
+import { PrismaService } from 'src/common/services/prisma/prisma.service';
 
 @Injectable()
 export class CollaborateService {

@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/modules/services/prisma/prisma.service';
+import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import type { FastifyRequest } from 'fastify';
-import { ZibalService } from 'src/modules/services/zibal/zibal.service';
+import { ZibalService } from 'src/common/services/zibal/zibal.service';
 import { AuthorRequestFunsDto } from './dto/author-request-funs.dto';
 import jalaali from 'jalaali-js';
 import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
