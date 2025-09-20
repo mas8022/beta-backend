@@ -24,7 +24,7 @@ import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.d
 import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';
 import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
 import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
-import { BigIntInterceptor } from 'src/common/interceptors/bigint.interceptor';
+import { JsonSerializerInterceptor } from 'src/common/interceptors/json-serializer.interceptor';
 
 @UseGuards(ManagerGuard)
 @Controller('manager')
@@ -85,13 +85,24 @@ export class ManagerController {
   }
 
   @Get('authors-requests-funs')
-  @UseInterceptors(BigIntInterceptor)
+  @UseInterceptors(JsonSerializerInterceptor)
   async getAuthorsRequestsFuns(@Query() query: GetAuthorsRequestsFunsDto) {
     return await this.managerService.getAuthorsRequestsFuns(query);
   }
 
-  @Patch('author-request-funs/:requestId')
+  @Patch('accept-author-request-funs/:requestId')
   async accepteAuthorRequestFuns(@Param('requestId') requestId: string) {
     return await this.managerService.accepteAuthorRequestFuns(requestId);
+  }
+
+  @Patch('reject-author-request-funs/:requestId')
+  async rejectAuthorRequestFuns(@Param('requestId') requestId: string) {
+    return await this.managerService.rejectAuthorRequestFuns(requestId);
+  }
+
+  @UseInterceptors(JsonSerializerInterceptor)
+  @Get('financials-overview')
+  async getFinancialsOverView() {
+    return await this.managerService.getFinancialsOverView();
   }
 }

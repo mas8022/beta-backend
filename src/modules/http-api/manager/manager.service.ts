@@ -8,6 +8,7 @@ import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.d
 import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';
 import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
 import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
+import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 
 @Injectable()
 export class ManagerService {
@@ -316,7 +317,107 @@ export class ManagerService {
       },
     });
 
+    return { status: 200, message: 'پذیرفته شد' };
+  }
 
-    return {status: ""}
+  async rejectAuthorRequestFuns(requestId: string) {
+    await this.prismaService.authorRequestFuns.update({
+      where: {
+        id: Number(requestId),
+      },
+      data: {
+        status: 'REJECTED',
+      },
+    });
+
+    return { status: 200, message: 'رد شد' };
+  }
+
+  async getFinancialsOverView() {
+    const authorsCount = await this.prismaService.user.count({
+      where: {
+        roles: {
+          has: 'AUTHOR',
+        },
+      },
+    });
+
+    const authorRequestFunsCount =
+      await this.prismaService.authorRequestFuns.count({
+        where: { status: 'PENDING' },
+      });
+
+    const totalPeymantsAuthorsRequests =
+      await this.prismaService.authorRequestFuns.aggregate({
+        where: {
+          status: 'SUCCESS',
+        },
+        _sum: {
+          amount: true,
+        },
+      });
+
+    const oneYearAgo = new Date();
+
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    const totalSell = await this.prismaService.courseOrder.findMany({
+      where: { status: 'success', createdAt: { gte: oneYearAgo } },
+      select: {
+        price: true,
+        createdAt: true,
+      },
+    });
+
+    const monthlySales: { month: string; total: number }[] = [];
+
+    for (let i = 0; i < 12; i++) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+
+      const { monthName, year, monthIndex } = JalaliDateUtil.toJalaliMonth(d);
+
+      const total = totalSell
+        .filter((o) => {
+          const j = JalaliDateUtil.toJalaliMonth(o.createdAt);
+          return j.year === year && j.monthIndex === monthIndex;
+        })
+        .reduce((sum, o) => sum + Number(o.price), 0);
+
+      monthlySales.push({ month: monthName, total });
+    }
+
+    const students = await this.prismaService.user.findMany({
+      select: {
+        createdAt: true,
+      },
+    });
+
+    const monthlyLogin: { month: string; studentscount: number }[] = [];
+
+    for (let i = 0; i < 12; i++) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+
+      const { monthName, year, monthIndex } = JalaliDateUtil.toJalaliMonth(d);
+
+      const studentscount = students.filter((o) => {
+        const j = JalaliDateUtil.toJalaliMonth(o.createdAt);
+        return j.year === year && j.monthIndex === monthIndex;
+      }).length;
+
+      monthlyLogin.push({ month: monthName, studentscount });
+    }
+
+    return {
+      status: 200,
+      data: {
+        authorsCount,
+        authorRequestFunsCount,
+        totalPeymantsAuthorsRequests: totalPeymantsAuthorsRequests._sum.amount,
+        monthlySales: monthlySales.reverse(),
+        monthlyLogin: monthlyLogin.reverse(),
+      },
+    };
   }
 }

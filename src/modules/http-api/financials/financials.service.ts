@@ -4,6 +4,7 @@ import type { FastifyRequest } from 'fastify';
 import { ZibalService } from 'src/modules/services/zibal/zibal.service';
 import { AuthorRequestFunsDto } from './dto/author-request-funs.dto';
 import jalaali from 'jalaali-js';
+import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 
 @Injectable()
 export class FinancialsService {
@@ -164,31 +165,6 @@ export class FinancialsService {
         where: { authorId: author.id, status: 'SUCCESS' },
       });
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    const persianMonths = [
-      'فروردین',
-      'اردیبهشت',
-      'خرداد',
-      'تیر',
-      'مرداد',
-      'شهریور',
-      'مهر',
-      'آبان',
-      'آذر',
-      'دی',
-      'بهمن',
-      'اسفند',
-    ];
-    function toJalaliMonth(date: Date) {
-      const g = {
-        gy: date.getFullYear(),
-        gm: date.getMonth() + 1,
-        gd: date.getDate(),
-      };
-      const { jy, jm } = jalaali.toJalaali(g.gy, g.gm, g.gd);
-      return { year: jy, monthIndex: jm - 1, monthName: persianMonths[jm - 1] };
-    }
-
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
@@ -207,11 +183,11 @@ export class FinancialsService {
       const d = new Date();
       d.setMonth(d.getMonth() - i);
 
-      const { monthName, year, monthIndex } = toJalaliMonth(d);
+      const { monthName, year, monthIndex } = JalaliDateUtil.toJalaliMonth(d);
 
       const total = orders
         .filter((o) => {
-          const j = toJalaliMonth(o.createdAt);
+          const j = JalaliDateUtil.toJalaliMonth(o.createdAt);
           return j.year === year && j.monthIndex === monthIndex;
         })
         .reduce((sum, o) => sum + Number(o.price), 0);
@@ -219,7 +195,7 @@ export class FinancialsService {
       monthlySales.push({ month: monthName, total });
     }
 
-    ////////////////////////////////////////////////////////////////////////
+    
 
     return {
       status: 200,
