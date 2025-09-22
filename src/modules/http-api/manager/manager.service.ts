@@ -9,6 +9,7 @@ import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto
 import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
 import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
 import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
+import { GetCoursesDto } from './dto/get-courses.dto';
 
 @Injectable()
 export class ManagerService {
@@ -302,6 +303,7 @@ export class ManagerService {
       orderBy: {
         id: 'desc',
       },
+      take: 20,
     });
 
     return { status: 200, data: requests };
@@ -419,5 +421,172 @@ export class ManagerService {
         monthlyLogin: monthlyLogin.reverse(),
       },
     };
+  }
+
+  async getCourses(query: GetCoursesDto) {
+    const { status, search } = query;
+
+    const where: any = { status };
+
+    if (search?.trim()) {
+      where.title = {
+        contains: search,
+        mode: 'insensitive',
+      };
+    }
+
+    const courses = await this.prismaService.course.findMany({
+      where,
+      omit: {
+        requirements: true,
+        whatYouLearn: true,
+      },
+      include: {
+        _count: {
+          select: {
+            lessons: true,
+            CourseOrder: {
+              where: {
+                status: 'success',
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return { status: 200, data: courses };
+  }
+
+  async getOverViewCourse(courseId: string) {
+    const cousre = await this.prismaService.course.findUnique({
+      where: {
+        id: Number(courseId),
+      },
+
+      select: {
+        id: true,
+        image: true,
+        title: true,
+        category: true,
+        description: true,
+        price: true,
+        originalPrice: true,
+        requirements: true,
+        whatYouLearn: true,
+      },
+    });
+
+    return { status: 200, data: cousre };
+  }
+
+  async getCourseLessons(courseId: string) {
+    const lessons = await this.prismaService.course.findUnique({
+      where: {
+        id: Number(courseId),
+      },
+
+      select: {
+        id: true,
+        status: true,
+        lessons: {
+          include: {
+            episodes: {
+              orderBy: {
+                order: 'asc',
+              },
+            },
+          },
+          orderBy: {
+            order: 'asc',
+          },
+        },
+      },
+    });
+
+    return { status: 200, data: lessons };
+  }
+
+  async rejectCourse(courseId: string) {
+    await this.prismaService.course.update({
+      where: {
+        id: Number(courseId),
+      },
+      data: {
+        status: 'rejected',
+      },
+    });
+
+    return { status: 201, message: 'دوره رد شد' };
+  }
+
+  async accepteCourse(courseId: string) {
+    await this.prismaService.course.update({
+      where: {
+        id: Number(courseId),
+      },
+      data: {
+        status: 'publish',
+      },
+    });
+
+    return { status: 201, message: 'دوره پذیرفته شد' };
+  }
+
+  async rejectLesson(lessonId: string) {
+    await this.prismaService.lesson.update({
+      where: {
+        id: Number(lessonId),
+      },
+      data: {
+        status: 'rejected',
+      },
+    });
+
+    return { status: 201, message: 'فصل رد شد' };
+  }
+
+  async accepteLesson(lessonId: string) {
+    await this.prismaService.lesson.update({
+      where: {
+        id: Number(lessonId),
+      },
+      data: {
+        status: 'publish',
+      },
+    });
+
+    return { status: 201, message: 'فصل پذیرفته شد' };
+  }
+
+  async sendCourseReport(courseId: string, message: string) {
+    const course = await this.prismaService.course.findUnique({
+      where: {
+        id: Number(courseId),
+      },
+      select: {
+        author: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    const authorId = course?.author.id;
+
+    if (!authorId) {
+      return { status: 201, message: 'نویسنده این دوره اخراج شده' };
+    }
+
+    await this.prismaService.managerCourseReport.create({
+      data: {
+        message,
+        authorId,
+        courseId: Number(courseId),
+      },
+    });
+
+    return { status: 201, message: 'پیام ارسال شد' };
   }
 }

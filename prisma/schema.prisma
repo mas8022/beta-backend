@@ -22,10 +22,11 @@ model User {
   CourseOrder   CourseOrder[]
   CourseComment CourseComment[]
 
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  AuthorRequestFuns AuthorRequestFuns[]
-  ContactUs         ContactUs[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  AuthorRequestFuns   AuthorRequestFuns[]
+  ContactUs           ContactUs[]
+  ManagerCourseReport ManagerCourseReport[]
 }
 
 enum UserStatusEnum {
@@ -104,16 +105,18 @@ model Course {
   lessons Lesson[]
   likes   Like[]
 
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  CourseOrder   CourseOrder[]
-  CourseComment CourseComment[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  CourseOrder         CourseOrder[]
+  CourseComment       CourseComment[]
+  ManagerCourseReport ManagerCourseReport[]
 }
 
 enum CourseStatusEnum {
   creating
   waiting
   publish
+  rejected
 }
 
 model Lesson {
@@ -136,6 +139,7 @@ model Lesson {
 enum LessonStatusEnum {
   waiting
   publish
+  rejected
 }
 
 model Episode {
@@ -232,4 +236,26 @@ enum AuthorRequestFunsStatusEnum {
   PENDING
   REJECTED
   SUCCESS
+}
+
+model ManagerCourseReport {
+  id Int @id @default(autoincrement())
+
+  status ManagerCourseReportStatusEnum @default(SEND)
+
+  message String
+
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+enum ManagerCourseReportStatusEnum {
+  SEND
+  CORRECTION
+  ACCEPTE
 }

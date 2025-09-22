@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Put,
   Query,
   Req,
@@ -25,6 +26,7 @@ import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto
 import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
 import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
 import { JsonSerializerInterceptor } from 'src/common/interceptors/json-serializer.interceptor';
+import { GetCoursesDto } from './dto/get-courses.dto';
 
 @UseGuards(ManagerGuard)
 @Controller('manager')
@@ -104,5 +106,48 @@ export class ManagerController {
   @Get('financials-overview')
   async getFinancialsOverView() {
     return await this.managerService.getFinancialsOverView();
+  }
+
+  @Get('courses')
+  async getCourses(@Query() query: GetCoursesDto) {
+    return await this.managerService.getCourses(query);
+  }
+
+  @Get('over-view-course/:courseId')
+  async getOverViewCourse(@Param('courseId') courseId: string) {
+    return this.managerService.getOverViewCourse(courseId);
+  }
+
+  @Get('course-lessons/:courseId')
+  async getCourseLessons(@Param('courseId') courseId: string) {
+    return this.managerService.getCourseLessons(courseId);
+  }
+
+  @Patch('reject-course/:courseId')
+  async rejectCourse(@Param('courseId') courseId: string) {
+    return await this.managerService.rejectCourse(courseId);
+  }
+
+  @Patch('accepte-course/:courseId')
+  async accepteCourse(@Param('courseId') courseId: string) {
+    return await this.managerService.accepteCourse(courseId);
+  }
+
+  @Patch('reject-lesson/:lessonId')
+  async rejectLesson(@Param('lessonId') lessonId: string) {
+    return await this.managerService.rejectLesson(lessonId);
+  }
+
+  @Patch('accepte-lesson/:lessonId')
+  async accepteLesson(@Param('lessonId') lessonId: string) {
+    return await this.managerService.accepteLesson(lessonId);
+  }
+
+  @Post('send-course-report/:courseId')
+  async sendCourseReport(
+    @Param('courseId') courseId: string,
+    @Body('message') message: string,
+  ) {
+    return await this.managerService.sendCourseReport(courseId, message);
   }
 }
