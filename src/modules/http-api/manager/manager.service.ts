@@ -579,7 +579,7 @@ export class ManagerService {
       return { status: 201, message: 'نویسنده این دوره اخراج شده' };
     }
 
-    await this.prismaService.managerCourseReport.create({
+    await this.prismaService.courseReport.create({
       data: {
         message,
         authorId,

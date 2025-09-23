@@ -26,7 +26,7 @@ model User {
   updatedAt           DateTime              @updatedAt
   AuthorRequestFuns   AuthorRequestFuns[]
   ContactUs           ContactUs[]
-  ManagerCourseReport ManagerCourseReport[]
+  ManagerCourseReport CourseReport[]
 }
 
 enum UserStatusEnum {
@@ -109,7 +109,7 @@ model Course {
   updatedAt           DateTime              @updatedAt
   CourseOrder         CourseOrder[]
   CourseComment       CourseComment[]
-  ManagerCourseReport ManagerCourseReport[]
+  ManagerCourseReport CourseReport[]
 }
 
 enum CourseStatusEnum {
@@ -238,10 +238,10 @@ enum AuthorRequestFunsStatusEnum {
   SUCCESS
 }
 
-model ManagerCourseReport {
+model CourseReport {
   id Int @id @default(autoincrement())
 
-  status ManagerCourseReportStatusEnum @default(SEND)
+  status CourseReportStatusEnum @default(SEND)
 
   message String
 
@@ -254,7 +254,7 @@ model ManagerCourseReport {
   createdAt DateTime @default(now())
 }
 
-enum ManagerCourseReportStatusEnum {
+enum CourseReportStatusEnum {
   SEND
   CORRECTION
   ACCEPTE

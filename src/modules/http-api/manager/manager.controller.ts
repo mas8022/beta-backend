@@ -150,4 +150,5 @@ export class ManagerController {
   ) {
     return await this.managerService.sendCourseReport(courseId, message);
   }
+
 }

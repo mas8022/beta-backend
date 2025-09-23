@@ -9,6 +9,7 @@ import { getVideoDurationInSeconds } from 'get-video-duration';
 import { EditLessonDto } from './dto/edit-lesson.dto';
 import { EpisodeDto } from './dto/episode.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
+import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 
 @Injectable()
 export class AuthorsService {
@@ -487,5 +488,73 @@ export class AuthorsService {
     });
 
     return { status: 201, message: 'اپیزود با موفقیت ویرایش شد' };
+  }
+
+  async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {
+    const author = await req.author;
+
+    const { status, search } = query;
+
+    const where: any = { authorId: author.id };
+
+    if (search?.trim()) {
+      where.course = {
+        title: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      };
+    }
+
+    if (status !== 'ALL') {
+      where.status = status;
+    }
+
+    const reports = await this.prismaService.courseReport.findMany({
+      where,
+      include: {
+        course: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    });
+
+    console.log('run');
+
+    console.log(reports);
+
+    return { status: 200, data: reports };
+  }
+
+  async correctionCourseReport(reportId: string) {
+    await this.prismaService.courseReport.update({
+      where: { id: Number(reportId) },
+      data: {
+        status: 'CORRECTION',
+      },
+    });
+
+    return { status: 201, message: 'انجام شد' };
+  }
+
+  async rejectCorrectionCourseReport(reportId: string) {
+    await this.prismaService.courseReport.update({
+      where: { id: Number(reportId) },
+      data: {
+        status: 'SEND',
+      },
+    });
+
+    return { status: 201, message: 'انجام شد' };
+  }
+
+  async deleteCorrectionCourseReport(reportId: string) {
+    await this.prismaService.courseReport.delete({
+      where: { id: Number(reportId) },
+    });
+
+    return { status: 201, message: 'حذف شد' };
   }
 }

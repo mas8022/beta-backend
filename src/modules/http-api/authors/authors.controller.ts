@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -24,6 +25,7 @@ import { CreateLessonDto } from './dto/create-lesson.dto';
 import { EditLessonDto } from './dto/edit-lesson.dto';
 import { EpisodeDto } from './dto/episode.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
+import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -162,5 +164,28 @@ export class AuthorsController {
       editEpisodeDto,
       files,
     );
+  }
+
+  @Get('courses-reports')
+  async getCoursesReports(
+    @Query() query: GetCoursesReportsDto,
+    @Req() req: FastifyRequest,
+  ) {
+    return await this.authorsService.getCoursesReports(query, req);
+  }
+
+  @Patch('correction-course-of-courses-reports/:reportId')
+  async correctionCourseReport(@Param('reportId') reportId: string) {
+    return await this.authorsService.correctionCourseReport(reportId);
+  }
+
+  @Patch('reject-correction-course-of-courses-reports/:reportId')
+  async rejectCorrectionCourseReport(@Param('reportId') reportId: string) {
+    return await this.authorsService.rejectCorrectionCourseReport(reportId);
+  }
+
+  @Delete('delete-correction-course-of-courses-reports/:reportId')
+  async deleteCorrectionCourseReport(@Param('reportId') reportId: string) {
+    return await this.authorsService.deleteCorrectionCourseReport(reportId);
   }
 }
