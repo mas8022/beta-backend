@@ -27,6 +27,7 @@ import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
 import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
 import { JsonSerializerInterceptor } from 'src/common/interceptors/json-serializer.interceptor';
 import { GetCoursesDto } from './dto/get-courses.dto';
+import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 
 @UseGuards(ManagerGuard)
 @Controller('manager')
@@ -151,4 +152,18 @@ export class ManagerController {
     return await this.managerService.sendCourseReport(courseId, message);
   }
 
+  @Get('courses-reports')
+  async getCoursesReports(@Query() query: GetCoursesReportsDto) {
+    return await this.managerService.getCoursesReports(query);
+  }
+
+  @Patch('accepte-correction-course-of-courses-reports/:reportId')
+  async accepteCorrectionCourseReport(@Param('reportId') reportId: string) {
+    return await this.managerService.accepteCorrectionCourseReport(reportId);
+  }
+
+  @Delete('delete-correction-course-of-courses-reports/:reportId')
+  async deleteCorrectionCourseReport(@Param('reportId') reportId: string) {
+    return await this.managerService.deleteCorrectionCourseReport(reportId);
+  }
 }

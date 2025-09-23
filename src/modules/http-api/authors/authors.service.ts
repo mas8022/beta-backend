@@ -521,10 +521,6 @@ export class AuthorsService {
       },
     });
 
-    console.log('run');
-
-    console.log(reports);
-
     return { status: 200, data: reports };
   }
 

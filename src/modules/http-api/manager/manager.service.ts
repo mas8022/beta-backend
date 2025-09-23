@@ -10,6 +10,7 @@ import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
 import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
 import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 import { GetCoursesDto } from './dto/get-courses.dto';
+import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 
 @Injectable()
 export class ManagerService {
@@ -588,5 +589,56 @@ export class ManagerService {
     });
 
     return { status: 201, message: 'پیام ارسال شد' };
+  }
+
+  async getCoursesReports(query: GetCoursesReportsDto) {
+    const { status, search } = query;
+
+    const where: any = {};
+
+    if (search?.trim()) {
+      where.course = {
+        title: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      };
+    }
+
+    if (status !== 'ALL') {
+      where.status = status;
+    }
+
+    const reports = await this.prismaService.courseReport.findMany({
+      where,
+      include: {
+        course: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    });
+
+    return { status: 200, data: reports };
+  }
+
+  async accepteCorrectionCourseReport(reportId: string) {
+    await this.prismaService.courseReport.update({
+      where: { id: Number(reportId) },
+      data: {
+        status: 'ACCEPTE',
+      },
+    });
+
+    return { status: 201, message: 'انجام شد' };
+  }
+
+  async deleteCorrectionCourseReport(reportId: string) {
+    await this.prismaService.courseReport.delete({
+      where: { id: Number(reportId) },
+    });
+
+    return { status: 201, message: 'حذف شد' };
   }
 }
