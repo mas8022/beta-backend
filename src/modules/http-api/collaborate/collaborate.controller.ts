@@ -11,8 +11,8 @@ export class CollaborateController {
   constructor(private readonly collaborateService: CollaborateService) {}
 
   @Post()
-  create(@Body() dto: CreateCollaborateDto) {
-    return this.collaborateService.create(dto);
+  create(@Body() createCollaborateDto: CreateCollaborateDto) {
+    return this.collaborateService.create(createCollaborateDto);
   }
   
 }

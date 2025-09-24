@@ -6,12 +6,9 @@ import { PrismaService } from 'src/common/services/prisma/prisma.service';
 export class CollaborateService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(dto: CreateCollaborateDto) {
+  async create(createCollaborateDto: CreateCollaborateDto) {
     await this.prismaService.requestCollaborate.create({
-      data: {
-        ...dto,
-        permission: 'pending',
-      },
+      data: createCollaborateDto,
     });
 
     return { status: 201, message: 'درخواست شماارسال شد' };

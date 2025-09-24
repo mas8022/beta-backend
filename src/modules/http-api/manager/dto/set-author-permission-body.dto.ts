@@ -1,4 +1,11 @@
-import { IsEnum, IsInt, IsOptional, IsString, IsBoolean, IsUrl } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsBoolean,
+  IsUrl,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum AuthorPermissionStatus {
@@ -7,10 +14,18 @@ export enum AuthorPermissionStatus {
   pending = 'pending',
 }
 
+enum RoleEnum {
+  AUTHOR = 'AUTHOR',
+  ADMIN = 'ADMIN',
+}
+
 export class SetAuthorPermissionBodyDto {
   @Type(() => Number)
   @IsInt()
   id: number;
+
+  @IsEnum(RoleEnum)
+  role: RoleEnum;
 
   @IsOptional()
   @IsString()

@@ -74,12 +74,12 @@ export class ManagerController {
     return await this.managerService.getRequestsCollaborate(query);
   }
 
-  @Patch('set-author-permission/:requestId/:status')
-  async setAuthorPermission(
+  @Patch('set-collaborate-permisson/:requestId/:status')
+  async setCollaboratePermisson(
     @Param() params: SetAuthorPermissionParamDto,
     @Body() request: SetAuthorPermissionBodyDto,
   ) {
-    return await this.managerService.setAuthorPermission(params, request);
+    return await this.managerService.setCollaboratePermisson(params, request);
   }
 
   @Delete('request-collaborate/:requestId')

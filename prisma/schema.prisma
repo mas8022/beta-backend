@@ -38,6 +38,7 @@ enum UserRoleEnum {
   USER
   MANAGER
   AUTHOR
+  ADMIN
 }
 
 model ContactUs {
@@ -65,19 +66,25 @@ model RequestCollaborate {
   id              Int                  @id @default(autoincrement())
   name            String
   email           String
-  phone           String?
-  experienceYears String?
-  hoursPerWeek    String?
+  phone           String
+  experienceYears String
+  hoursPerWeek    String
   expertise       String
-  portfolioUrl    String
+  portfolioUrl    String? 
   linkedin        String?
   githubOrYoutube String?
   location        String?
-  message         String?
+  message         String
   acceptTerms     Boolean              @default(false)
+  role            RoleEnum
   permission      PermissionStatusEnum @default(pending)
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
+}
+
+enum RoleEnum {
+  ADMIN
+  AUTHOR
 }
 
 enum PermissionStatusEnum {

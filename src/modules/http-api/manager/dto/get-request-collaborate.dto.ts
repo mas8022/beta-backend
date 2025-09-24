@@ -7,6 +7,12 @@ enum PermissionSortEnum {
   all = 'all',
 }
 
+enum RoleEnum {
+  ALL = 'ALL',
+  AUTHOR = 'AUTHOR',
+  ADMIN = 'ADMIN',
+}
+
 export class GetRequestsCollaborateDto {
   @IsOptional()
   search?: string;
@@ -14,4 +20,7 @@ export class GetRequestsCollaborateDto {
   @IsOptional()
   @IsEnum(PermissionSortEnum)
   sort?: PermissionSortEnum;
+
+  @IsEnum(RoleEnum)
+  role: RoleEnum;
 }

@@ -1,51 +1,64 @@
-import { ArrayMinSize, IsArray, IsBoolean, IsEmail, IsOptional, IsString, IsUrl, MinLength } from "class-validator";
+import {
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MinLength,
+  Matches,
+  IsEnum,
+} from 'class-validator';
+
+export enum RoleEnum {
+  ADMIN = 'ADMIN',
+  AUTHOR = 'AUTHOR',
+}
 
 export class CreateCollaborateDto {
-  @IsString()
-  @MinLength(3)
+  @IsString({ message: 'نام باید رشته باشد.' })
+  @MinLength(3, { message: 'نام و نام خانوادگی را کامل وارد کنید.' })
   name: string;
 
-  @IsEmail()
+  @IsEmail({}, { message: 'ایمیل معتبر نیست.' })
   email: string;
 
-  @IsOptional()
   @IsString()
-  phone?: string;
-
-  @IsArray()
-  @ArrayMinSize(1)
-  roles: string[];
-
-  @IsOptional()
-  @IsString()
-  experienceYears?: string;
-
-  @IsOptional()
-  @IsString()
-  hoursPerWeek?: string;
+  phone: string;
 
   @IsString()
+  experienceYears: string;
+
+  @IsString()
+  hoursPerWeek: string;
+
+  @IsString()
+  @MinLength(2, { message: 'حوزه‌های تخصص را وارد کنید.' })
   expertise: string;
 
-  @IsUrl()
+  @IsOptional()
+  @Matches(/^$|^https?:\/\/.*$/, {
+    message: 'لینک نمونه‌کار معتبر نیست.',
+  })
   portfolioUrl: string;
 
+  @IsEnum(RoleEnum, { message: 'نقش انتخاب‌شده معتبر نیست.' })
+  role: RoleEnum;
+
   @IsOptional()
-  @IsUrl()
+  @IsUrl({}, { message: 'لینک LinkedIn معتبر نیست.' })
   linkedin?: string;
 
   @IsOptional()
-  @IsUrl()
+  @IsUrl({}, { message: 'لینک معتبر نیست.' })
   githubOrYoutube?: string;
 
   @IsOptional()
   @IsString()
   location?: string;
 
-  @IsOptional()
   @IsString()
-  @MinLength(10)
-  message?: string;
+  @MinLength(10, { message: 'حداقل ۱۰ کاراکتر وارد کنید.' })
+  message: string;
 
   @IsBoolean()
   acceptTerms: boolean;

@@ -195,9 +195,13 @@ export class ManagerService {
   }
 
   async getRequestsCollaborate(query: GetRequestsCollaborateDto) {
-    const { search, sort } = query;
+    const { search, sort, role } = query;
 
     const where: any = {};
+
+    if (role !== 'ALL') where.role = role;
+
+    if (sort !== 'all') where.permission = sort;
 
     if (search) {
       where.OR = [
@@ -222,8 +226,6 @@ export class ManagerService {
       ];
     }
 
-    if (sort !== 'all') where.permission = sort;
-
     const requests = await this.prismaService.requestCollaborate.findMany({
       where,
     });
@@ -234,7 +236,7 @@ export class ManagerService {
     };
   }
 
-  async setAuthorPermission(
+  async setCollaboratePermisson(
     { requestId, status }: SetAuthorPermissionParamDto,
     request: SetAuthorPermissionBodyDto,
   ) {
@@ -259,18 +261,22 @@ export class ManagerService {
       },
     });
 
-    const { phone } = request;
+    const { phone, role } = request;
+
+    const user: any = await this.prismaService.user.findUnique({
+      where: { phone },
+    });
 
     await this.prismaService.user.upsert({
       where: {
         phone,
       },
       update: {
-        roles: ['USER', 'AUTHOR', 'MANAGER'],
+        roles: Array.from(new Set([...user?.roles, role])),
       },
       create: {
         phone,
-        roles: ['USER', 'AUTHOR', 'MANAGER'],
+        roles: ['USER', role],
       },
     });
 
