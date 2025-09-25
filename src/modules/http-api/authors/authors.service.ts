@@ -10,6 +10,7 @@ import { EditLessonDto } from './dto/edit-lesson.dto';
 import { EpisodeDto } from './dto/episode.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
+import { CreateCoursePromotionDto } from './dto/create-course-promotion.dto';
 
 @Injectable()
 export class AuthorsService {
@@ -552,5 +553,26 @@ export class AuthorsService {
     });
 
     return { status: 201, message: 'حذف شد' };
+  }
+  async createCousrePromotion(
+    body: CreateCoursePromotionDto,
+    req: FastifyRequest,
+  ) {
+    const author = await req.author;
+
+    const { code, expireAt, percent, courseId, usageLimit } = body;
+
+    await this.prismaService.promotion.create({
+      data: {
+        code,
+        expireAt,
+        percent,
+        authorId: author.id,
+        courseId: Number(courseId),
+        usageLimit,
+      },
+    });
+
+    return { status: 201, message: 'کد تخفیف ایجاد شد' };
   }
 }

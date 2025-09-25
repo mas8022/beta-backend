@@ -26,6 +26,7 @@ import { EditLessonDto } from './dto/edit-lesson.dto';
 import { EpisodeDto } from './dto/episode.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
+import { CreateCoursePromotionDto } from './dto/create-course-promotion.dto';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -187,5 +188,10 @@ export class AuthorsController {
   @Delete('delete-correction-course-of-courses-reports/:reportId')
   async deleteCorrectionCourseReport(@Param('reportId') reportId: string) {
     return await this.authorsService.deleteCorrectionCourseReport(reportId);
+  }
+
+  @Post('create-course-promotion')
+  async createCousrePromotion(@Body() body: CreateCoursePromotionDto, @Req() req:FastifyRequest) {
+    return await this.authorsService.createCousrePromotion(body, req);
   }
 }

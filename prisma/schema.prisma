@@ -22,11 +22,12 @@ model User {
   CourseOrder   CourseOrder[]
   CourseComment CourseComment[]
 
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
   AuthorRequestFuns   AuthorRequestFuns[]
   ContactUs           ContactUs[]
   ManagerCourseReport CourseReport[]
+  Promotion           Promotion[]
 }
 
 enum UserStatusEnum {
@@ -70,7 +71,7 @@ model RequestCollaborate {
   experienceYears String
   hoursPerWeek    String
   expertise       String
-  portfolioUrl    String? 
+  portfolioUrl    String?
   linkedin        String?
   githubOrYoutube String?
   location        String?
@@ -112,11 +113,12 @@ model Course {
   lessons Lesson[]
   likes   Like[]
 
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
   CourseOrder         CourseOrder[]
   CourseComment       CourseComment[]
   ManagerCourseReport CourseReport[]
+  Promotion           Promotion[]
 }
 
 enum CourseStatusEnum {
@@ -265,4 +267,20 @@ enum CourseReportStatusEnum {
   SEND
   CORRECTION
   ACCEPTE
+}
+
+model Promotion {
+  id          Int      @id @default(autoincrement())
+  code        String
+  percent     Int
+  expireAt    DateTime
+  usageLimit Int      @default(1)
+
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
