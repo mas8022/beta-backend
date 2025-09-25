@@ -647,4 +647,14 @@ export class ManagerService {
 
     return { status: 201, message: 'حذف شد' };
   }
+  async editRoles(roles: any, userId: string) {
+    await this.prismaService.user.update({
+      where: { id: Number(userId) },
+      data: {
+        roles: [...roles, 'USER'],
+      },
+    });
+
+    return { status: 201, message: 'نقش ویرایش شد' };
+  }
 }

@@ -166,4 +166,9 @@ export class ManagerController {
   async deleteCorrectionCourseReport(@Param('reportId') reportId: string) {
     return await this.managerService.deleteCorrectionCourseReport(reportId);
   }
+
+  @Patch('edit-roles/:userId')
+  async editRoles(@Body('roles') roles: any, @Param('userId') userId: string) {
+    return await this.managerService.editRoles(roles, userId);
+  }
 }
