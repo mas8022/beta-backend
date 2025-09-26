@@ -27,6 +27,7 @@ import { EpisodeDto } from './dto/episode.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import { CreateCoursePromotionDto } from './dto/create-course-promotion.dto';
+import { EditCoursePromotionDto } from './dto/edit-course-promotion.dto';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -191,7 +192,28 @@ export class AuthorsController {
   }
 
   @Post('create-course-promotion')
-  async createCousrePromotion(@Body() body: CreateCoursePromotionDto, @Req() req:FastifyRequest) {
+  async createCousrePromotion(
+    @Body() body: CreateCoursePromotionDto,
+    @Req() req: FastifyRequest,
+  ) {
     return await this.authorsService.createCousrePromotion(body, req);
+  }
+
+  @Get('cousres-promotions')
+  async getCoursesPromotions(
+    @Query('search') search: string,
+    @Req() req: FastifyRequest,
+  ) {
+    return await this.authorsService.getCoursesPromotions(search, req);
+  }
+
+  @Delete('cousre-promotion/:id')
+  async deleteCoursePromotion(@Param('id') id: string) {
+    return await this.authorsService.deleteCoursePromotion(id);
+  }
+
+  @Put('edit-cousre-promotion/:id')
+  async editCousrePromotion(@Param('id') id: string, @Body() body: EditCoursePromotionDto) {
+    return await this.authorsService.editCousrePromotion(id, body);
   }
 }

@@ -11,6 +11,7 @@ import { EpisodeDto } from './dto/episode.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import { CreateCoursePromotionDto } from './dto/create-course-promotion.dto';
+import { EditCoursePromotionDto } from './dto/edit-course-promotion.dto';
 
 @Injectable()
 export class AuthorsService {
@@ -554,6 +555,7 @@ export class AuthorsService {
 
     return { status: 201, message: 'حذف شد' };
   }
+
   async createCousrePromotion(
     body: CreateCoursePromotionDto,
     req: FastifyRequest,
@@ -574,5 +576,54 @@ export class AuthorsService {
     });
 
     return { status: 201, message: 'کد تخفیف ایجاد شد' };
+  }
+
+  async getCoursesPromotions(search: string, req: FastifyRequest) {
+    const author = await req.author;
+
+    const where: any = { authorId: author.id };
+
+    if (search) {
+      where.course = {
+        title: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      };
+    }
+
+    const promotions = await this.prismaService.promotion.findMany({
+      where,
+      include: {
+        course: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    });
+
+    return { status: 200, data: promotions };
+  }
+
+  async deleteCoursePromotion(id: string) {
+    await this.prismaService.promotion.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    return { status: 201, message: 'حذف شد' };
+  }
+
+  async editCousrePromotion(id: string, body: EditCoursePromotionDto) {
+    await this.prismaService.promotion.update({
+      where: {
+        id: Number(id),
+      },
+      data: body,
+    });
+
+    return { status: 201, message: 'ویرایش شد' };
   }
 }
