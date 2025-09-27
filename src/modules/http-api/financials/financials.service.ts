@@ -3,7 +3,6 @@ import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import type { FastifyRequest } from 'fastify';
 import { ZibalService } from 'src/common/services/zibal/zibal.service';
 import { AuthorRequestFunsDto } from './dto/author-request-funs.dto';
-import jalaali from 'jalaali-js';
 import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 
 @Injectable()
@@ -13,7 +12,7 @@ export class FinancialsService {
     private readonly zibalService: ZibalService,
   ) {}
 
-  async paymentRequest(id: string, req: FastifyRequest) {
+  async paymentRequest(id: string, req: FastifyRequest, promotionCode: string) {
     const me = await req.user;
 
     const course = await this.prismaService.course.findUnique({
@@ -27,22 +26,40 @@ export class FinancialsService {
       };
     }
 
-    const existingOrder = await this.prismaService.courseOrder.findUnique({
+    const existingOrder = await this.prismaService.courseOrder.findFirst({
       where: {
-        userId_courseId: {
-          userId: me.id,
-          courseId: course.id,
-        },
+        userId: me.id,
+        courseId: course.id,
         status: 'success',
       },
     });
 
-    if (!!existingOrder) {
+    if (existingOrder) {
       throw new ConflictException('شما قبلاً این دوره را سفارش داده‌اید');
     }
 
+    let coursePrice = course.price;
+
+    if (promotionCode) {
+      const isExistPromotionCode = await this.prismaService.promotion.findFirst(
+        {
+          where: {
+            code: promotionCode,
+            expireAt: { gte: new Date() },
+            usageLimit: { gt: 0 },
+          },
+        },
+      );
+
+      if (!isExistPromotionCode) {
+        return { status: 400, message: 'کد تخفیف شما اعتبار ندارد' };
+      }
+
+      coursePrice -= coursePrice * (isExistPromotionCode.percent / 100);
+    }
+
     const { success, authority, paymentUrl } =
-      await this.zibalService.createPayment(Number(course?.price), me.phone);
+      await this.zibalService.createPayment(coursePrice, me.phone);
 
     if (!success || !authority) {
       return {
@@ -55,8 +72,9 @@ export class FinancialsService {
       data: {
         userId: me.id,
         courseId: course.id,
-        price: course.price,
+        price: coursePrice,
         authority: String(authority),
+        promotionCode,
       },
     });
 
@@ -68,36 +86,46 @@ export class FinancialsService {
   }
 
   async verifyPayment(authority: string) {
-    const order = await this.prismaService.courseOrder.findUnique({
-      where: { authority },
-    });
-
-    if (!order) {
-      await this.prismaService.courseOrder.update({
+    return await this.prismaService.$transaction(async (tx) => {
+      const order = await tx.courseOrder.findUnique({
         where: { authority },
-        data: { status: 'failed' },
       });
-      return { status: 404 };
-    }
 
-    const { success } = await this.zibalService.verifyPayment(
-      String(order.authority),
-    );
+      if (!order) {
+        return { status: 404 };
+      }
 
-    if (!success) {
-      await this.prismaService.courseOrder.update({
+      // جلوگیری از دوباره کم شدن تخفیف
+      if (order.status === 'success') {
+        return { status: 200, message: 'قبلاً تایید شده' };
+      }
+
+      const { success } = await this.zibalService.verifyPayment(
+        String(order.authority),
+      );
+
+      if (!success) {
+        await tx.courseOrder.update({
+          where: { authority },
+          data: { status: 'failed' },
+        });
+        return { status: 403 };
+      }
+
+      if (order.promotionCode) {
+        await tx.promotion.updateMany({
+          where: { code: order.promotionCode, usageLimit: { gt: 0 } },
+          data: { usageLimit: { decrement: 1 } },
+        });
+      }
+
+      await tx.courseOrder.update({
         where: { authority },
-        data: { status: 'failed' },
+        data: { status: 'success' },
       });
-      return { status: 403 };
-    }
 
-    await this.prismaService.courseOrder.update({
-      where: { authority },
-      data: { status: 'success' },
+      return { status: 201 };
     });
-
-    return { status: 201 };
   }
 
   async authorRequestFuns(
@@ -194,8 +222,6 @@ export class FinancialsService {
 
       monthlySales.push({ month: monthName, total });
     }
-
-    
 
     return {
       status: 200,

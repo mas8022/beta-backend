@@ -21,8 +21,12 @@ export class FinancialsController {
 
   @UseGuards(UserGuard)
   @Post('request-user-payment/:id')
-  async paymentRequest(@Param('id') id: string, @Req() req: FastifyRequest) {
-    return await this.financialsService.paymentRequest(id, req);
+  async paymentRequest(
+    @Param('id') id: string,
+    @Req() req: FastifyRequest,
+    @Body('promotionCode') promotionCode: string,
+  ) {
+    return await this.financialsService.paymentRequest(id, req, promotionCode);
   }
 
   @Get('verify-user-payment')

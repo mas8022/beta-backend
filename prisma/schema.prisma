@@ -192,9 +192,11 @@ model CourseOrder {
 
   status CourseOrderStatusEnum @default(isPending)
 
+  promotionCode String?
+
   createdAt DateTime @default(now())
 
-  @@unique([userId, courseId])
+  @@index([userId, courseId])
 }
 
 enum CourseOrderStatusEnum {
@@ -270,10 +272,10 @@ enum CourseReportStatusEnum {
 }
 
 model Promotion {
-  id          Int      @id @default(autoincrement())
-  code        String
-  percent     Int
-  expireAt    DateTime
+  id         Int      @id @default(autoincrement())
+  code       String
+  percent    Int
+  expireAt   DateTime
   usageLimit Int      @default(1)
 
   courseId Int
