@@ -20,11 +20,6 @@ import type { FastifyRequest } from 'fastify';
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
-  // @Post()
-  // createManyCourses() {
-  //   return this.coursesService.createManyCourses();
-  // }
-
   @Post('create-test-course')
   async createTestCourse() {
     return this.coursesService.createTestCourse();

@@ -144,6 +144,16 @@ export class ManagerController {
     return await this.managerService.accepteLesson(lessonId);
   }
 
+  @Patch('accepte-episode/:id')
+  async accepteEpisode(@Param('id') id: string) {
+    return await this.managerService.accepteEpisode(id);
+  }
+
+  @Patch('reject-episode/:id')
+  async rejectEpisode(@Param('id') id: string) {
+    return await this.managerService.rejectEpisode(id);
+  }
+
   @Post('send-course-report/:courseId')
   async sendCourseReport(
     @Param('courseId') courseId: string,

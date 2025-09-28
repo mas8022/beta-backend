@@ -152,9 +152,10 @@ enum LessonStatusEnum {
 }
 
 model Episode {
-  id          Int     @id @default(autoincrement())
+  id          Int               @id @default(autoincrement())
+  status      EpisodeStatusEnum @default(waiting)
   title       String
-  duration    Int     @default(0)
+  duration    Int               @default(0)
   order       Int
   description String?
   videoUrl    String
@@ -164,6 +165,12 @@ model Episode {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum EpisodeStatusEnum {
+  waiting
+  rejected
+  publish
 }
 
 model Like {

@@ -433,7 +433,22 @@ export class ManagerService {
   async getCourses(query: GetCoursesDto) {
     const { status, search } = query;
 
-    const where: any = { status };
+    let where: any = {};
+
+    if (status === 'simpleEdit') {
+      where.lessons = {
+        some: {
+          status: 'waiting',
+          episodes: {
+            some: {
+              status: 'waiting',
+            },
+          },
+        },
+      };
+    } else {
+      where = { status };
+    }
 
     if (search?.trim()) {
       where.title = {
@@ -564,6 +579,32 @@ export class ManagerService {
     });
 
     return { status: 201, message: 'فصل پذیرفته شد' };
+  }
+
+  async accepteEpisode(id: string) {
+    await this.prismaService.episode.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        status: 'publish',
+      },
+    });
+
+    return { status: 201, message: 'درس پذیرفته شد' };
+  }
+
+  async rejectEpisode(id: string) {
+    await this.prismaService.episode.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        status: 'rejected',
+      },
+    });
+
+    return { status: 201, message: 'درس رد شد' };
   }
 
   async sendCourseReport(courseId: string, message: string) {

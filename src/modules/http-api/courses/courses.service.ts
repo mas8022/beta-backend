@@ -12,22 +12,6 @@ export class CoursesService {
     private readonly userService: UsersService,
   ) {}
 
-  // async createManyCourses() {
-  //   try {
-  //     await this.prismaService.course.createMany({
-  //       data: courses,
-  //     });
-
-  //     await this.prismaService.lesson.createMany({
-  //       data: courseLesseons,
-  //     });
-
-  //     return { status: 201 };
-  //   } catch (error) {
-  //     return { status: 500 };
-  //   }
-  // }
-
   async createTestCourse() {
     await this.prismaService.course.create({
       data: {
@@ -420,6 +404,7 @@ export class CoursesService {
               select: { episodes: true },
             },
             episodes: {
+              where: { status: 'publish' },
               select: {
                 id: true,
                 title: true,
@@ -443,12 +428,10 @@ export class CoursesService {
 
     let isOwn = false;
     if (me) {
-      let myCoure: any = await this.prismaService.courseOrder.findUnique({
+      let myCoure: any = await this.prismaService.courseOrder.findFirst({
         where: {
-          userId_courseId: {
-            userId: me.id,
-            courseId: Number(courseId),
-          },
+          userId: me.id,
+          courseId: Number(courseId),
           status: 'success',
         },
       });
