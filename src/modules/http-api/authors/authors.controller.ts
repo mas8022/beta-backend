@@ -28,6 +28,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import { CreateCoursePromotionDto } from './dto/create-course-promotion.dto';
 import { EditCoursePromotionDto } from './dto/edit-course-promotion.dto';
+import { GetCoursesDto } from './dto/get-course.dto';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -72,8 +73,8 @@ export class AuthorsController {
   }
 
   @Get('author-courses')
-  async getAuthorCourses(@Req() req: FastifyRequest) {
-    return await this.authorsService.getAuthorCourses(req);
+  async getAuthorCourses(@Req() req: FastifyRequest, @Query() query: GetCoursesDto) {
+    return await this.authorsService.getAuthorCourses(req, query);
   }
 
   @Post('create-course')

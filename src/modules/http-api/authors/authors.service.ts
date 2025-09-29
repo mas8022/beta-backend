@@ -12,6 +12,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import { CreateCoursePromotionDto } from './dto/create-course-promotion.dto';
 import { EditCoursePromotionDto } from './dto/edit-course-promotion.dto';
+import { GetCoursesDto } from './dto/get-course.dto';
 
 @Injectable()
 export class AuthorsService {
@@ -178,13 +179,33 @@ export class AuthorsService {
     };
   }
 
-  async getAuthorCourses(req: FastifyRequest) {
+  async getAuthorCourses(req: FastifyRequest, query: GetCoursesDto) {
     const { id } = await req.author;
 
+    const { status } = query;
+
+    console.log(status);
+    
+
+    let where: any = { authorId: id };
+
+    if (status === 'simpleEdit') {
+      where.lessons = {
+        some: {
+          status: 'waiting',
+          episodes: {
+            some: {
+              status: 'waiting',
+            },
+          },
+        },
+      };
+    } else {
+      where = { status };
+    }
+
     const courses = await this.prismaService.course.findMany({
-      where: {
-        authorId: id,
-      },
+      where,
       omit: {
         requirements: true,
         whatYouLearn: true,
