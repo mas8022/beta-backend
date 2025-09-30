@@ -12,8 +12,9 @@ import { AuthorsModule } from './modules/http-api/authors/authors.module';
 import { BucketModule } from './common/services/bucket/bucket.module';
 import { ManagerModule } from './modules/http-api/manager/manager.module';
 import { UploadModule } from './modules/http-api/upload/upload.module';
+import { AdminsModule } from './modules/http-api/admins/admins.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule, CoursesModule, FinancialsModule, ZibalModule, AuthorsModule, BucketModule, ManagerModule, UploadModule],
+  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule, CoursesModule, FinancialsModule, ZibalModule, AuthorsModule, BucketModule, ManagerModule, UploadModule, AdminsModule],
 })
 export class AppModule {}
