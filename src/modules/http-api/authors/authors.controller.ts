@@ -73,7 +73,10 @@ export class AuthorsController {
   }
 
   @Get('author-courses')
-  async getAuthorCourses(@Req() req: FastifyRequest, @Query() query: GetCoursesDto) {
+  async getAuthorCourses(
+    @Req() req: FastifyRequest,
+    @Query() query: GetCoursesDto,
+  ) {
     return await this.authorsService.getAuthorCourses(req, query);
   }
 
@@ -141,13 +144,11 @@ export class AuthorsController {
   }
 
   @Post('create-episode/:lessonId')
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'video', maxCount: 1 }]))
   async createEpisode(
     @Param('lessonId') lessonId: string,
-    @UploadedFiles() files: any,
     @Body() body: EpisodeDto,
   ) {
-    return await this.authorsService.createEpisode(lessonId, files, body);
+    return await this.authorsService.createEpisode(lessonId, body);
   }
 
   @Delete('delete-episode/:episodeId')
@@ -155,18 +156,9 @@ export class AuthorsController {
     return await this.authorsService.deleteEpisode(episodeId);
   }
 
-  @Put('edit-episode/:episodeId')
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'video', maxCount: 1 }]))
-  async editEpisode(
-    @Param('episodeId') episodeId: string,
-    @UploadedFiles() files: any,
-    @Body() editEpisodeDto: EpisodeDto,
-  ) {
-    return await this.authorsService.editEpisode(
-      episodeId,
-      editEpisodeDto,
-      files,
-    );
+  @Put('edit-episode/:id')
+  async editEpisode(@Param('id') id: string, @Body() body: EpisodeDto) {
+    return await this.authorsService.editEpisode(id, body);
   }
 
   @Get('courses-reports')
@@ -214,7 +206,10 @@ export class AuthorsController {
   }
 
   @Put('edit-cousre-promotion/:id')
-  async editCousrePromotion(@Param('id') id: string, @Body() body: EditCoursePromotionDto) {
+  async editCousrePromotion(
+    @Param('id') id: string,
+    @Body() body: EditCoursePromotionDto,
+  ) {
     return await this.authorsService.editCousrePromotion(id, body);
   }
 }

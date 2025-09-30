@@ -11,8 +11,9 @@ import { ZibalModule } from './common/services/zibal/zibal.module';
 import { AuthorsModule } from './modules/http-api/authors/authors.module';
 import { BucketModule } from './common/services/bucket/bucket.module';
 import { ManagerModule } from './modules/http-api/manager/manager.module';
+import { UploadModule } from './modules/http-api/upload/upload.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule, CoursesModule, FinancialsModule, ZibalModule, AuthorsModule, BucketModule, ManagerModule],
+  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule, CoursesModule, FinancialsModule, ZibalModule, AuthorsModule, BucketModule, ManagerModule, UploadModule],
 })
 export class AppModule {}

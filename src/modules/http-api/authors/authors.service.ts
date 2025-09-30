@@ -184,9 +184,6 @@ export class AuthorsService {
 
     const { status } = query;
 
-    console.log(status);
-    
-
     let where: any = { authorId: id };
 
     if (status === 'simpleEdit') {
@@ -434,8 +431,8 @@ export class AuthorsService {
     return { status: 201, message: 'فصل با موفقیت ویرایش شد' };
   }
 
-  async createEpisode(lessonId: string, files: any, body: EpisodeDto) {
-    const { title, description } = body;
+  async createEpisode(lessonId: string, body: EpisodeDto) {
+    const { key, title, description } = body;
 
     const lastOrder = await this.prismaService.episode.count({
       where: {
@@ -443,13 +440,10 @@ export class AuthorsService {
       },
     });
 
-    const videoAddress: any = await this.bucketService.uploadFile(
-      files.video[0],
-      ['video'],
-    );
+    const videoUrl = `${process.env.LIARA_ENDPOINT}/${process.env.LIARA_BUCKET_NAME}/${key}`;
 
-    const duration = await getVideoDurationInSeconds(videoAddress).then(
-      (result) => Math.round(result),
+    const duration = await getVideoDurationInSeconds(videoUrl).then((result) =>
+      Math.round(result),
     );
 
     await this.prismaService.episode.create({
@@ -457,7 +451,7 @@ export class AuthorsService {
         lessonId: Number(lessonId),
         title,
         order: lastOrder + 1,
-        videoUrl: videoAddress,
+        videoUrl,
         description,
         duration,
       },
@@ -476,15 +470,11 @@ export class AuthorsService {
     return { status: 200, message: 'درس با موفقیت حذف شد' };
   }
 
-  async editEpisode(
-    episodeId: string,
-    editEpisodeDto: EpisodeDto,
-    files?: any,
-  ) {
-    const { title, description } = editEpisodeDto;
+  async editEpisode(id: string, body: EpisodeDto) {
+    const { key, title, description } = body;
 
     const oldEpisode = await this.prismaService.episode.findUnique({
-      where: { id: Number(episodeId) },
+      where: { id: Number(id) },
     });
 
     if (!oldEpisode) {
@@ -493,15 +483,17 @@ export class AuthorsService {
 
     let videoUrl: any = oldEpisode.videoUrl;
     let duration: any = oldEpisode.duration;
-    if (files?.video?.[0]) {
-      videoUrl = await this.bucketService.uploadFile(files.video[0], ['video']);
+
+    if (key) {
+      videoUrl = `${process.env.LIARA_ENDPOINT}/${process.env.LIARA_BUCKET_NAME}/${key}`;
+
       duration = await getVideoDurationInSeconds(videoUrl).then((res) =>
         Math.round(res),
       );
     }
 
     await this.prismaService.episode.update({
-      where: { id: Number(episodeId) },
+      where: { id: Number(id) },
       data: {
         title,
         description,
