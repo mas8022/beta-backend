@@ -6,5 +6,6 @@ declare module 'fastify' {
     user?: User;
     author?: User;
     manager?: User;
+    admin?: User;
   }
 }

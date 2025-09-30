@@ -23,6 +23,8 @@ export class AdminGuard implements CanActivate {
 
     if (!hasRole) throw new UnauthorizedException('شما اجازه دسترسی ندارید');
 
+    req.admin = admin
+
     return true;
   }
 }
