@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -11,6 +12,7 @@ import {
 import { AdminsService } from './admins.service';
 import { GetCoursesDto } from './dto/get-courses.dto';
 import { AdminGuard } from './admin.guard';
+import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 
 @UseGuards(AdminGuard)
 @Controller('admins')
@@ -68,5 +70,20 @@ export class AdminsController {
   @Patch('accepte-lesson/:lessonId')
   async accepteLesson(@Param('lessonId') lessonId: string) {
     return await this.adminsService.accepteLesson(lessonId);
+  }
+
+  @Get('courses-reports')
+  async getCoursesReports(@Query() query: GetCoursesReportsDto) {
+    return await this.adminsService.getCoursesReports(query);
+  }
+
+  @Delete('delete-correction-course-of-courses-reports/:reportId')
+  async deleteCorrectionCourseReport(@Param('reportId') reportId: string) {
+    return await this.adminsService.deleteCorrectionCourseReport(reportId);
+  }
+
+  @Patch('accepte-correction-course-of-courses-reports/:reportId')
+  async accepteCorrectionCourseReport(@Param('reportId') reportId: string) {
+    return await this.adminsService.accepteCorrectionCourseReport(reportId);
   }
 }
