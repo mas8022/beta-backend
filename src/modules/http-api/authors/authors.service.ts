@@ -13,6 +13,7 @@ import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import { CreateCoursePromotionDto } from './dto/create-course-promotion.dto';
 import { EditCoursePromotionDto } from './dto/edit-course-promotion.dto';
 import { GetCoursesDto } from './dto/get-course.dto';
+import { RequestFunsDto } from './dto/request-funs.dto';
 
 @Injectable()
 export class AuthorsService {
@@ -510,7 +511,14 @@ export class AuthorsService {
 
     const { status, search } = query;
 
-    const where: any = { authorId: author.id };
+    const where: any = {
+      course: {
+        author: {
+          id: author.id,
+        },
+      },
+      status,
+    };
 
     if (search?.trim()) {
       where.course = {
@@ -519,10 +527,6 @@ export class AuthorsService {
           mode: 'insensitive',
         },
       };
-    }
-
-    if (status !== 'ALL') {
-      where.status = status;
     }
 
     const reports = await this.prismaService.courseReport.findMany({
@@ -638,5 +642,38 @@ export class AuthorsService {
     });
 
     return { status: 201, message: 'ویرایش شد' };
+  }
+
+  async RequestFuns(req: FastifyRequest, RequestFunsDto: RequestFunsDto) {
+    const author = await req.author;
+    const { amount, cardNumber } = RequestFunsDto;
+
+    const totalIncomesResult = await this.prismaService.courseOrder.aggregate({
+      where: { course: { authorId: author.id }, status: 'success' },
+      _sum: { price: true },
+    });
+    const totalIncomes = totalIncomesResult._sum.price ?? 0;
+
+    const totalWithdrawalsResult =
+      await this.prismaService.requestFuns.aggregate({
+        where: { requesterId: author.id, status: 'SUCCESS' },
+        _sum: { amount: true },
+      });
+    const totalWithdrawals = totalWithdrawalsResult._sum.amount ?? 0;
+
+    const walletBalance = totalIncomes - Number(totalWithdrawals);
+
+    if (amount > walletBalance) {
+      return { status: 400, message: 'موجودی کافی نیست' };
+    }
+
+    await this.prismaService.requestFuns.create({
+      data: { requesterId: author.id, amount, cardNumber, status: 'PENDING' },
+    });
+
+    return {
+      status: 201,
+      message: 'یک الی دو روز اینده به حساب شما واریز می شود',
+    };
   }
 }

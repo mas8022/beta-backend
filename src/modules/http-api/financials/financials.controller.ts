@@ -12,7 +12,6 @@ import {
 import { FinancialsService } from './financials.service';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { UserGuard } from '../users/user.Guard';
-import { AuthorRequestFunsDto } from './dto/author-request-funs.dto';
 import { AuthorGuard } from '../authors/author.guard';
 
 @Controller('financials')
@@ -41,18 +40,6 @@ export class FinancialsController {
       .redirect(
         `${process.env.FRONTEND_URL}/payment-result?status=${String(result.status)}`,
       );
-  }
-
-  @UseGuards(AuthorGuard)
-  @Post('author-request-funs')
-  async authorRequestFuns(
-    @Req() req: FastifyRequest,
-    @Body() authorRequestFunsDto: AuthorRequestFunsDto,
-  ) {
-    return await this.financialsService.authorRequestFuns(
-      req,
-      authorRequestFunsDto,
-    );
   }
 
   @UseGuards(AuthorGuard)

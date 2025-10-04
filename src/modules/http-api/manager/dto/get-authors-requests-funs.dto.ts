@@ -1,9 +1,15 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
-enum RequestStatus {
+enum StatusٍEnum {
   PENDING = 'PENDING',
   SUCCESS = 'SUCCESS',
   REJECTED = 'REJECTED',
+}
+
+enum RoleEnum {
+  ALL = 'ALL',
+  ADMIN = 'ADMIN',
+  AUTHOR = 'AUTHOR',
 }
 
 export class GetAuthorsRequestsFunsDto {
@@ -11,6 +17,9 @@ export class GetAuthorsRequestsFunsDto {
   @IsOptional()
   search?: string;
 
-  @IsEnum(RequestStatus)
-  status: RequestStatus;
+  @IsEnum(StatusٍEnum)
+  status: StatusٍEnum;
+
+  @IsEnum(RoleEnum)
+  role: RoleEnum;
 }

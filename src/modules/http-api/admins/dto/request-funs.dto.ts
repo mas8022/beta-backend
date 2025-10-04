@@ -7,7 +7,7 @@ import {
   Length,
 } from 'class-validator';
 
-export class AuthorRequestFunsDto {
+export class RequestFunsDto {
   @IsNotEmpty({ message: 'مبلغ الزامی است' })
   @IsNumber({}, { message: 'مبلغ باید عدد باشد' })
   @Min(50_0000, { message: 'حداقل مبلغ 50,000 تومان است' })

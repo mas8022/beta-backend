@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import { GetCoursesDto } from './dto/get-courses.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
+import type { FastifyRequest } from 'fastify';
+import { RequestFunsDto } from './dto/request-funs.dto';
+import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 
 @Injectable()
 export class AdminsService {
@@ -93,30 +96,17 @@ export class AdminsService {
     return { status: 201, message: 'دوره پذیرفته شد' };
   }
 
-  async sendCourseReport(courseId: string, message: string) {
-    const course = await this.prismaService.course.findUnique({
-      where: {
-        id: Number(courseId),
-      },
-      select: {
-        author: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
-
-    const authorId = course?.author.id;
-
-    if (!authorId) {
-      return { status: 201, message: 'نویسنده این دوره اخراج شده' };
-    }
+  async sendCourseReport(
+    courseId: string,
+    message: string,
+    req: FastifyRequest,
+  ) {
+    const admin = await req.admin;
 
     await this.prismaService.courseReport.create({
       data: {
         message,
-        authorId,
+        reporterId: admin.id,
         courseId: Number(courseId),
       },
     });
@@ -225,10 +215,12 @@ export class AdminsService {
     return { status: 201, message: 'فصل پذیرفته شد' };
   }
 
-  async getCoursesReports(query: GetCoursesReportsDto) {
+  async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {
     const { status, search } = query;
 
-    const where: any = {};
+    const admin = await req.admin;
+
+    const where: any = { reporterId: admin.id, status: status };
 
     if (search?.trim()) {
       where.course = {
@@ -237,10 +229,6 @@ export class AdminsService {
           mode: 'insensitive',
         },
       };
-    }
-
-    if (status !== 'ALL') {
-      where.status = status;
     }
 
     const reports = await this.prismaService.courseReport.findMany({
@@ -264,7 +252,7 @@ export class AdminsService {
 
     return { status: 201, message: 'حذف شد' };
   }
-  
+
   async accepteCorrectionCourseReport(reportId: string) {
     await this.prismaService.courseReport.update({
       where: { id: Number(reportId) },
@@ -274,5 +262,93 @@ export class AdminsService {
     });
 
     return { status: 201, message: 'انجام شد' };
+  }
+
+  async getWallet(req: FastifyRequest) {
+    const admin = await req.admin;
+
+    const totalSell =
+      (
+        await this.prismaService.courseOrder.aggregate({
+          where: { status: 'success' },
+          _sum: {
+            price: true,
+          },
+        })
+      )._sum.price ?? 0;
+
+    let totalAdminRequestsFuns =
+      (
+        await this.prismaService.requestFuns.aggregate({
+          where: { requesterId: admin.id, status: 'SUCCESS' },
+          _sum: {
+            amount: true,
+          },
+        })
+      )._sum.amount ?? 0;
+
+    totalAdminRequestsFuns = Number(totalAdminRequestsFuns);
+
+    const allReportsCount = await this.prismaService.courseReport.count({
+      where: { status: 'ACCEPTE' },
+    });
+    const adminReportsCount = await this.prismaService.courseReport.count({
+      where: { status: 'ACCEPTE', reporterId: admin.id },
+    });
+
+    const totalAdminIncome =
+      totalSell * (5 / 100) * (adminReportsCount / allReportsCount);
+
+    const walletBalance = totalAdminIncome - totalAdminRequestsFuns;
+
+    return {
+      status: 200,
+      data: {
+        totalAdminIncome,
+        totalAdminRequestsFuns,
+        walletBalance,
+      },
+    };
+  }
+
+  async RequestFuns(req: FastifyRequest, RequestFunsDto: RequestFunsDto) {
+    const admin = await req.admin;
+    const { amount, cardNumber } = RequestFunsDto;
+
+    const totalSell =
+      (
+        await this.prismaService.courseOrder.aggregate({
+          where: { status: 'success' },
+          _sum: {
+            price: true,
+          },
+        })
+      )._sum.price ?? 0;
+
+    const totalAdminRequestsFuns =
+      (
+        await this.prismaService.requestFuns.aggregate({
+          where: { requesterId: admin.id, status: 'SUCCESS' },
+          _sum: {
+            amount: true,
+          },
+        })
+      )._sum.amount ?? 0;
+
+    const walletBalance =
+      totalSell * (5 / 100) - Number(totalAdminRequestsFuns);
+
+    if (amount > walletBalance) {
+      return { status: 400, message: 'موجودی کافی نیست' };
+    }
+
+    await this.prismaService.requestFuns.create({
+      data: { requesterId: admin.id, amount, cardNumber, status: 'PENDING' },
+    });
+
+    return {
+      status: 201,
+      message: 'یک الی دو روز اینده به حساب شما واریز می شود',
+    };
   }
 }

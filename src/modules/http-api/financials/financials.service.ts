@@ -2,7 +2,6 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import type { FastifyRequest } from 'fastify';
 import { ZibalService } from 'src/common/services/zibal/zibal.service';
-import { AuthorRequestFunsDto } from './dto/author-request-funs.dto';
 import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 
 @Injectable()
@@ -128,42 +127,6 @@ export class FinancialsService {
     });
   }
 
-  async authorRequestFuns(
-    req: FastifyRequest,
-    authorRequestFunsDto: AuthorRequestFunsDto,
-  ) {
-    const author = await req.author;
-    const { amount, cardNumber } = authorRequestFunsDto;
-
-    const totalIncomesResult = await this.prismaService.courseOrder.aggregate({
-      where: { course: { authorId: author.id }, status: 'success' },
-      _sum: { price: true },
-    });
-    const totalIncomes = totalIncomesResult._sum.price ?? 0;
-
-    const totalWithdrawalsResult =
-      await this.prismaService.authorRequestFuns.aggregate({
-        where: { authorId: author.id, status: 'SUCCESS' },
-        _sum: { amount: true },
-      });
-    const totalWithdrawals = totalWithdrawalsResult._sum.amount ?? 0;
-
-    const walletBalance = totalIncomes - Number(totalWithdrawals);
-
-    if (amount > walletBalance) {
-      return { status: 400, message: 'موجودی کافی نیست' };
-    }
-
-    await this.prismaService.authorRequestFuns.create({
-      data: { authorId: author.id, amount, cardNumber, status: 'PENDING' },
-    });
-
-    return {
-      status: 201,
-      message: 'یک الی دو روز اینده به حساب شما واریز می شود',
-    };
-  }
-
   async getAuthorWallet(req: FastifyRequest) {
     const author = await req.author;
 
@@ -180,8 +143,8 @@ export class FinancialsService {
     const totalIncomes = totalIncomesResult._sum.price ?? 0;
 
     const totalWithdrawalsResult =
-      await this.prismaService.authorRequestFuns.aggregate({
-        where: { authorId: author.id, status: 'SUCCESS' },
+      await this.prismaService.requestFuns.aggregate({
+        where: { requesterId: author.id, status: 'SUCCESS' },
         _sum: { amount: true },
       });
     const totalWithdrawals = totalWithdrawalsResult._sum.amount ?? 0;
@@ -189,8 +152,8 @@ export class FinancialsService {
     const walletBalance = totalIncomes - Number(totalWithdrawals);
 
     const totalWithdrawalsCount =
-      await this.prismaService.authorRequestFuns.count({
-        where: { authorId: author.id, status: 'SUCCESS' },
+      await this.prismaService.requestFuns.count({
+        where: { requesterId: author.id, status: 'SUCCESS' },
       });
 
     const oneYearAgo = new Date();
@@ -206,21 +169,29 @@ export class FinancialsService {
     });
 
     const monthlySales: { month: string; total: number }[] = [];
+    let cumulative = 0;
 
-    for (let i = 0; i < 12; i++) {
+    for (let i = 11; i >= 0; i--) {
       const d = new Date();
       d.setMonth(d.getMonth() - i);
 
       const { monthName, year, monthIndex } = JalaliDateUtil.toJalaliMonth(d);
 
-      const total = orders
+      // فروش همون ماه
+      const monthlyTotal = orders
         .filter((o) => {
           const j = JalaliDateUtil.toJalaliMonth(o.createdAt);
           return j.year === year && j.monthIndex === monthIndex;
         })
         .reduce((sum, o) => sum + Number(o.price), 0);
 
-      monthlySales.push({ month: monthName, total });
+      // فروش تجمعی
+      cumulative += monthlyTotal;
+
+      monthlySales.push({
+        month: monthName,
+        total: cumulative,
+      });
     }
 
     return {
@@ -230,7 +201,7 @@ export class FinancialsService {
         totalWithdrawals,
         walletBalance,
         totalWithdrawalsCount,
-        monthlySales: monthlySales.reverse(),
+        monthlySales,
       },
     };
   }

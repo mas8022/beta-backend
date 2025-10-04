@@ -28,6 +28,7 @@ import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
 import { JsonSerializerInterceptor } from 'src/common/interceptors/json-serializer.interceptor';
 import { GetCoursesDto } from './dto/get-courses.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
+import { RequestFunsDto } from './dto/request-funs.dto';
 
 @UseGuards(ManagerGuard)
 @Controller('manager')
@@ -105,8 +106,8 @@ export class ManagerController {
 
   @UseInterceptors(JsonSerializerInterceptor)
   @Get('financials-overview')
-  async getFinancialsOverView() {
-    return await this.managerService.getFinancialsOverView();
+  async getFinancialsOverView(@Req() req: FastifyRequest) {
+    return await this.managerService.getFinancialsOverView(req);
   }
 
   @Get('courses')
@@ -158,13 +159,17 @@ export class ManagerController {
   async sendCourseReport(
     @Param('courseId') courseId: string,
     @Body('message') message: string,
+    @Req() req: FastifyRequest,
   ) {
-    return await this.managerService.sendCourseReport(courseId, message);
+    return await this.managerService.sendCourseReport(courseId, message, req);
   }
 
   @Get('courses-reports')
-  async getCoursesReports(@Query() query: GetCoursesReportsDto) {
-    return await this.managerService.getCoursesReports(query);
+  async getCoursesReports(
+    @Query() query: GetCoursesReportsDto,
+    @Req() req: FastifyRequest,
+  ) {
+    return await this.managerService.getCoursesReports(query, req);
   }
 
   @Patch('accepte-correction-course-of-courses-reports/:reportId')
@@ -180,5 +185,13 @@ export class ManagerController {
   @Patch('edit-roles/:userId')
   async editRoles(@Body('roles') roles: any, @Param('userId') userId: string) {
     return await this.managerService.editRoles(roles, userId);
+  }
+
+  @Post('request-funs')
+  async authorRequestFuns(
+    @Req() req: FastifyRequest,
+    @Body() RequestFunsDto: RequestFunsDto,
+  ) {
+    return await this.managerService.RequestFuns(req, RequestFunsDto);
   }
 }

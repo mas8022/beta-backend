@@ -22,9 +22,9 @@ model User {
   CourseOrder   CourseOrder[]
   CourseComment CourseComment[]
 
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  AuthorRequestFuns   AuthorRequestFuns[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  RequestFuns         RequestFuns[]
   ContactUs           ContactUs[]
   ManagerCourseReport CourseReport[]
   Promotion           Promotion[]
@@ -234,23 +234,23 @@ enum CourseCommentStatusEnum {
   confirm
 }
 
-model AuthorRequestFuns {
+model RequestFuns {
   id Int @id @default(autoincrement())
 
-  status AuthorRequestFunsStatusEnum @default(PENDING)
+  status RequestFunsStatusEnum @default(PENDING)
 
   amount     BigInt
   cardNumber String
 
   transactionId BigInt?
 
-  authorId Int
-  author   User @relation(fields: [authorId], references: [id])
+  requesterId Int
+  requester   User @relation(fields: [requesterId], references: [id])
 
   createdAt DateTime @default(now())
 }
 
-enum AuthorRequestFunsStatusEnum {
+enum RequestFunsStatusEnum {
   PENDING
   REJECTED
   SUCCESS
@@ -263,8 +263,8 @@ model CourseReport {
 
   message String
 
-  authorId Int
-  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  reporterId Int
+  reporter   User @relation(fields: [reporterId], references: [id], onDelete: Cascade)
 
   courseId Int
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)

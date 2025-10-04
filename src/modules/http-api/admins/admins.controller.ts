@@ -7,12 +7,15 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AdminsService } from './admins.service';
 import { GetCoursesDto } from './dto/get-courses.dto';
 import { AdminGuard } from './admin.guard';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
+import type { FastifyRequest } from 'fastify';
+import { RequestFunsDto } from './dto/request-funs.dto';
 
 @UseGuards(AdminGuard)
 @Controller('admins')
@@ -38,8 +41,9 @@ export class AdminsController {
   async sendCourseReport(
     @Param('id') id: string,
     @Body('message') message: string,
+    @Req() req: FastifyRequest,
   ) {
-    return await this.adminsService.sendCourseReport(id, message);
+    return await this.adminsService.sendCourseReport(id, message, req);
   }
 
   @Get('over-view-course/:id')
@@ -73,8 +77,11 @@ export class AdminsController {
   }
 
   @Get('courses-reports')
-  async getCoursesReports(@Query() query: GetCoursesReportsDto) {
-    return await this.adminsService.getCoursesReports(query);
+  async getCoursesReports(
+    @Query() query: GetCoursesReportsDto,
+    @Req() req: FastifyRequest,
+  ) {
+    return await this.adminsService.getCoursesReports(query, req);
   }
 
   @Delete('delete-correction-course-of-courses-reports/:reportId')
@@ -85,5 +92,18 @@ export class AdminsController {
   @Patch('accepte-correction-course-of-courses-reports/:reportId')
   async accepteCorrectionCourseReport(@Param('reportId') reportId: string) {
     return await this.adminsService.accepteCorrectionCourseReport(reportId);
+  }
+
+  @Get('wallet')
+  async getWallet(@Req() req: FastifyRequest) {
+    return await this.adminsService.getWallet(req);
+  }
+
+  @Post('request-funs')
+  async adminRequestFuns(
+    @Req() req: FastifyRequest,
+    @Body() RequestFunsDto: RequestFunsDto,
+  ) {
+    return await this.adminsService.RequestFuns(req, RequestFunsDto);
   }
 }

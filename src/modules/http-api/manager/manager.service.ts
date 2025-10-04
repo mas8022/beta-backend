@@ -11,6 +11,7 @@ import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
 import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 import { GetCoursesDto } from './dto/get-courses.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
+import { RequestFunsDto } from './dto/request-funs.dto';
 
 @Injectable()
 export class ManagerService {
@@ -294,9 +295,15 @@ export class ManagerService {
   }
 
   async getAuthorsRequestsFuns(query: GetAuthorsRequestsFunsDto) {
-    const { search, status } = query;
+    const { search, status, role } = query;
 
     const where: any = { status };
+
+    if (role !== 'ALL') {
+      where.requester = {
+        roles: { has: role },
+      };
+    }
 
     if (search?.trim()) {
       where.cardNumber = {
@@ -305,7 +312,7 @@ export class ManagerService {
       };
     }
 
-    const requests = await this.prismaService.authorRequestFuns.findMany({
+    const requests = await this.prismaService.requestFuns.findMany({
       where,
       orderBy: {
         id: 'desc',
@@ -317,7 +324,7 @@ export class ManagerService {
   }
 
   async accepteAuthorRequestFuns(requestId: string) {
-    await this.prismaService.authorRequestFuns.update({
+    await this.prismaService.requestFuns.update({
       where: {
         id: Number(requestId),
       },
@@ -330,7 +337,7 @@ export class ManagerService {
   }
 
   async rejectAuthorRequestFuns(requestId: string) {
-    await this.prismaService.authorRequestFuns.update({
+    await this.prismaService.requestFuns.update({
       where: {
         id: Number(requestId),
       },
@@ -342,7 +349,32 @@ export class ManagerService {
     return { status: 200, message: 'رد شد' };
   }
 
-  async getFinancialsOverView() {
+  async getFinancialsOverView(req: FastifyRequest) {
+    const totalSell =
+      (
+        await this.prismaService.courseOrder.aggregate({
+          where: { status: 'success' },
+          _sum: {
+            price: true,
+          },
+        })
+      )._sum.price ?? 0;
+
+    const manager = await req.manager;
+
+    const totalManagerRequestsFuns =
+      (
+        await this.prismaService.requestFuns.aggregate({
+          where: { requesterId: manager.id, status: 'SUCCESS' },
+          _sum: {
+            amount: true,
+          },
+        })
+      )._sum.amount ?? 0;
+
+    const walletBalance =
+      totalSell * (30 / 100) - Number(totalManagerRequestsFuns);
+
     const authorsCount = await this.prismaService.user.count({
       where: {
         roles: {
@@ -351,13 +383,12 @@ export class ManagerService {
       },
     });
 
-    const authorRequestFunsCount =
-      await this.prismaService.authorRequestFuns.count({
-        where: { status: 'PENDING' },
-      });
+    const RequestFunsCount = await this.prismaService.requestFuns.count({
+      where: { status: 'PENDING' },
+    });
 
-    const totalPeymantsAuthorsRequests =
-      await this.prismaService.authorRequestFuns.aggregate({
+    const totalPeymantsRequests =
+      await this.prismaService.requestFuns.aggregate({
         where: {
           status: 'SUCCESS',
         },
@@ -367,65 +398,64 @@ export class ManagerService {
       });
 
     const oneYearAgo = new Date();
-
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    const totalSell = await this.prismaService.courseOrder.findMany({
-      where: { status: 'success', createdAt: { gte: oneYearAgo } },
-      select: {
-        price: true,
-        createdAt: true,
-      },
-    });
+    const totalSellSinceLastYear =
+      await this.prismaService.courseOrder.findMany({
+        where: { status: 'success', createdAt: { gte: oneYearAgo } },
+        select: { price: true, createdAt: true },
+      });
 
-    const monthlySales: { month: string; total: number }[] = [];
-
-    for (let i = 0; i < 12; i++) {
+    // ----------- فروش تجمعی -----------
+    let salesCumulative = 0;
+    const monthlySales = [...Array(12)].map((_, i) => {
       const d = new Date();
-      d.setMonth(d.getMonth() - i);
+      d.setMonth(d.getMonth() - (11 - i));
 
       const { monthName, year, monthIndex } = JalaliDateUtil.toJalaliMonth(d);
 
-      const total = totalSell
+      const monthlyTotal = totalSellSinceLastYear
         .filter((o) => {
           const j = JalaliDateUtil.toJalaliMonth(o.createdAt);
           return j.year === year && j.monthIndex === monthIndex;
         })
         .reduce((sum, o) => sum + Number(o.price), 0);
 
-      monthlySales.push({ month: monthName, total });
-    }
-
-    const students = await this.prismaService.user.findMany({
-      select: {
-        createdAt: true,
-      },
+      salesCumulative += monthlyTotal;
+      return { month: monthName, total: salesCumulative };
     });
 
-    const monthlyLogin: { month: string; studentscount: number }[] = [];
+    // ----------- لاگین تجمعی -----------
 
-    for (let i = 0; i < 12; i++) {
+    const students = await this.prismaService.user.findMany({
+      select: { createdAt: true },
+    });
+
+    let loginCumulative = 0;
+    const monthlyLogin = [...Array(12)].map((_, i) => {
       const d = new Date();
-      d.setMonth(d.getMonth() - i);
+      d.setMonth(d.getMonth() - (11 - i));
 
       const { monthName, year, monthIndex } = JalaliDateUtil.toJalaliMonth(d);
 
-      const studentscount = students.filter((o) => {
+      const monthlyCount = students.filter((o) => {
         const j = JalaliDateUtil.toJalaliMonth(o.createdAt);
         return j.year === year && j.monthIndex === monthIndex;
       }).length;
 
-      monthlyLogin.push({ month: monthName, studentscount });
-    }
+      loginCumulative += monthlyCount;
+      return { month: monthName, studentscount: loginCumulative };
+    });
 
     return {
       status: 200,
       data: {
         authorsCount,
-        authorRequestFunsCount,
-        totalPeymantsAuthorsRequests: totalPeymantsAuthorsRequests._sum.amount,
-        monthlySales: monthlySales.reverse(),
-        monthlyLogin: monthlyLogin.reverse(),
+        RequestFunsCount,
+        totalPeymantsRequests: totalPeymantsRequests._sum.amount,
+        monthlySales: monthlySales,
+        monthlyLogin: monthlyLogin,
+        walletBalance,
       },
     };
   }
@@ -617,30 +647,17 @@ export class ManagerService {
     return { status: 201, message: 'درس رد شد' };
   }
 
-  async sendCourseReport(courseId: string, message: string) {
-    const course = await this.prismaService.course.findUnique({
-      where: {
-        id: Number(courseId),
-      },
-      select: {
-        author: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
-
-    const authorId = course?.author.id;
-
-    if (!authorId) {
-      return { status: 201, message: 'نویسنده این دوره اخراج شده' };
-    }
+  async sendCourseReport(
+    courseId: string,
+    message: string,
+    req: FastifyRequest,
+  ) {
+    const manager = await req.manager;
 
     await this.prismaService.courseReport.create({
       data: {
         message,
-        authorId,
+        reporterId: manager.id,
         courseId: Number(courseId),
       },
     });
@@ -648,10 +665,12 @@ export class ManagerService {
     return { status: 201, message: 'پیام ارسال شد' };
   }
 
-  async getCoursesReports(query: GetCoursesReportsDto) {
+  async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {
     const { status, search } = query;
 
-    const where: any = {};
+    const manager = await req.manager;
+
+    const where: any = { reporterId: manager.id, status };
 
     if (search?.trim()) {
       where.course = {
@@ -660,10 +679,6 @@ export class ManagerService {
           mode: 'insensitive',
         },
       };
-    }
-
-    if (status !== 'ALL') {
-      where.status = status;
     }
 
     const reports = await this.prismaService.courseReport.findMany({
@@ -708,5 +723,48 @@ export class ManagerService {
     });
 
     return { status: 201, message: 'نقش ویرایش شد' };
+  }
+
+  async RequestFuns(req: FastifyRequest, RequestFunsDto: RequestFunsDto) {
+    const manager = await req.manager;
+    const { amount, cardNumber } = RequestFunsDto;
+
+    const totalSell =
+      (
+        await this.prismaService.courseOrder.aggregate({
+          where: { status: 'success' },
+          _sum: {
+            price: true,
+          },
+        })
+      )._sum.price ?? 0;
+
+    const totalManagerRequestsFuns =
+      (
+        await this.prismaService.requestFuns.aggregate({
+          where: { requesterId: manager.id, status: 'SUCCESS' },
+          _sum: {
+            amount: true,
+          },
+        })
+      )._sum.amount ?? 0;
+
+    const walletBalance =
+      totalSell * (30 / 100) - Number(totalManagerRequestsFuns);
+
+    if (amount > walletBalance) {
+      return { status: 400, message: 'موجودی کافی نیست' };
+    }
+
+    ///////////////////////////////////////////////////////////
+
+    await this.prismaService.requestFuns.create({
+      data: { requesterId: manager.id, amount, cardNumber, status: 'SUCCESS' },
+    });
+
+    return {
+      status: 201,
+      message: '😁 نوش جونت 😁',
+    };
   }
 }

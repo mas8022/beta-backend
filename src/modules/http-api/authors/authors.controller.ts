@@ -29,6 +29,7 @@ import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import { CreateCoursePromotionDto } from './dto/create-course-promotion.dto';
 import { EditCoursePromotionDto } from './dto/edit-course-promotion.dto';
 import { GetCoursesDto } from './dto/get-course.dto';
+import { RequestFunsDto } from './dto/request-funs.dto';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -211,5 +212,16 @@ export class AuthorsController {
     @Body() body: EditCoursePromotionDto,
   ) {
     return await this.authorsService.editCousrePromotion(id, body);
+  }
+
+  @Post('request-funs')
+  async authorRequestFuns(
+    @Req() req: FastifyRequest,
+    @Body() RequestFunsDto: RequestFunsDto,
+  ) {
+    return await this.authorsService.RequestFuns(
+      req,
+      RequestFunsDto,
+    );
   }
 }

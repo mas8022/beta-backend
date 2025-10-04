@@ -1,15 +1,13 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
-enum CourseReportStatusEnum {
+enum ReportStatusEnum {
   SEND = 'SEND',
   CORRECTION = 'CORRECTION',
-  ACCEPTE = 'ACCEPTE',
-  ALL = 'ALL',
 }
 
 export class GetCoursesReportsDto {
-  @IsEnum(CourseReportStatusEnum)
-  status: CourseReportStatusEnum;
+  @IsEnum(ReportStatusEnum)
+  status: ReportStatusEnum;
 
   @IsOptional()
   @IsString()
