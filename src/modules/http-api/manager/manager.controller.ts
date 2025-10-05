@@ -40,11 +40,6 @@ export class ManagerController {
     return await this.managerService.findUser(param);
   }
 
-  @Patch('users/:userId')
-  async blockToggle(@Param('userId') userId: string) {
-    return await this.managerService.blockToggle(userId);
-  }
-
   @Get('contact-us-comments/:roleFilter/:search')
   async getContactUsComments(@Param() params: GetContactUsMessageDto) {
     return await this.managerService.getContactUsComments(params);
@@ -193,5 +188,10 @@ export class ManagerController {
     @Body() RequestFunsDto: RequestFunsDto,
   ) {
     return await this.managerService.RequestFuns(req, RequestFunsDto);
+  }
+
+  @Get('monitor-admins')
+  async getMonitorAdmins() {
+    return await this.managerService.getMonitorAdmins();
   }
 }

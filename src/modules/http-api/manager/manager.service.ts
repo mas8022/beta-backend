@@ -29,32 +29,12 @@ export class ManagerService {
       },
     });
 
+    console.log(user);
+    
+
     return {
       status: 200,
       data: user,
-    };
-  }
-
-  async blockToggle(userId: string) {
-    const user = await this.prismaService.user.findUnique({
-      where: {
-        id: Number(userId),
-      },
-    });
-
-    const updatedUser = await this.prismaService.user.update({
-      where: {
-        id: Number(userId),
-      },
-      data: {
-        status: user?.status === 'ACCESS' ? 'BLOCK' : 'ACCESS',
-      },
-    });
-
-    return {
-      status: 200,
-      message:
-        updatedUser.status === 'BLOCK' ? 'کاربر بلاک شد' : 'کاربر آزاد شد',
     };
   }
 
@@ -718,7 +698,7 @@ export class ManagerService {
     await this.prismaService.user.update({
       where: { id: Number(userId) },
       data: {
-        roles: [...roles, 'USER'],
+        roles: [...roles],
       },
     });
 
@@ -766,5 +746,34 @@ export class ManagerService {
       status: 201,
       message: '😁 نوش جونت 😁',
     };
+  }
+
+  async getMonitorAdmins() {
+    const admins = await this.prismaService.user.findMany({
+      where: {
+        roles: { has: 'ADMIN' },
+      },
+      include: {
+        _count: {
+          select: {
+            CourseReport: {
+              where: { status: 'ACCEPTE' },
+            },
+          },
+        },
+      },
+    });
+
+    const monitorAdmins = admins
+      .map((admin) => ({
+        ...admin,
+        acceptedReports: admin._count.CourseReport,
+      }))
+      .sort((a, b) => b.acceptedReports - a.acceptedReports)
+      .slice(0, 20);
+
+    console.log(monitorAdmins);
+
+    return { status: 200, data: {} };
   }
 }
