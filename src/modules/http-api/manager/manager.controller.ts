@@ -194,4 +194,14 @@ export class ManagerController {
   async getMonitorAdmins() {
     return await this.managerService.getMonitorAdmins();
   }
+
+  @Delete('course-report/:id')
+  async deleteAcceptedCourseReport(@Param('id') id: string) {
+    return await this.managerService.deleteAcceptedCourseReport(id);
+  }
+
+  @Patch('block-admin/:id')
+  async blockAdmin(@Param('id') id: string) {
+    return await this.managerService.blockAdmin(id);
+  }
 }

@@ -29,9 +29,6 @@ export class ManagerService {
       },
     });
 
-    console.log(user);
-    
-
     return {
       status: 200,
       data: user,
@@ -753,7 +750,9 @@ export class ManagerService {
       where: {
         roles: { has: 'ADMIN' },
       },
-      include: {
+      select: {
+        id: true,
+        phone: true,
         _count: {
           select: {
             CourseReport: {
@@ -761,19 +760,44 @@ export class ManagerService {
             },
           },
         },
+        CourseReport: {
+          where: {
+            status: 'ACCEPTE',
+          },
+        },
       },
     });
 
-    const monitorAdmins = admins
-      .map((admin) => ({
-        ...admin,
-        acceptedReports: admin._count.CourseReport,
-      }))
-      .sort((a, b) => b.acceptedReports - a.acceptedReports)
-      .slice(0, 20);
+    let monitorAdmins = admins.toSorted(
+      (a, b) => b._count.CourseReport - a._count.CourseReport,
+    );
 
-    console.log(monitorAdmins);
+    monitorAdmins.slice(0, 20);
 
-    return { status: 200, data: {} };
+    return { status: 200, data: monitorAdmins };
+  }
+
+  async deleteAcceptedCourseReport(reportId: string) {
+    await this.prismaService.courseReport.delete({
+      where: { id: Number(reportId) },
+    });
+
+    return { status: 201, message: 'حذف شد' };
+  }
+
+  async blockAdmin(adminId: string) {
+
+    const admin = await this.prismaService.user.findUnique({
+      where: { id: Number(adminId) },
+    });
+
+    const newRoles = admin?.roles.filter((item) => item !== 'ADMIN');
+
+    await this.prismaService.user.update({
+      where: { id: Number(adminId) },
+      data: { roles: newRoles },
+    });
+
+    return { status: 201, message: 'بلاک شد' };
   }
 }
