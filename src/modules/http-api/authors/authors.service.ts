@@ -661,7 +661,7 @@ export class AuthorsService {
       });
     const totalWithdrawals = totalWithdrawalsResult._sum.amount ?? 0;
 
-    const walletBalance = totalIncomes - Number(totalWithdrawals);
+    const walletBalance = totalIncomes * (65 / 100) - Number(totalWithdrawals);
 
     if (amount > walletBalance) {
       return { status: 400, message: 'موجودی کافی نیست' };
