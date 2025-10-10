@@ -6,15 +6,45 @@ import { UsersModule } from './modules/http-api/users/users.module';
 import { ContactUsModule } from './modules/http-api/contact-us/contact-us.module';
 import { CollaborateModule } from './modules/http-api/collaborate/collaborate.module';
 import { CoursesModule } from './modules/http-api/courses/courses.module';
-import { FinancialsModule } from './modules/http-api/financials/financials.module';
 import { ZibalModule } from './common/services/zibal/zibal.module';
 import { AuthorsModule } from './modules/http-api/authors/authors.module';
 import { BucketModule } from './common/services/bucket/bucket.module';
 import { ManagerModule } from './modules/http-api/manager/manager.module';
 import { UploadModule } from './modules/http-api/upload/upload.module';
 import { AdminsModule } from './modules/http-api/admins/admins.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
-  imports: [AuthModule, PrismaModule, RedisModule, UsersModule, ContactUsModule, CollaborateModule, CoursesModule, FinancialsModule, ZibalModule, AuthorsModule, BucketModule, ManagerModule, UploadModule, AdminsModule],
+  imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60,
+          limit: 20,
+        },
+      ],
+      ignoreUserAgents: [/googlebot/i],
+    }),
+    AuthModule,
+    PrismaModule,
+    RedisModule,
+    UsersModule,
+    ContactUsModule,
+    CollaborateModule,
+    CoursesModule,
+    ZibalModule,
+    AuthorsModule,
+    BucketModule,
+    ManagerModule,
+    UploadModule,
+    AdminsModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

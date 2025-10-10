@@ -14,6 +14,7 @@ import { CreateCoursePromotionDto } from './dto/create-course-promotion.dto';
 import { EditCoursePromotionDto } from './dto/edit-course-promotion.dto';
 import { GetCoursesDto } from './dto/get-course.dto';
 import { RequestFunsDto } from './dto/request-funs.dto';
+import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 
 @Injectable()
 export class AuthorsService {
@@ -316,7 +317,6 @@ export class AuthorsService {
       },
     });
 
-    
     const updateData: any = {
       title,
       description,
@@ -675,6 +675,84 @@ export class AuthorsService {
     return {
       status: 201,
       message: 'یک الی دو روز اینده به حساب شما واریز می شود',
+    };
+  }
+
+  async getAuthorWallet(req: FastifyRequest) {
+    const author = await req.author;
+
+    const totalIncomesResult = await this.prismaService.courseOrder.aggregate({
+      where: {
+        course: { authorId: author.id },
+        status: 'success',
+      },
+      _sum: {
+        price: true,
+      },
+    });
+
+    const totalIncomes = totalIncomesResult._sum.price ?? 0;
+
+    const totalWithdrawalsResult =
+      await this.prismaService.requestFuns.aggregate({
+        where: { requesterId: author.id, status: 'SUCCESS' },
+        _sum: { amount: true },
+      });
+    const totalWithdrawals = totalWithdrawalsResult._sum.amount ?? 0;
+
+    const walletBalance = totalIncomes - Number(totalWithdrawals);
+
+    const totalWithdrawalsCount = await this.prismaService.requestFuns.count({
+      where: { requesterId: author.id, status: 'SUCCESS' },
+    });
+
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    const orders = await this.prismaService.courseOrder.findMany({
+      where: {
+        course: { authorId: author.id },
+        status: 'success',
+        createdAt: { gte: oneYearAgo },
+      },
+      select: { price: true, createdAt: true },
+    });
+
+    const monthlySales: { month: string; total: number }[] = [];
+    let cumulative = 0;
+
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+
+      const { monthName, year, monthIndex } = JalaliDateUtil.toJalaliMonth(d);
+
+      // فروش همون ماه
+      const monthlyTotal = orders
+        .filter((o) => {
+          const j = JalaliDateUtil.toJalaliMonth(o.createdAt);
+          return j.year === year && j.monthIndex === monthIndex;
+        })
+        .reduce((sum, o) => sum + Number(o.price), 0);
+
+      // فروش تجمعی
+      cumulative += monthlyTotal;
+
+      monthlySales.push({
+        month: monthName,
+        total: cumulative,
+      });
+    }
+
+    return {
+      status: 200,
+      data: {
+        totalIncomes,
+        totalWithdrawals,
+        walletBalance,
+        totalWithdrawalsCount,
+        monthlySales,
+      },
     };
   }
 }

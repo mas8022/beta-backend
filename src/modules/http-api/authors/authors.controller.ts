@@ -219,9 +219,11 @@ export class AuthorsController {
     @Req() req: FastifyRequest,
     @Body() RequestFunsDto: RequestFunsDto,
   ) {
-    return await this.authorsService.RequestFuns(
-      req,
-      RequestFunsDto,
-    );
+    return await this.authorsService.RequestFuns(req, RequestFunsDto);
+  }
+
+  @Get('author-wallet')
+  async getAuthorWallet(@Req() req: FastifyRequest) {
+    return await this.authorsService.getAuthorWallet(req);
   }
 }
