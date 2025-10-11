@@ -101,7 +101,7 @@ export class AuthService {
     };
   }
 
-  async refreshToken(cookies) {
+  async refreshToken(cookies:any) {
     try {
       const { access_token, session_id } = cookies;
       try {

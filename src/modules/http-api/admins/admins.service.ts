@@ -4,7 +4,6 @@ import { GetCoursesDto } from './dto/get-courses.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import type { FastifyRequest } from 'fastify';
 import { RequestFunsDto } from './dto/request-funs.dto';
-import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 
 @Injectable()
 export class AdminsService {
