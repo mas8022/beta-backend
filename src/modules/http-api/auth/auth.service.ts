@@ -106,7 +106,7 @@ export class AuthService {
       const { access_token, session_id } = cookies;
       try {
         this.jwtService.verifyAccessToken(access_token);
-        return { status: 200, message: 'توکن معتبر است' };
+        return { status: 200};
       } catch {}
 
       if (!session_id) {
@@ -131,7 +131,6 @@ export class AuthService {
 
         return {
           status: 200,
-          message: 'توکن جدید با موفقیت ایجاد شد',
           newAccessToken,
         };
       } catch {

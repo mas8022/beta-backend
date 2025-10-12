@@ -6,7 +6,6 @@ import {
 } from '@nestjs/platform-fastify';
 import fastifyCookie from '@fastify/cookie';
 import multipart from '@fastify/multipart';
-import { HttpExceptionFilter } from './common/exceptions/global-exception-filter';
 
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter();
@@ -15,14 +14,12 @@ async function bootstrap() {
     secret: process.env.FASTIFY_COOKIE_SECRET,
   });
 
-  await fastifyAdapter.register(multipart)
+  await fastifyAdapter.register(multipart);
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fastifyAdapter,
   );
-
-  app.useGlobalFilters(new HttpExceptionFilter());
 
   app.enableCors({
     origin: process.env.FRONTEND_URL,

@@ -786,7 +786,6 @@ export class ManagerService {
   }
 
   async blockAdmin(adminId: string) {
-
     const admin = await this.prismaService.user.findUnique({
       where: { id: Number(adminId) },
     });

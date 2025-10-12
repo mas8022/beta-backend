@@ -14,17 +14,13 @@ export class UsersService {
   ) {}
 
   async getMe(rawCookies: string) {
-    try {
-      const { access_token } = parse(rawCookies || '');
+    const { access_token } = parse(rawCookies || '');
 
-      const { id } = this.jwtService.verifyAccessToken(access_token!);
+    const { id } = this.jwtService.verifyAccessToken(access_token!);
 
-      const me = await this.prismaService.user.findUnique({ where: { id } });
+    const me = await this.prismaService.user.findUnique({ where: { id } });
 
-      return me;
-    } catch (error) {
-      return null;
-    }
+    return me;
   }
 
   async GetMyProfileData(req: FastifyRequest) {
