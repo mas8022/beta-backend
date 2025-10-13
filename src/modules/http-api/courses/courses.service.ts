@@ -3,7 +3,6 @@ import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UsersService } from '../users/users.service';
 import type { FastifyRequest } from 'fastify';
-import { UserRoleEnum } from '@prisma/client';
 
 @Injectable()
 export class CoursesService {
@@ -336,6 +335,30 @@ export class CoursesService {
         totalVideosCountInCourse,
       },
     };
+  }
+
+  async getCourseLikeBtn(courseId: string, rawCookies: string) {
+    let isLiked: boolean = false;
+    const me = await this.userService.getMe(rawCookies);
+
+    const course = await this.prismaService.course.findUnique({
+      where: { id: Number(courseId) },
+    });
+
+    if (me && course) {
+      isLiked = (await this.prismaService.like.findUnique({
+        where: {
+          userId_courseId: {
+            userId: me.id,
+            courseId: course.id,
+          },
+        },
+      }))
+        ? true
+        : false;
+    }
+
+    return { status: 200, data: isLiked };
   }
 
   async findBySearchBar(search: string) {

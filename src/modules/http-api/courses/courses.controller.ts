@@ -46,6 +46,14 @@ export class CoursesController {
     return await this.coursesService.getOne(id);
   }
 
+  @Get('/course/like-btn-data/:courseId')
+  async getCourseLikeBtn(
+    @Param('courseId') courseId: string,
+    @Headers('cookie') rawCookies: string,
+  ) {
+    return await this.coursesService.getCourseLikeBtn(courseId, rawCookies);
+  }
+
   @Get('find-courses-by-searchbar')
   async findBySearchBar(@Query('search') search: string) {
     return this.coursesService.findBySearchBar(search);
