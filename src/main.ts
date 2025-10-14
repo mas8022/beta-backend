@@ -6,6 +6,7 @@ import {
 } from '@nestjs/platform-fastify';
 import fastifyCookie from '@fastify/cookie';
 import multipart from '@fastify/multipart';
+import { SafeValidationPipe } from './common/pipes/safe-validation.pipe';
 
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter();
@@ -19,6 +20,12 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fastifyAdapter,
+  );
+
+  app.useGlobalPipes(
+    new SafeValidationPipe({
+      skipMethods: ['GET', 'DELETE'],
+    }),
   );
 
   app.enableCors({
