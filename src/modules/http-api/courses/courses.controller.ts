@@ -84,6 +84,11 @@ export class CoursesController {
 
   @Get('author-publish-courses/:authorId')
   async getAuthorPublishCourses(@Param('authorId') authorId: string) {
-    return await this.coursesService.getAuthorPublishCourses(authorId)
+    return await this.coursesService.getAuthorPublishCourses(authorId);
+  }
+
+  @Get('sitemap')
+  async getSiteMap() {
+    return await this.coursesService.getSiteMap();
   }
 }

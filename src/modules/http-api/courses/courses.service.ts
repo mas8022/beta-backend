@@ -509,4 +509,20 @@ export class CoursesService {
 
     return { status: 200, data: courses };
   }
+
+  async getSiteMap() {
+    const courses = await this.prismaService.course.findMany({
+      where: {
+        status: 'publish',
+      },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return { status: 200, data: courses };
+  }
 }
