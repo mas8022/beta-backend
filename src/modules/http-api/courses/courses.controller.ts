@@ -81,4 +81,9 @@ export class CoursesController {
   ) {
     return this.coursesService.getLessons(courseId, rawCookies);
   }
+
+  @Get('author-publish-courses/:authorId')
+  async getAuthorPublishCourses(@Param('authorId') authorId: string) {
+    return await this.coursesService.getAuthorPublishCourses(authorId)
+  }
 }

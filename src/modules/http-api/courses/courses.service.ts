@@ -492,4 +492,21 @@ export class CoursesService {
 
     return { status: 200, data: { lessons: processedLessons } };
   }
+
+  async getAuthorPublishCourses(authorId: string) {
+    const courses = await this.prismaService.course.findMany({
+      where: { authorId: Number(authorId), status: 'publish' },
+      select: {
+        id: true,
+        image: true,
+        category: true,
+        title: true,
+        description: true,
+        price: true,
+        originalPrice: true,
+      },
+    });
+
+    return { status: 200, data: courses };
+  }
 }
