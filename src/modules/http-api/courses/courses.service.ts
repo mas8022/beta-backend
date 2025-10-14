@@ -274,7 +274,9 @@ export class CoursesService {
           include: {
             _count: {
               select: {
-                episodes: true,
+                episodes: {
+                  where: { status: 'publish' },
+                },
               },
             },
             episodes: {
@@ -286,7 +288,9 @@ export class CoursesService {
         },
         _count: {
           select: {
-            lessons: true,
+            lessons: {
+              where: { status: 'publish' },
+            },
             likes: true,
             CourseOrder: {
               where: {
@@ -327,10 +331,26 @@ export class CoursesService {
       0,
     );
 
+    const duration =
+      (
+        await this.prismaService.episode.aggregate({
+          where: {
+            status: 'publish',
+            lesson: {
+              courseId: course?.id,
+            },
+          },
+          _sum: {
+            duration: true,
+          },
+        })
+      )._sum.duration ?? 0;
+
     return {
       status: 200,
       data: {
         ...course,
+        duration,
         author: { ...course?.author, authorStudents },
         totalVideosCountInCourse,
       },
