@@ -22,7 +22,8 @@ export class UsersController {
   @Get('me')
   async getMe(@Headers('cookie') rawCookies: string) {
     const result = await this.userService.getMe(rawCookies);
-    return result;
+
+    return { status: 403, data: result };
   }
 
   @UseGuards(UserGuard)

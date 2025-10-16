@@ -29,6 +29,7 @@ import { JsonSerializerInterceptor } from 'src/common/interceptors/json-serializ
 import { GetCoursesDto } from './dto/get-courses.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import { RequestFunsDto } from './dto/request-funs.dto';
+import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.interceptor';
 
 @UseGuards(ManagerGuard)
 @Controller('manager')
@@ -125,6 +126,7 @@ export class ManagerController {
     return await this.managerService.rejectCourse(courseId);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-course/:courseId')
   async accepteCourse(@Param('courseId') courseId: string) {
     return await this.managerService.accepteCourse(courseId);
@@ -135,11 +137,13 @@ export class ManagerController {
     return await this.managerService.rejectLesson(lessonId);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-lesson/:lessonId')
   async accepteLesson(@Param('lessonId') lessonId: string) {
     return await this.managerService.accepteLesson(lessonId);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-episode/:id')
   async accepteEpisode(@Param('id') id: string) {
     return await this.managerService.accepteEpisode(id);

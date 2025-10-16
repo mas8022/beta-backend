@@ -10,11 +10,13 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UserGuard } from '../users/user.Guard';
 import type { FastifyRequest } from 'fastify';
+import { CacheFindFilteredCoursesInterceptor } from './interceptors/find-filtered-courses-cache.interceptor';
 
 @Controller('courses')
 export class CoursesController {
@@ -25,11 +27,14 @@ export class CoursesController {
     return this.coursesService.createTestCourse();
   }
 
+  @UseInterceptors(CacheFindFilteredCoursesInterceptor)
   @Get()
   findFiltered(
     @Query() query: GetCoursesSearchParamsDto,
     @Headers('cookie') rawCookies: string,
   ) {
+    console.log('=========================================');
+
     return this.coursesService.findFiltered(query, rawCookies);
   }
 

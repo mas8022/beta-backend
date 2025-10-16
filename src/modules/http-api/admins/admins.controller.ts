@@ -9,6 +9,7 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AdminsService } from './admins.service';
 import { GetCoursesDto } from './dto/get-courses.dto';
@@ -16,6 +17,7 @@ import { AdminGuard } from './admin.guard';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import type { FastifyRequest } from 'fastify';
 import { RequestFunsDto } from './dto/request-funs.dto';
+import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.interceptor';
 
 @UseGuards(AdminGuard)
 @Controller('admins')
@@ -32,6 +34,7 @@ export class AdminsController {
     return await this.adminsService.rejectCourse(id);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-course/:id')
   async accepteCourse(@Param('id') id: string) {
     return await this.adminsService.accepteCourse(id);
@@ -61,6 +64,7 @@ export class AdminsController {
     return await this.adminsService.rejectEpisode(id);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-episode/:id')
   async accepteEpisode(@Param('id') id: string) {
     return await this.adminsService.accepteEpisode(id);
@@ -71,6 +75,7 @@ export class AdminsController {
     return await this.adminsService.rejectLesson(lessonId);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-lesson/:lessonId')
   async accepteLesson(@Param('lessonId') lessonId: string) {
     return await this.adminsService.accepteLesson(lessonId);
