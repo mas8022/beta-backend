@@ -17,6 +17,7 @@ import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UserGuard } from '../users/user.Guard';
 import type { FastifyRequest } from 'fastify';
 import { CacheFindFilteredCoursesInterceptor } from './interceptors/find-filtered-courses-cache.interceptor';
+import { CacheCourseLessonsInterceptor } from './interceptors/course-lessons-cache.interceptor';
 
 @Controller('courses')
 export class CoursesController {
@@ -33,8 +34,6 @@ export class CoursesController {
     @Query() query: GetCoursesSearchParamsDto,
     @Headers('cookie') rawCookies: string,
   ) {
-    console.log('=========================================');
-
     return this.coursesService.findFiltered(query, rawCookies);
   }
 
@@ -79,6 +78,7 @@ export class CoursesController {
     return this.coursesService.deleteComment(commentId);
   }
 
+  @UseInterceptors(CacheCourseLessonsInterceptor)
   @Get('get-lessons/:courseId')
   async getLessons(
     @Param('courseId') courseId: string,
