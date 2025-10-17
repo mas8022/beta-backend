@@ -487,13 +487,6 @@ export class CoursesService {
 
     if (!course) return { status: 404, message: 'این دوره وجود ندارد' };
 
-    if (!isOwn) {
-      await this.redisService.set(
-        `cache:courses:get-course-lessons-${courseId}`,
-        course.lessons,
-      );
-    }
-
     let processedLessons = course?.lessons.map((lesson) => ({
       ...lesson,
       episodes: lesson.episodes.map((ep) => ({
@@ -501,6 +494,13 @@ export class CoursesService {
         videoUrl: lesson.isFree || isOwn ? ep.videoUrl : undefined,
       })),
     }));
+
+    if (!isOwn) {
+      await this.redisService.set(
+        `cache:courses:get-course-lessons-${courseId}`,
+        processedLessons,
+      );
+    }
 
     return { status: 200, data: processedLessons };
   }
