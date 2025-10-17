@@ -3,12 +3,14 @@ import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UsersService } from '../users/users.service';
 import type { FastifyRequest } from 'fastify';
+import { RedisService } from 'src/common/services/redis/redis.service';
 
 @Injectable()
 export class CoursesService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly userService: UsersService,
+    private readonly redisService: RedisService,
   ) {}
 
   async createTestCourse() {
@@ -433,7 +435,23 @@ export class CoursesService {
   }
 
   async getLessons(courseId: string, rawCookies: string) {
-    const lessons = await this.prismaService.course.findUnique({
+    const me = await this.userService.getMe(rawCookies);
+
+    const isOwn = me
+      ? !!(await this.prismaService.courseOrder.findFirst({
+          where: { userId: me.id, courseId: +courseId, status: 'success' },
+        }))
+      : false;
+
+    const key = `cache:courses:get-course-lessons-${courseId}`;
+
+    const cacheData = await this.redisService.get(key);
+
+    if (!isOwn && cacheData) {
+      return { status: 200, data: cacheData };
+    }
+
+    const course = await this.prismaService.course.findUnique({
       where: { id: Number(courseId), status: 'publish' },
       select: {
         lessons: {
@@ -467,22 +485,16 @@ export class CoursesService {
       },
     });
 
-    const me = await this.userService.getMe(rawCookies);
+    if (!course) return { status: 404, message: 'این دوره وجود ندارد' };
 
-    let isOwn = false;
-    if (me) {
-      let myCoure: any = await this.prismaService.courseOrder.findFirst({
-        where: {
-          userId: me.id,
-          courseId: Number(courseId),
-          status: 'success',
-        },
-      });
-
-      isOwn = !!myCoure;
+    if (!isOwn) {
+      await this.redisService.set(
+        `cache:courses:get-course-lessons-${courseId}`,
+        course.lessons,
+      );
     }
 
-    let processedLessons = lessons?.lessons.map((lesson) => ({
+    let processedLessons = course?.lessons.map((lesson) => ({
       ...lesson,
       episodes: lesson.episodes.map((ep) => ({
         ...ep,
@@ -490,7 +502,7 @@ export class CoursesService {
       })),
     }));
 
-    return { status: 200, data: { lessons: processedLessons } };
+    return { status: 200, data: processedLessons };
   }
 
   async getAuthorPublishCourses(authorId: string) {

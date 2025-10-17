@@ -53,7 +53,7 @@ export class AuthService {
       return { message: 'کد تأیید منقضی شده یا پیدا نشد', status: 403 };
     }
 
-    if (savedCode !== code) {
+    if (savedCode != code) {
       return { message: 'کد تأیید نامعتبر است', status: 401 };
     }
 
@@ -101,12 +101,12 @@ export class AuthService {
     };
   }
 
-  async refreshToken(cookies:any) {
+  async refreshToken(cookies: any) {
     try {
       const { access_token, session_id } = cookies;
       try {
         this.jwtService.verifyAccessToken(access_token);
-        return { status: 200};
+        return { status: 200 };
       } catch {}
 
       if (!session_id) {
