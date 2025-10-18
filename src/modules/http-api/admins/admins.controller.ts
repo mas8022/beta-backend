@@ -36,8 +36,8 @@ export class AdminsController {
 
   @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-course/:id')
-  async accepteCourse(@Param('id') id: string) {
-    return await this.adminsService.accepteCourse(id);
+  async accepteCourse(@Param('id') id: string, @Req() req: FastifyRequest) {
+    return await this.adminsService.accepteCourse(id, req);
   }
 
   @Post('send-course-report/:id')
@@ -66,8 +66,8 @@ export class AdminsController {
 
   @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-episode/:id')
-  async accepteEpisode(@Param('id') id: string) {
-    return await this.adminsService.accepteEpisode(id);
+  async accepteEpisode(@Param('id') id: string, @Req() req: FastifyRequest) {
+    return await this.adminsService.accepteEpisode(id, req);
   }
 
   @Patch('reject-lesson/:lessonId')
@@ -77,8 +77,11 @@ export class AdminsController {
 
   @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-lesson/:lessonId')
-  async accepteLesson(@Param('lessonId') lessonId: string) {
-    return await this.adminsService.accepteLesson(lessonId);
+  async accepteLesson(
+    @Param('lessonId') lessonId: string,
+    @Req() req: FastifyRequest,
+  ) {
+    return await this.adminsService.accepteLesson(lessonId, req);
   }
 
   @Get('courses-reports')

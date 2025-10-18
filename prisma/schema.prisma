@@ -27,6 +27,7 @@ model User {
   ContactUs    ContactUs[]
   CourseReport CourseReport[]
   Promotion    Promotion[]
+  AdminConfirm AdminConfirm[]
 }
 
 enum UserRoleEnum {
@@ -113,6 +114,7 @@ model Course {
   CourseComment CourseComment[]
   CourseReport  CourseReport[]
   Promotion     Promotion[]
+  AdminConfirm  AdminConfirm[]
 }
 
 enum CourseStatusEnum {
@@ -135,8 +137,9 @@ model Lesson {
 
   episodes Episode[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  AdminConfirm AdminConfirm[]
 }
 
 enum LessonStatusEnum {
@@ -159,6 +162,8 @@ model Episode {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  AdminAction AdminConfirm[]
 }
 
 enum EpisodeStatusEnum {
@@ -284,6 +289,24 @@ model Promotion {
 
   authorId Int
   author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model AdminConfirm {
+  id Int @id @default(autoincrement())
+
+  adminId Int
+  admin   User @relation(fields: [adminId], references: [id])
+
+  courseId Int?
+  course   Course? @relation(fields: [courseId], references: [id])
+
+  lessonId Int?
+  lesson   Lesson? @relation(fields: [lessonId], references: [id])
+
+  episodeId Int?
+  episode   Episode? @relation(fields: [episodeId], references: [id])
 
   createdAt DateTime @default(now())
 }

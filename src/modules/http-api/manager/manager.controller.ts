@@ -128,8 +128,11 @@ export class ManagerController {
 
   @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-course/:courseId')
-  async accepteCourse(@Param('courseId') courseId: string) {
-    return await this.managerService.accepteCourse(courseId);
+  async accepteCourse(
+    @Param('courseId') courseId: string,
+    @Req() req: FastifyRequest,
+  ) {
+    return await this.managerService.accepteCourse(courseId, req);
   }
 
   @Patch('reject-lesson/:lessonId')
@@ -139,14 +142,17 @@ export class ManagerController {
 
   @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-lesson/:lessonId')
-  async accepteLesson(@Param('lessonId') lessonId: string) {
-    return await this.managerService.accepteLesson(lessonId);
+  async accepteLesson(
+    @Param('lessonId') lessonId: string,
+    @Req() req: FastifyRequest,
+  ) {
+    return await this.managerService.accepteLesson(lessonId, req);
   }
 
   @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-episode/:id')
-  async accepteEpisode(@Param('id') id: string) {
-    return await this.managerService.accepteEpisode(id);
+  async accepteEpisode(@Param('id') id: string, @Req() req: FastifyRequest) {
+    return await this.managerService.accepteEpisode(id, req);
   }
 
   @Patch('reject-episode/:id')

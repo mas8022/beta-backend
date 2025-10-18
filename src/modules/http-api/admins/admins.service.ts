@@ -82,14 +82,25 @@ export class AdminsService {
     return { status: 201, message: 'دوره رد شد' };
   }
 
-  async accepteCourse(courseId: string) {
-    await this.prismaService.course.update({
-      where: {
-        id: Number(courseId),
-      },
-      data: {
-        status: 'publish',
-      },
+  async accepteCourse(courseId: string, req: FastifyRequest) {
+    const admin = await req.admin;
+
+    const course = await this.prismaService.course.findUnique({
+      where: { id: Number(courseId) },
+      select: { status: true },
+    });
+
+    await this.prismaService.$transaction(async (tx) => {
+      if (course?.status !== 'publish') {
+        await tx.adminConfirm.create({
+          data: { adminId: admin.id, courseId: Number(courseId) },
+        });
+      }
+
+      await tx.course.update({
+        where: { id: Number(courseId) },
+        data: { status: 'publish' },
+      });
     });
 
     return { status: 201, message: 'دوره پذیرفته شد' };
@@ -175,17 +186,32 @@ export class AdminsService {
     return { status: 201, message: 'درس رد شد' };
   }
 
-  async accepteEpisode(id: string) {
-    await this.prismaService.episode.update({
-      where: {
-        id: Number(id),
-      },
-      data: {
-        status: 'publish',
-      },
-    });
+  async accepteEpisode(id: string, req: FastifyRequest) {
+    const admin = await req.admin;
 
-    return { status: 201, message: 'درس پذیرفته شد' };
+    await this.prismaService.$transaction(async (tx) => {
+      const episode = await this.prismaService.episode.findUnique({
+        where: { id: Number(id) },
+        select: { status: true },
+      });
+
+      if (episode?.status !== 'publish') {
+        await this.prismaService.adminConfirm.create({
+          data: { adminId: admin.id, episodeId: Number(id) },
+        });
+      }
+
+      await tx.episode.update({
+        where: {
+          id: Number(id),
+        },
+        data: {
+          status: 'publish',
+        },
+      });
+
+      return { status: 201, message: 'درس پذیرفته شد' };
+    });
   }
 
   async rejectLesson(lessonId: string) {
@@ -201,17 +227,37 @@ export class AdminsService {
     return { status: 201, message: 'فصل رد شد' };
   }
 
-  async accepteLesson(lessonId: string) {
-    await this.prismaService.lesson.update({
-      where: {
-        id: Number(lessonId),
-      },
-      data: {
-        status: 'publish',
+  async accepteLesson(lessonId: string, req: FastifyRequest) {
+    const admin = await req.admin;
+
+    const lesson = await this.prismaService.lesson.findUnique({
+      where: { id: Number(lessonId) },
+      select: {
+        status: true,
       },
     });
 
-    return { status: 201, message: 'فصل پذیرفته شد' };
+    await this.prismaService.$transaction(async (tx) => {
+      if (lesson?.status !== 'publish') {
+        tx.adminConfirm.create({
+          data: {
+            adminId: admin.id,
+            lessonId: Number(lessonId),
+          },
+        });
+      }
+
+      await tx.lesson.update({
+        where: {
+          id: Number(lessonId),
+        },
+        data: {
+          status: 'publish',
+        },
+      });
+
+      return { status: 201, message: 'فصل پذیرفته شد' };
+    });
   }
 
   async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {
