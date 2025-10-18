@@ -448,7 +448,7 @@ export class CoursesService {
     const cacheData = await this.redisService.get(key);
 
     if (!isOwn && cacheData) {
-      return { status: 200, data: cacheData };
+      return { status: 200, data: JSON.parse(cacheData) };
     }
 
     const course = await this.prismaService.course.findUnique({

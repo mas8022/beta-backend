@@ -19,10 +19,10 @@ export class RedisService implements OnModuleDestroy {
     this.client.quit();
   }
 
-  async get<T = any>(key: string): Promise<T | null> {
+  async get(key: string) {
     try {
       const data = await this.client.get(key);
-      return data ? JSON.parse(data) : null;
+      return data ? data : null;
     } catch (err) {
       return null;
     }
@@ -34,18 +34,19 @@ export class RedisService implements OnModuleDestroy {
       ttl
         ? await this.client.set(key, data, 'EX', ttl)
         : await this.client.set(key, data);
-    } catch (err) {
-    }
+    } catch (err) {}
   }
 
   async del(key: string): Promise<void> {
     try {
       await this.client.del(key);
-    } catch (err) {
-    }
+    } catch (err) {}
   }
 
-  async handleKeysByPrefix(prefixOrPattern: string, clear = false): Promise<string[]> {
+  async handleKeysByPrefix(
+    prefixOrPattern: string,
+    clear = false,
+  ): Promise<string[]> {
     const pattern = prefixOrPattern.includes('*')
       ? prefixOrPattern
       : `${prefixOrPattern}:*`;

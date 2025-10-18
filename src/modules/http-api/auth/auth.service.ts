@@ -104,15 +104,17 @@ export class AuthService {
   async refreshToken(cookies: any) {
     try {
       const { access_token, session_id } = cookies;
+
       try {
         this.jwtService.verifyAccessToken(access_token);
         return { status: 200 };
-      } catch {}
-
+      } catch {
+      }
+      
       if (!session_id) {
         return { status: 403, message: 'لطفاً وارد حساب شوید' };
       }
-
+      
       const rawRefresh = await this.redisService.get(
         `refresh_token:${session_id}`,
       );
