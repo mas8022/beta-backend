@@ -12,6 +12,8 @@ import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 import { GetCoursesDto } from './dto/get-courses.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import { RequestFunsDto } from './dto/request-funs.dto';
+import { GetAdminsConfirmsDto } from './dto/get-admins-confirms.dto';
+import { RejectEntityDto } from './dto/reject-entity.dto';
 
 @Injectable()
 export class ManagerService {
@@ -35,8 +37,8 @@ export class ManagerService {
     };
   }
 
-  async getContactUsComments(params: GetContactUsMessageDto) {
-    const { search, roleFilter } = params;
+  async getContactUsComments(query: GetContactUsMessageDto) {
+    const { search, role, topic } = query;
 
     const where: any = {};
 
@@ -63,12 +65,16 @@ export class ManagerService {
       ];
     }
 
-    if (roleFilter !== 'ALL') {
+    if (role !== 'ALL') {
       where.user = {
         roles: {
-          has: roleFilter,
+          has: role,
         },
       };
+    }
+
+    if (topic !== 'ALL') {
+      where.topic = topic;
     }
 
     const comments = await this.prismaService.contactUs.findMany({
@@ -564,15 +570,27 @@ export class ManagerService {
 
     const course = await this.prismaService.course.findUnique({
       where: { id: Number(courseId) },
-      select: { status: true },
+      select: { status: true, author: { select: { id: true } } },
     });
 
+    if (course?.status === 'publish') {
+      return { status: 405, message: 'قبلا تایید شده' };
+    }
+
     await this.prismaService.$transaction(async (tx) => {
-      if (course?.status !== 'publish') {
-        await tx.adminConfirm.create({
-          data: { adminId: manager.id, courseId: Number(courseId) },
-        });
-      }
+      await tx.adminConfirm.deleteMany({
+        where: {
+          courseId: Number(courseId),
+        },
+      });
+
+      await tx.adminConfirm.create({
+        data: {
+          adminId: manager.id,
+          authorId: course?.author.id!,
+          courseId: Number(courseId),
+        },
+      });
 
       await tx.course.update({
         where: { id: Number(courseId) },
@@ -603,18 +621,28 @@ export class ManagerService {
       where: { id: Number(lessonId) },
       select: {
         status: true,
+        course: { select: { author: { select: { id: true } } } },
       },
     });
 
+    if (lesson?.status === 'publish') {
+      return { status: 405, message: 'قبلا تایید شده' };
+    }
+
     await this.prismaService.$transaction(async (tx) => {
-      if (lesson?.status !== 'publish') {
-        tx.adminConfirm.create({
-          data: {
-            adminId: manager.id,
-            lessonId: Number(lessonId),
-          },
-        });
-      }
+      await tx.adminConfirm.deleteMany({
+        where: {
+          lessonId: Number(lessonId),
+        },
+      });
+
+      await tx.adminConfirm.create({
+        data: {
+          adminId: manager.id,
+          authorId: lesson?.course.author.id!,
+          lessonId: Number(lessonId),
+        },
+      });
 
       await tx.lesson.update({
         where: {
@@ -624,25 +652,42 @@ export class ManagerService {
           status: 'publish',
         },
       });
-
-      return { status: 201, message: 'فصل پذیرفته شد' };
     });
+
+    return { status: 201, message: 'فصل پذیرفته شد' };
   }
 
   async accepteEpisode(id: string, req: FastifyRequest) {
     const manager = await req.manager;
 
+    const episode = await this.prismaService.episode.findUnique({
+      where: { id: Number(id) },
+      select: {
+        status: true,
+        lesson: {
+          select: { course: { select: { author: { select: { id: true } } } } },
+        },
+      },
+    });
+
+    if (episode?.status === 'publish') {
+      return { status: 405, message: 'قبلا تایید شده' };
+    }
+
     await this.prismaService.$transaction(async (tx) => {
-      const episode = await this.prismaService.episode.findUnique({
-        where: { id: Number(id) },
-        select: { status: true },
+      await tx.adminConfirm.deleteMany({
+        where: {
+          episodeId: Number(id),
+        },
       });
 
-      if (episode?.status !== 'publish') {
-        await this.prismaService.adminConfirm.create({
-          data: { adminId: manager.id, episodeId: Number(id) },
-        });
-      }
+      await this.prismaService.adminConfirm.create({
+        data: {
+          adminId: manager.id,
+          authorId: episode?.lesson.course.author.id!,
+          episodeId: Number(id),
+        },
+      });
 
       await tx.episode.update({
         where: {
@@ -652,9 +697,9 @@ export class ManagerService {
           status: 'publish',
         },
       });
-
-      return { status: 201, message: 'درس پذیرفته شد' };
     });
+
+    return { status: 201, message: 'درس پذیرفته شد' };
   }
 
   async rejectEpisode(id: string) {
@@ -844,5 +889,91 @@ export class ManagerService {
     });
 
     return { status: 201, message: 'بلاک شد' };
+  }
+
+  async getAdminsConfirms(query: GetAdminsConfirmsDto) {
+    const { search, type } = query;
+
+    const where: any = {
+      status: { not: 'DELETE' },
+    };
+
+    if (type === 'course') where.courseId = { not: null };
+    else if (type === 'lesson') where.lessonId = { not: null };
+    else if (type === 'episode') where.episodeId = { not: null };
+
+    if (search?.trim()) {
+      const titleFilter = { title: { contains: search, mode: 'insensitive' } };
+
+      if (type === 'course') where.course = titleFilter;
+      else if (type === 'lesson') where.lesson = titleFilter;
+      else if (type === 'episode') where.episode = titleFilter;
+    }
+
+    const select: any = {
+      id: true,
+      status: true,
+      admin: { select: { name: true, phone: true } },
+      author: { select: { name: true, phone: true } },
+    };
+
+    if (type === 'course')
+      select.course = { select: { id: true, title: true } };
+    else if (type === 'lesson')
+      select.lesson = { select: { id: true, title: true } };
+    else if (type === 'episode')
+      select.episode = { select: { id: true, title: true } };
+
+    const confirms = await this.prismaService.adminConfirm.findMany({
+      where,
+      select,
+      take: 20,
+    });
+
+    return { status: 200, data: confirms };
+  }
+
+  async rejectEntity(query: RejectEntityDto) {
+    const { type, entityId, confirmId } = query;
+
+    await this.prismaService.$transaction(async (tx) => {
+      if (type === 'course') {
+        await tx.course.update({
+          where: { id: Number(entityId) },
+          data: {
+            status: 'rejected',
+          },
+        });
+      } else if (type === 'lesson') {
+        await tx.lesson.update({
+          where: { id: Number(entityId) },
+          data: {
+            status: 'rejected',
+          },
+        });
+      } else if (type === 'episode') {
+        await tx.episode.update({
+          where: { id: Number(entityId) },
+          data: {
+            status: 'rejected',
+          },
+        });
+      }
+
+      await tx.adminConfirm.update({
+        where: { id: Number(confirmId) },
+        data: {
+          status: 'REJECTED',
+        },
+      });
+    });
+
+    return { status: 201, message: 'انجام شد' };
+  }
+
+  async deleteAdminConfirm(id: string) {
+    await this.prismaService.adminConfirm.delete({ where: { id: Number(id) } });
+
+    return { status: 200, message: 'حذف شد' };
   }
 }

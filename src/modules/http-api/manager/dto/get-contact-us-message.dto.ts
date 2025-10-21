@@ -1,9 +1,17 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
-export enum RoleFilter {
+enum RoleEnum {
   USER = 'USER',
   AUTHOR = 'AUTHOR',
+  ADMIN = 'ADMIN',
   ALL = 'ALL',
+}
+
+enum TopicEnum {
+  ALL = 'ALL',
+  GENERAL = 'GENERAL',
+  REPORT = 'REPORT',
+  TECHNICAL = 'TECHNICAL',
 }
 
 export class GetContactUsMessageDto {
@@ -11,7 +19,9 @@ export class GetContactUsMessageDto {
   @IsOptional()
   search?: string;
 
-  @IsEnum(RoleFilter)
-  @IsOptional()
-  roleFilter: RoleFilter;
+  @IsEnum(RoleEnum)
+  role: RoleEnum;
+
+  @IsEnum(TopicEnum)
+  topic: TopicEnum;
 }

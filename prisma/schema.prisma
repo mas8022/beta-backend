@@ -27,7 +27,9 @@ model User {
   ContactUs    ContactUs[]
   CourseReport CourseReport[]
   Promotion    Promotion[]
-  AdminConfirm AdminConfirm[]
+
+  approvalsGiven    AdminConfirm[] @relation("approvalsGiven")
+  approvalsReceived AdminConfirm[] @relation("approvalsReceived")
 }
 
 enum UserRoleEnum {
@@ -52,10 +54,9 @@ model ContactUs {
 }
 
 enum TopicEnum {
-  عمومی
-  عضویت
-  رویدادها
-  پشتیبانی_فنی
+  GENERAL
+  REPORT
+  TECHNICAL
 }
 
 model RequestCollaborate {
@@ -296,8 +297,13 @@ model Promotion {
 model AdminConfirm {
   id Int @id @default(autoincrement())
 
+  status AdminConfirmStatusEnum @default(WAITING)
+
   adminId Int
-  admin   User @relation(fields: [adminId], references: [id])
+  admin   User @relation("approvalsGiven", fields: [adminId], references: [id])
+
+  authorId Int
+  author   User @relation("approvalsReceived", fields: [authorId], references: [id])
 
   courseId Int?
   course   Course? @relation(fields: [courseId], references: [id])
@@ -309,4 +315,10 @@ model AdminConfirm {
   episode   Episode? @relation(fields: [episodeId], references: [id])
 
   createdAt DateTime @default(now())
+}
+
+enum AdminConfirmStatusEnum {
+  WAITING
+  DELETE
+  REJECTED
 }

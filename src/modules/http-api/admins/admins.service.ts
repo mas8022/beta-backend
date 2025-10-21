@@ -87,15 +87,27 @@ export class AdminsService {
 
     const course = await this.prismaService.course.findUnique({
       where: { id: Number(courseId) },
-      select: { status: true },
+      select: { status: true, author: { select: { id: true } } },
     });
 
+    if (course?.status === 'publish') {
+      return { status: 405, message: 'قبلا تایید شده' };
+    }
+
     await this.prismaService.$transaction(async (tx) => {
-      if (course?.status !== 'publish') {
-        await tx.adminConfirm.create({
-          data: { adminId: admin.id, courseId: Number(courseId) },
-        });
-      }
+      await tx.adminConfirm.deleteMany({
+        where: {
+          courseId: Number(courseId),
+        },
+      });
+
+      await tx.adminConfirm.create({
+        data: {
+          adminId: admin.id,
+          authorId: course?.author.id!,
+          courseId: Number(courseId),
+        },
+      });
 
       await tx.course.update({
         where: { id: Number(courseId) },
@@ -189,17 +201,36 @@ export class AdminsService {
   async accepteEpisode(id: string, req: FastifyRequest) {
     const admin = await req.admin;
 
+    const episode = await this.prismaService.episode.findUnique({
+      where: { id: Number(id) },
+      select: {
+        status: true,
+        lesson: {
+          select: {
+            course: { select: { author: { select: { id: true } } } },
+          },
+        },
+      },
+    });
+
+    if (episode?.status === 'publish') {
+      return { status: 405, message: 'قبلا تایید شده' };
+    }
+
     await this.prismaService.$transaction(async (tx) => {
-      const episode = await this.prismaService.episode.findUnique({
-        where: { id: Number(id) },
-        select: { status: true },
+      await tx.adminConfirm.deleteMany({
+        where: {
+          episodeId: Number(id),
+        },
       });
 
-      if (episode?.status !== 'publish') {
-        await this.prismaService.adminConfirm.create({
-          data: { adminId: admin.id, episodeId: Number(id) },
-        });
-      }
+      await tx.adminConfirm.create({
+        data: {
+          adminId: admin.id,
+          authorId: episode?.lesson.course.author.id!,
+          episodeId: Number(id),
+        },
+      });
 
       await tx.episode.update({
         where: {
@@ -209,9 +240,9 @@ export class AdminsService {
           status: 'publish',
         },
       });
-
-      return { status: 201, message: 'درس پذیرفته شد' };
     });
+
+    return { status: 201, message: 'درس پذیرفته شد' };
   }
 
   async rejectLesson(lessonId: string) {
@@ -234,18 +265,28 @@ export class AdminsService {
       where: { id: Number(lessonId) },
       select: {
         status: true,
+        course: { select: { author: { select: { id: true } } } },
       },
     });
 
+    if (lesson?.status === 'publish') {
+      return { status: 405, message: 'قبلا تایید شده' };
+    }
+
     await this.prismaService.$transaction(async (tx) => {
-      if (lesson?.status !== 'publish') {
-        tx.adminConfirm.create({
-          data: {
-            adminId: admin.id,
-            lessonId: Number(lessonId),
-          },
-        });
-      }
+      await tx.adminConfirm.deleteMany({
+        where: {
+          lessonId: Number(lessonId),
+        },
+      });
+
+      await tx.adminConfirm.create({
+        data: {
+          adminId: admin.id,
+          authorId: lesson?.course.author.id!,
+          lessonId: Number(lessonId),
+        },
+      });
 
       await tx.lesson.update({
         where: {
@@ -255,9 +296,9 @@ export class AdminsService {
           status: 'publish',
         },
       });
-
-      return { status: 201, message: 'فصل پذیرفته شد' };
     });
+
+    return { status: 201, message: 'فصل پذیرفته شد' };
   }
 
   async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {

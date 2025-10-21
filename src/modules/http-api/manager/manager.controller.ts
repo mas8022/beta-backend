@@ -30,6 +30,8 @@ import { GetCoursesDto } from './dto/get-courses.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import { RequestFunsDto } from './dto/request-funs.dto';
 import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.interceptor';
+import { GetAdminsConfirmsDto } from './dto/get-admins-confirms.dto';
+import { RejectEntityDto } from './dto/reject-entity.dto';
 
 @UseGuards(ManagerGuard)
 @Controller('manager')
@@ -41,9 +43,9 @@ export class ManagerController {
     return await this.managerService.findUser(param);
   }
 
-  @Get('contact-us-comments/:roleFilter/:search')
-  async getContactUsComments(@Param() params: GetContactUsMessageDto) {
-    return await this.managerService.getContactUsComments(params);
+  @Get('contact-us-comments')
+  async getContactUsComments(@Query() query: GetContactUsMessageDto) {
+    return await this.managerService.getContactUsComments(query);
   }
 
   @Delete('contact-us-comment/:commentId')
@@ -213,5 +215,21 @@ export class ManagerController {
   @Patch('block-admin/:id')
   async blockAdmin(@Param('id') id: string) {
     return await this.managerService.blockAdmin(id);
+  }
+
+  @Get('admins-confirms')
+  async getAdminsConfirms(@Query() query: GetAdminsConfirmsDto) {
+    return await this.managerService.getAdminsConfirms(query);
+  }
+
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
+  @Patch('reject-entity')
+  async rejectEntity(@Query() query: RejectEntityDto) {
+    return await this.managerService.rejectEntity(query);
+  }
+
+  @Delete('admin-confirm/:id')
+  async deleteAdminConfirm(@Param('id') id: string) {
+    return await this.managerService.deleteAdminConfirm(id);
   }
 }
