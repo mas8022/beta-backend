@@ -29,6 +29,7 @@ export class AdminsController {
     return await this.adminsService.getCourses(query);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('reject-course/:id')
   async rejectCourse(@Param('id') id: string) {
     return await this.adminsService.rejectCourse(id);
@@ -59,23 +60,25 @@ export class AdminsController {
     return this.adminsService.getCourseLessons(id);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
   @Patch('reject-episode/:id')
   async rejectEpisode(@Param('id') id: string) {
     return await this.adminsService.rejectEpisode(id);
   }
 
-  @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
   @Patch('accepte-episode/:id')
   async accepteEpisode(@Param('id') id: string, @Req() req: FastifyRequest) {
     return await this.adminsService.accepteEpisode(id, req);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
   @Patch('reject-lesson/:lessonId')
   async rejectLesson(@Param('lessonId') lessonId: string) {
     return await this.adminsService.rejectLesson(lessonId);
   }
 
-  @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
   @Patch('accepte-lesson/:lessonId')
   async accepteLesson(
     @Param('lessonId') lessonId: string,

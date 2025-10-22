@@ -30,6 +30,7 @@ import { CreateCoursePromotionDto } from './dto/create-course-promotion.dto';
 import { EditCoursePromotionDto } from './dto/edit-course-promotion.dto';
 import { GetCoursesDto } from './dto/get-course.dto';
 import { RequestFunsDto } from './dto/request-funs.dto';
+import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.interceptor';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -91,6 +92,7 @@ export class AuthorsController {
     return await this.authorsService.createCourse(files, createCourseDto, req);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Delete('delete-course/:courseId')
   async deleteCourse(@Param('courseId') courseId: string) {
     return await this.authorsService.deleteCourse(courseId);
@@ -116,6 +118,7 @@ export class AuthorsController {
     return this.authorsService.getCourseLessons(courseId);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
   @Put('edit-lessons-and-episodes-order')
   async editLessonsAndEpisodesOrders(
     @Body() lessons: EditLessonsAndEpisodesOrderDto[],
@@ -131,6 +134,7 @@ export class AuthorsController {
     return await this.authorsService.createLesson(courseId, body);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
   @Delete('delete-lesson/:lessonId')
   async deleteLesson(@Param('lessonId') lessonId: string) {
     return await this.authorsService.deleteLesson(lessonId);
@@ -152,6 +156,7 @@ export class AuthorsController {
     return await this.authorsService.createEpisode(lessonId, body);
   }
 
+  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
   @Delete('delete-episode/:episodeId')
   async deleteEpisode(@Param('episodeId') episodeId: string) {
     return await this.authorsService.deleteEpisode(episodeId);

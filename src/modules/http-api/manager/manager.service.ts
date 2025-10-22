@@ -14,6 +14,7 @@ import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import { RequestFunsDto } from './dto/request-funs.dto';
 import { GetAdminsConfirmsDto } from './dto/get-admins-confirms.dto';
 import { RejectEntityDto } from './dto/reject-entity.dto';
+import { FileValidator } from 'src/common/validators/file.validator';
 
 @Injectable()
 export class ManagerService {
@@ -150,7 +151,12 @@ export class ManagerService {
     const manager = await req.manager;
 
     let avatarAddress: string | null = null;
+
     if (files?.avatar?.[0]) {
+      const file = files.avatar[0];
+
+      FileValidator.validateJpgFile(file);
+
       avatarAddress = await this.bucketService.uploadFile(files.avatar[0], [
         'image',
       ]);

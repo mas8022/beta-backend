@@ -94,12 +94,12 @@ export class UsersService {
     const me = await req.user;
 
     const course = await this.prismaService.course.findUnique({
-      where: { id: Number(id) },
+      where: { id: Number(id), status: 'publish' },
     });
 
     if (!course) {
       return {
-        message: 'این دوره وجود ندارد',
+        message: 'یک ساعت دیگر اقدام به خرید کنید',
         status: 404,
       };
     }
