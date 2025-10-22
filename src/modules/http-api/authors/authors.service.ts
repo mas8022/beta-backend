@@ -189,16 +189,26 @@ export class AuthorsService {
     let where: any = { authorId: id };
 
     if (status === 'simpleEdit') {
-      where.lessons = {
-        some: {
-          status: 'waiting',
-          episodes: {
+      where.OR = [
+        {
+          lessons: {
             some: {
               status: 'waiting',
             },
           },
         },
-      };
+        {
+          lessons: {
+            some: {
+              episodes: {
+                some: {
+                  status: 'waiting',
+                },
+              },
+            },
+          },
+        },
+      ];
     } else {
       where = { status };
     }

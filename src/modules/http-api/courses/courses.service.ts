@@ -17,7 +17,8 @@ export class CoursesService {
     await this.prismaService.course.create({
       data: {
         title: 'مهارت‌های زندگی روزمره',
-        image: '/images/lifestyle-course-banner.png',
+        image:
+          'https://maghaleh.storage.iran.liara.space/1761119276943_7b2769ef-8ea1-421e-a45e-401a9fd94508.png',
         category: 'سبک زندگی',
         description:
           'یک دوره کاربردی برای بهبود زندگی روزمره، مدیریت زمان و افزایش بهره‌وری شخصی.',
