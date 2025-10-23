@@ -17,6 +17,7 @@ import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UserGuard } from '../users/user.Guard';
 import type { FastifyRequest } from 'fastify';
 import { CacheFindFilteredCoursesInterceptor } from './interceptors/find-filtered-courses-cache.interceptor';
+import { GetCourseCommentsDto } from './dto/get-course-comments.dto';
 
 @Controller('courses')
 export class CoursesController {
@@ -93,5 +94,10 @@ export class CoursesController {
   @Get('sitemap')
   async getSiteMap() {
     return await this.coursesService.getSiteMap();
+  }
+
+  @Get('comments/:courseId')
+  async getComments(@Param('courseId') courseId: string, @Query() query: any) {
+    return await this.coursesService.getComments(courseId, query);
   }
 }

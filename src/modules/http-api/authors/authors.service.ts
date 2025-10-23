@@ -15,6 +15,7 @@ import { EditCoursePromotionDto } from './dto/edit-course-promotion.dto';
 import { GetCoursesDto } from './dto/get-course.dto';
 import { RequestFunsDto } from './dto/request-funs.dto';
 import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
+import { FileValidator } from 'src/common/validators/file.validator';
 
 @Injectable()
 export class AuthorsService {
@@ -79,7 +80,12 @@ export class AuthorsService {
     const author = await req.author;
 
     let avatarAddress: string | null = null;
+
     if (files?.avatar?.[0]) {
+      const file = files.avatar[0];
+
+      FileValidator.validateJpgFile(file);
+
       avatarAddress = await this.bucketService.uploadFile(files.avatar[0], [
         'image',
       ]);
@@ -313,6 +319,10 @@ export class AuthorsService {
 
     let imageAddress: string | null = null;
     if (files?.image?.[0]) {
+      const file = files.image[0];
+
+      FileValidator.validateJpgFile(file);
+
       imageAddress = await this.bucketService.uploadFile(files.image[0], [
         'image',
       ]);

@@ -4,6 +4,7 @@ import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UsersService } from '../users/users.service';
 import type { FastifyRequest } from 'fastify';
 import { RedisService } from 'src/common/services/redis/redis.service';
+import { GetCourseCommentsDto } from './dto/get-course-comments.dto';
 
 @Injectable()
 export class CoursesService {
@@ -302,21 +303,6 @@ export class CoursesService {
             },
           },
         },
-        CourseComment: {
-          where: { status: 'confirm' },
-          select: {
-            id: true,
-            user: {
-              select: {
-                phone: true,
-              },
-            },
-            text: true,
-            reply: true,
-            createdAt: true,
-          },
-          take: 10,
-        },
       },
     });
 
@@ -537,5 +523,28 @@ export class CoursesService {
     });
 
     return { status: 200, data: courses };
+  }
+
+  async getComments(courseId: string, query: any) {
+    const { skip, take } = query;
+
+    const comments = await this.prismaService.courseComment.findMany({
+      where: { courseId: Number(courseId), status: 'confirm' },
+      select: {
+        id: true,
+        user: {
+          select: {
+            phone: true,
+          },
+        },
+        text: true,
+        reply: true,
+        createdAt: true,
+      },
+      skip: Number(skip),
+      take: Number(take),
+    });
+
+    return { status: 200, data: comments };
   }
 }
