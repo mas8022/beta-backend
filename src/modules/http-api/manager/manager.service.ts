@@ -39,7 +39,7 @@ export class ManagerService {
   }
 
   async getContactUsComments(query: GetContactUsMessageDto) {
-    const { search, role, topic } = query;
+    const { search, role, topic, skip, take } = query;
 
     const where: any = {};
 
@@ -80,6 +80,8 @@ export class ManagerService {
 
     const comments = await this.prismaService.contactUs.findMany({
       where,
+      take: Number(take),
+      skip: Number(skip),
     });
 
     return { status: 200, data: comments };

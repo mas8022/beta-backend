@@ -1,4 +1,5 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 enum RoleEnum {
   USER = 'USER',
@@ -24,4 +25,16 @@ export class GetContactUsMessageDto {
 
   @IsEnum(TopicEnum)
   topic: TopicEnum;
+
+   @IsOptional()
+   @Type(() => Number)
+   @IsInt()
+   @Min(0)
+   skip?: number;
+ 
+   @IsOptional()
+   @Type(() => Number)
+   @IsInt()
+   take?: number;
+
 }
