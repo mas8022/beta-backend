@@ -1,4 +1,5 @@
-import { IsOptional, IsEnum } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsOptional, IsEnum, IsInt } from 'class-validator';
 
 enum PermissionSortEnum {
   pending = 'pending',
@@ -23,4 +24,14 @@ export class GetRequestsCollaborateDto {
 
   @IsEnum(RoleEnum)
   role: RoleEnum;
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  skip: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  take: number;
 }

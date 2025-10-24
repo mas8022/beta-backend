@@ -187,7 +187,7 @@ export class ManagerService {
   }
 
   async getRequestsCollaborate(query: GetRequestsCollaborateDto) {
-    const { search, sort, role } = query;
+    const { search, sort, role, take, skip } = query;
 
     const where: any = {};
 
@@ -220,6 +220,8 @@ export class ManagerService {
 
     const requests = await this.prismaService.requestCollaborate.findMany({
       where,
+      skip: Number(skip),
+      take: Number(take),
     });
 
     return {
