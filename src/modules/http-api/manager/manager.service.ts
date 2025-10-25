@@ -906,7 +906,7 @@ export class ManagerService {
   }
 
   async getAdminsConfirms(query: GetAdminsConfirmsDto) {
-    const { search, type } = query;
+    const { search, type, skip, take } = query;
 
     const where: any = {
       status: { not: 'DELETE' },
@@ -941,7 +941,8 @@ export class ManagerService {
     const confirms = await this.prismaService.adminConfirm.findMany({
       where,
       select,
-      take: 20,
+      take: Number(take),
+      skip: Number(skip),
     });
 
     return { status: 200, data: confirms };

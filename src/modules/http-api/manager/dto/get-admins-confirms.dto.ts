@@ -1,4 +1,5 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
 enum ConfirmTypeEnum {
   course = 'course',
@@ -13,4 +14,12 @@ export class GetAdminsConfirmsDto {
   @IsString()
   @IsOptional()
   search?: string;
+  
+  @Type(() => Number)
+  @IsInt()
+  skip: number;
+
+  @Type(() => Number)
+  @IsInt()
+  take: number;
 }
