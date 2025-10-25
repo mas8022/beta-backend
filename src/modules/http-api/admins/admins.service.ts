@@ -302,7 +302,7 @@ export class AdminsService {
   }
 
   async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {
-    const { status, search } = query;
+    const { status, search, skip, take } = query;
 
     const admin = await req.admin;
 
@@ -326,6 +326,8 @@ export class AdminsService {
           },
         },
       },
+      take: Number(take),
+      skip: Number(skip),
     });
 
     return { status: 200, data: reports };

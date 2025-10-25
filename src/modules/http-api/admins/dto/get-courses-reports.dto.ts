@@ -1,4 +1,5 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
 enum ReportStatusEnum {
   SEND = 'SEND',
@@ -12,4 +13,12 @@ export class GetCoursesReportsDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @Type(() => Number)
+  @IsInt()
+  skip?: number;
+  
+  @Type(() => Number)
+  @IsInt()
+  take?: number;
 }
