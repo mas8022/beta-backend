@@ -206,8 +206,8 @@ export class ManagerController {
   }
 
   @Get('monitor-admins')
-  async getMonitorAdmins() {
-    return await this.managerService.getMonitorAdmins();
+  async getMonitorAdmins(@Query() query: any) {
+    return await this.managerService.getMonitorAdmins(query);
   }
 
   @Delete('course-report/:id')

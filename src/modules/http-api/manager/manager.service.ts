@@ -849,11 +849,12 @@ export class ManagerService {
     };
   }
 
-  async getMonitorAdmins() {
+  async getMonitorAdmins({ skip, take }: { skip?: string; take?: string }) {
     const admins = await this.prismaService.user.findMany({
       where: {
         roles: { has: 'ADMIN' },
       },
+
       select: {
         id: true,
         phone: true,
@@ -870,13 +871,13 @@ export class ManagerService {
           },
         },
       },
+      take: Number(take),
+      skip: Number(skip),
     });
 
     let monitorAdmins = admins.toSorted(
       (a, b) => b._count.CourseReport - a._count.CourseReport,
     );
-
-    monitorAdmins.slice(0, 20);
 
     return { status: 200, data: monitorAdmins };
   }
