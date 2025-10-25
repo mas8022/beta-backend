@@ -745,7 +745,7 @@ export class ManagerService {
   }
 
   async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {
-    const { status, search } = query;
+    const { status, search, skip, take } = query;
 
     const manager = await req.manager;
 
@@ -769,6 +769,8 @@ export class ManagerService {
           },
         },
       },
+      take: Number(take),
+      skip: Number(skip),
     });
 
     return { status: 200, data: reports };
