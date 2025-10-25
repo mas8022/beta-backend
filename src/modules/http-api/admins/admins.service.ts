@@ -10,7 +10,7 @@ export class AdminsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getCourses(query: GetCoursesDto) {
-    const { status, search } = query;
+    const { status, search, take, skip } = query;
 
     let where: any = {};
 
@@ -64,6 +64,8 @@ export class AdminsService {
           },
         },
       },
+      skip: Number(skip),
+      take: Number(take),
     });
 
     return { status: 200, data: courses };
