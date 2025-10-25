@@ -173,7 +173,6 @@ export class UsersService {
         return { status: 404 };
       }
 
-      // جلوگیری از دوباره کم شدن تخفیف
       if (order.status === 'success') {
         return { status: 200, message: 'قبلاً تایید شده' };
       }

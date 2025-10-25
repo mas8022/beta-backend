@@ -1,4 +1,5 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
 enum StatusٍEnum {
   PENDING = 'PENDING',
@@ -22,4 +23,12 @@ export class GetAuthorsRequestsFunsDto {
 
   @IsEnum(RoleEnum)
   role: RoleEnum;
+
+  @Type(() => Number)
+  @IsInt()
+  skip: number;
+
+  @Type(() => Number)
+  @IsInt()
+  take: number;
 }

@@ -159,9 +159,7 @@ export class ManagerService {
 
       FileValidator.validateJpgFile(file);
 
-      avatarAddress = await this.bucketService.uploadFile(files.avatar[0], [
-        'image',
-      ]);
+      avatarAddress = await this.bucketService.uploadFile(file);
     }
 
     const updateData: any = {
@@ -288,7 +286,7 @@ export class ManagerService {
   }
 
   async getAuthorsRequestsFuns(query: GetAuthorsRequestsFunsDto) {
-    const { search, status, role } = query;
+    const { search, status, role, take, skip } = query;
 
     const where: any = { status };
 
@@ -310,7 +308,8 @@ export class ManagerService {
       orderBy: {
         id: 'desc',
       },
-      take: 20,
+      take: Number(take),
+      skip: Number(skip),
     });
 
     return { status: 200, data: requests };
@@ -454,7 +453,7 @@ export class ManagerService {
   }
 
   async getCourses(query: GetCoursesDto) {
-    const { status, search } = query;
+    const { status, search, take, skip } = query;
 
     let where: any = {};
 
@@ -508,6 +507,8 @@ export class ManagerService {
           },
         },
       },
+      skip: Number(skip),
+      take: Number(take),
     });
 
     return { status: 200, data: courses };

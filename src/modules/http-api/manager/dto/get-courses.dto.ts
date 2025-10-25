@@ -1,4 +1,5 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class GetCoursesDto {
   @IsEnum(['creating', 'waiting', 'publish', 'simpleEdit'])
@@ -7,4 +8,12 @@ export class GetCoursesDto {
   @IsString()
   @IsOptional()
   search?: string;
+
+  @Type(() => Number)
+  @IsInt()
+  skip: number;
+
+  @Type(() => Number)
+  @IsInt()
+  take: number;
 }

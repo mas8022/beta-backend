@@ -31,6 +31,7 @@ import { EditCoursePromotionDto } from './dto/edit-course-promotion.dto';
 import { GetCoursesDto } from './dto/get-course.dto';
 import { RequestFunsDto } from './dto/request-funs.dto';
 import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.interceptor';
+import { JsonSerializerInterceptor } from 'src/common/interceptors/json-serializer.interceptor';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -227,6 +228,7 @@ export class AuthorsController {
     return await this.authorsService.RequestFuns(req, RequestFunsDto);
   }
 
+  @UseInterceptors(JsonSerializerInterceptor)
   @Get('author-wallet')
   async getAuthorWallet(@Req() req: FastifyRequest) {
     return await this.authorsService.getAuthorWallet(req);

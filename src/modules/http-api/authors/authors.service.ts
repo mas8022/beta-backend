@@ -86,9 +86,7 @@ export class AuthorsService {
 
       FileValidator.validateJpgFile(file);
 
-      avatarAddress = await this.bucketService.uploadFile(files.avatar[0], [
-        'image',
-      ]);
+      avatarAddress = await this.bucketService.uploadFile(files.avatar[0]);
     }
 
     const updateData: any = {
@@ -256,7 +254,6 @@ export class AuthorsService {
 
     const imageAddress: any = await this.bucketService.uploadFile(
       files.image[0],
-      ['image'],
     );
 
     await this.prismaService.course.create({
@@ -323,9 +320,7 @@ export class AuthorsService {
 
       FileValidator.validateJpgFile(file);
 
-      imageAddress = await this.bucketService.uploadFile(files.image[0], [
-        'image',
-      ]);
+      imageAddress = await this.bucketService.uploadFile(files.image[0]);
     }
 
     const course = await this.prismaService.course.findUnique({
@@ -682,7 +677,7 @@ export class AuthorsService {
       });
     const totalWithdrawals = totalWithdrawalsResult._sum.amount ?? 0;
 
-    const walletBalance = totalIncomes * (65 / 100) - Number(totalWithdrawals);
+    const walletBalance = totalIncomes * 0.65 - Number(totalWithdrawals);
 
     if (amount > walletBalance) {
       return { status: 400, message: 'موجودی کافی نیست' };
@@ -711,7 +706,7 @@ export class AuthorsService {
       },
     });
 
-    const totalIncomes = totalIncomesResult._sum.price ?? 0;
+    const totalIncomes = (totalIncomesResult._sum.price ?? 0) * 0.65;
 
     const totalWithdrawalsResult =
       await this.prismaService.requestFuns.aggregate({
@@ -756,7 +751,7 @@ export class AuthorsService {
         .reduce((sum, o) => sum + Number(o.price), 0);
 
       // فروش تجمعی
-      cumulative += monthlyTotal;
+      cumulative += monthlyTotal * 0.65;
 
       monthlySales.push({
         month: monthName,

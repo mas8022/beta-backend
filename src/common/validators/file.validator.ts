@@ -10,10 +10,6 @@ export class FileValidator {
       throw new BadRequestException('فقط فایل‌هایی با فرمت .jpg مجاز هستند');
     }
 
-    if (!file.originalname.toLowerCase().endsWith('.jpg')) {
-      throw new BadRequestException('فقط فایل‌هایی با پسوند .jpg مجاز هستند');
-    }
-
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
       throw new BadRequestException('حجم فایل نباید بیشتر از ۲ مگابایت باشد');
