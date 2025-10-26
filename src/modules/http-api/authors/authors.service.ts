@@ -188,7 +188,7 @@ export class AuthorsService {
   async getAuthorCourses(req: FastifyRequest, query: GetCoursesDto) {
     const { id } = await req.author;
 
-    const { status } = query;
+    const { status, skip, take } = query;
 
     let where: any = { authorId: id };
 
@@ -235,6 +235,8 @@ export class AuthorsService {
           },
         },
       },
+      take: Number(take),
+      skip: Number(skip),
     });
 
     return {
