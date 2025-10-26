@@ -556,7 +556,7 @@ export class AuthorsService {
   async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {
     const author = await req.author;
 
-    const { status, search } = query;
+    const { status, search, skip, take } = query;
 
     const where: any = {
       course: {
@@ -585,6 +585,8 @@ export class AuthorsService {
           },
         },
       },
+      take: Number(take),
+      skip: Number(skip),
     });
 
     return { status: 200, data: reports };
