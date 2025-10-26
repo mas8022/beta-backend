@@ -111,12 +111,13 @@ export class AuthorsService {
     };
   }
 
-  async getAuthorComments(req: FastifyRequest) {
+  async getAuthorComments(req: FastifyRequest, { skip, take }: any) {
     const author = await req.author;
 
     const comments = await this.prismaService.courseComment.findMany({
       where: {
         course: { authorId: author.id },
+        status: 'pending',
       },
       select: {
         id: true,
@@ -135,11 +136,39 @@ export class AuthorsService {
         },
         createdAt: true,
       },
+      take: Number(take),
+      skip: Number(skip),
     });
 
     return {
       status: 200,
       data: comments,
+    };
+  }
+
+  async getAuthorCommentsCount(req: FastifyRequest) {
+    const author = await req.author;
+
+    const rawCounts = await this.prismaService.courseComment.groupBy({
+      by: 'status',
+      orderBy: { status: 'asc' },
+      where: { course: { authorId: author.id } },
+      _count: { _all: true },
+    });
+
+    const counts = {
+      pending: 0,
+      rejected: 0,
+      confirm: 0,
+    };
+
+    for (const item of rawCounts) {
+      counts[item.status] = item._count._all;
+    }
+
+    return {
+      status: 200,
+      data: counts,
     };
   }
 

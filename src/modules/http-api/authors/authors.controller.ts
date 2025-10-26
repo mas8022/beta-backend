@@ -54,8 +54,13 @@ export class AuthorsController {
   }
 
   @Get('author-comments')
-  async getAuthorComments(@Req() req: FastifyRequest) {
-    return await this.authorsService.getAuthorComments(req);
+  async getAuthorComments(@Req() req: FastifyRequest, @Query() query: any) {
+    return await this.authorsService.getAuthorComments(req, query);
+  }
+
+  @Get("author-comments-count")
+  async getAuthorCommentsCount(@Req() req: FastifyRequest) {
+    return await this.authorsService.getAuthorCommentsCount(req);
   }
 
   @Patch('confirm-comment/:commentId')
