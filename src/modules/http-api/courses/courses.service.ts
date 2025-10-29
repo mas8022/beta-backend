@@ -532,11 +532,7 @@ export class CoursesService {
       where: { courseId: Number(courseId), status: 'confirm' },
       select: {
         id: true,
-        user: {
-          select: {
-            phone: true,
-          },
-        },
+        user: { select: { phone: true } },
         text: true,
         reply: true,
         createdAt: true,
@@ -545,6 +541,20 @@ export class CoursesService {
       take: Number(take),
     });
 
-    return { status: 200, data: comments };
+    const maskPhone = (phone: string) =>
+      phone.replace(/^(\d{4})\d{4}(\d+)$/, '$1xxxx$2');
+
+    const data = comments.map((comment) => ({
+      ...comment,
+      user: {
+        ...comment.user,
+        phone: maskPhone(comment.user.phone),
+      },
+    }));
+
+    return {
+      status: 200,
+      data,
+    };
   }
 }
