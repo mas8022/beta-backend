@@ -32,6 +32,7 @@ import { GetCoursesDto } from './dto/get-course.dto';
 import { RequestFunsDto } from './dto/request-funs.dto';
 import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.interceptor';
 import { JsonSerializerInterceptor } from 'src/common/interceptors/json-serializer.interceptor';
+import { ClearCacheCourseLessonsInterceptor } from 'src/common/interceptors/clear-cache-course-lessons.interceptor';
 
 @UseGuards(AuthorGuard)
 @Controller('authors')
@@ -58,7 +59,7 @@ export class AuthorsController {
     return await this.authorsService.getAuthorComments(req, query);
   }
 
-  @Get("author-comments-count")
+  @Get('author-comments-count')
   async getAuthorCommentsCount(@Req() req: FastifyRequest) {
     return await this.authorsService.getAuthorCommentsCount(req);
   }
@@ -140,7 +141,7 @@ export class AuthorsController {
     return await this.authorsService.createLesson(courseId, body);
   }
 
-  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
+  @UseInterceptors(ClearCacheCourseLessonsInterceptor)
   @Delete('delete-lesson/:lessonId')
   async deleteLesson(@Param('lessonId') lessonId: string) {
     return await this.authorsService.deleteLesson(lessonId);
@@ -162,7 +163,7 @@ export class AuthorsController {
     return await this.authorsService.createEpisode(lessonId, body);
   }
 
-  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
+  @UseInterceptors(ClearCacheCourseLessonsInterceptor)
   @Delete('delete-episode/:episodeId')
   async deleteEpisode(@Param('episodeId') episodeId: string) {
     return await this.authorsService.deleteEpisode(episodeId);

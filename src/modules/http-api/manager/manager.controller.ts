@@ -32,6 +32,7 @@ import { RequestFunsDto } from './dto/request-funs.dto';
 import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.interceptor';
 import { GetAdminsConfirmsDto } from './dto/get-admins-confirms.dto';
 import { RejectEntityDto } from './dto/reject-entity.dto';
+import { ClearCacheCourseLessonsInterceptor } from 'src/common/interceptors/clear-cache-course-lessons.interceptor';
 
 @UseGuards(ManagerGuard)
 @Controller('manager')
@@ -138,13 +139,13 @@ export class ManagerController {
     return await this.managerService.accepteCourse(courseId, req);
   }
 
-  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
+  @UseInterceptors(ClearCacheCourseLessonsInterceptor)
   @Patch('reject-lesson/:lessonId')
   async rejectLesson(@Param('lessonId') lessonId: string) {
     return await this.managerService.rejectLesson(lessonId);
   }
 
-  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
+  @UseInterceptors(ClearCacheCourseLessonsInterceptor)
   @Patch('accepte-lesson/:lessonId')
   async accepteLesson(
     @Param('lessonId') lessonId: string,
@@ -153,15 +154,15 @@ export class ManagerController {
     return await this.managerService.accepteLesson(lessonId, req);
   }
 
-  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
-  @Patch('accepte-episode/:id')
-  async accepteEpisode(@Param('id') id: string, @Req() req: FastifyRequest) {
+  @UseInterceptors(ClearCacheCourseLessonsInterceptor)
+  @Patch('accepte-episode/:episodeId')
+  async accepteEpisode(@Param('episodeId') id: string, @Req() req: FastifyRequest) {
     return await this.managerService.accepteEpisode(id, req);
   }
 
-  @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
-  @Patch('reject-episode/:id')
-  async rejectEpisode(@Param('id') id: string) {
+  @UseInterceptors(ClearCacheCourseLessonsInterceptor)
+  @Patch('reject-episode/:episodeId')
+  async rejectEpisode(@Param('episodeId') id: string) {
     return await this.managerService.rejectEpisode(id);
   }
 
