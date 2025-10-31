@@ -380,6 +380,8 @@ export class CoursesService {
               contains: search,
               mode: 'insensitive',
             },
+          },
+          {
             description: {
               contains: search,
               mode: 'insensitive',
@@ -393,6 +395,8 @@ export class CoursesService {
       },
       take: 5,
     });
+
+    console.log('=========> ', courses);
 
     return { status: 200, data: courses };
   }
