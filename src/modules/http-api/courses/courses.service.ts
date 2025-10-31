@@ -396,8 +396,6 @@ export class CoursesService {
       take: 5,
     });
 
-    console.log('=========> ', courses);
-
     return { status: 200, data: courses };
   }
 
