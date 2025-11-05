@@ -13,7 +13,7 @@ enum RoleEnum {
   AUTHOR = 'AUTHOR',
 }
 
-export class GetAuthorsRequestsFunsDto {
+export class GetRequestsFunsDto {
   @IsString()
   @IsOptional()
   search?: string;

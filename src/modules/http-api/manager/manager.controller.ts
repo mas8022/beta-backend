@@ -24,7 +24,7 @@ import { GetRequestsCollaborateDto } from './dto/get-request-collaborate.dto';
 import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.dto';
 import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';
 import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
-import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
+import { GetRequestsFunsDto } from './dto/get-requests-funs.dto';
 import { JsonSerializerInterceptor } from 'src/common/interceptors/json-serializer.interceptor';
 import { GetCoursesDto } from './dto/get-courses.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
@@ -87,10 +87,10 @@ export class ManagerController {
     return await this.managerService.deleteRequestCollaborate(requestId);
   }
 
-  @Get('authors-requests-funs')
+  @Get('requests-funs')
   @UseInterceptors(JsonSerializerInterceptor)
-  async getAuthorsRequestsFuns(@Query() query: GetAuthorsRequestsFunsDto) {
-    return await this.managerService.getAuthorsRequestsFuns(query);
+  async getRequestsFuns(@Query() query: GetRequestsFunsDto) {
+    return await this.managerService.getRequestsFuns(query);
   }
 
   @Patch('accept-author-request-funs/:requestId')
@@ -156,7 +156,10 @@ export class ManagerController {
 
   @UseInterceptors(ClearCacheCourseLessonsInterceptor)
   @Patch('accepte-episode/:episodeId')
-  async accepteEpisode(@Param('episodeId') id: string, @Req() req: FastifyRequest) {
+  async accepteEpisode(
+    @Param('episodeId') id: string,
+    @Req() req: FastifyRequest,
+  ) {
     return await this.managerService.accepteEpisode(id, req);
   }
 

@@ -722,7 +722,7 @@ export class AuthorsService {
 
     return {
       status: 201,
-      message: 'یک الی دو روز اینده به حساب شما واریز می شود',
+      message: 'نهایت تا یک هفته دیگر به حساب شما واریز می شود',
     };
   }
 

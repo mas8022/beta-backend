@@ -7,7 +7,7 @@ import { GetRequestsCollaborateDto } from './dto/get-request-collaborate.dto';
 import { SetAuthorPermissionParamDto } from './dto/set-author-permission-param.dto';
 import { SetAuthorPermissionBodyDto } from './dto/set-author-permission-body.dto';
 import { GetContactUsMessageDto } from './dto/get-contact-us-message.dto';
-import { GetAuthorsRequestsFunsDto } from './dto/get-authors-requests-funs.dto';
+import { GetRequestsFunsDto } from './dto/get-requests-funs.dto';
 import { JalaliDateUtil } from 'src/common/utils/jalali-date.util';
 import { GetCoursesDto } from './dto/get-courses.dto';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
@@ -285,7 +285,7 @@ export class ManagerService {
     return { status: 201, message: 'حذف شد' };
   }
 
-  async getAuthorsRequestsFuns(query: GetAuthorsRequestsFunsDto) {
+  async getRequestsFuns(query: GetRequestsFunsDto) {
     const { search, status, role, take, skip } = query;
 
     const where: any = { status };
@@ -306,7 +306,7 @@ export class ManagerService {
     const requests = await this.prismaService.requestFuns.findMany({
       where,
       orderBy: {
-        id: 'desc',
+        id: 'asc',
       },
       take: Number(take),
       skip: Number(skip),
