@@ -17,24 +17,22 @@ import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UserGuard } from '../users/user.Guard';
 import type { FastifyRequest } from 'fastify';
 import { CacheFindFilteredCoursesInterceptor } from './interceptors/find-filtered-courses-cache.interceptor';
-import { GetCourseCommentsDto } from './dto/get-course-comments.dto';
+import { ManagerGuard } from '../manager/manager.guard';
 
 @Controller('courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
-  @Post('create-test-course')
-  async createTestCourse() {
-    return this.coursesService.createTestCourse();
+  @UseGuards(ManagerGuard)
+  @Post('add-test-courses')
+  async addTestCourses() {
+    return this.coursesService.addTestCourses();
   }
 
   @UseInterceptors(CacheFindFilteredCoursesInterceptor)
   @Get()
-  findFiltered(
-    @Query() query: GetCoursesSearchParamsDto,
-    @Headers('cookie') rawCookies: string,
-  ) {
-    return this.coursesService.findFiltered(query, rawCookies);
+  findFiltered(@Query() query: GetCoursesSearchParamsDto) {
+    return this.coursesService.findFiltered(query);
   }
 
   @Patch('toggle-like')

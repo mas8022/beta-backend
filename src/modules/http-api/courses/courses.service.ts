@@ -4,7 +4,6 @@ import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import { UsersService } from '../users/users.service';
 import type { FastifyRequest } from 'fastify';
 import { RedisService } from 'src/common/services/redis/redis.service';
-import { GetCourseCommentsDto } from './dto/get-course-comments.dto';
 
 @Injectable()
 export class CoursesService {
@@ -14,122 +13,162 @@ export class CoursesService {
     private readonly redisService: RedisService,
   ) {}
 
-  async createTestCourse() {
-    await this.prismaService.course.create({
-      data: {
-        title: 'مهارت‌های زندگی روزمره',
-        image:
-          'https://maghaleh.storage.iran.liara.space/1761119276943_7b2769ef-8ea1-421e-a45e-401a9fd94508.png',
-        category: 'سبک زندگی',
-        description:
-          'یک دوره کاربردی برای بهبود زندگی روزمره، مدیریت زمان و افزایش بهره‌وری شخصی.',
-        duration: 100,
-        price: 180_000,
-        originalPrice: 300_000,
-        requirements: ['علاقه به رشد فردی', 'تمایل به یادگیری مهارت‌های عملی'],
-        whatYouLearn: [
-          'مدیریت زمان و برنامه‌ریزی',
-          'بهبود عادات روزانه',
-          'تکنیک‌های افزایش بهره‌وری',
-          'روش‌های ساده برای آرامش ذهنی',
-        ],
-        authorId: 1,
-        lessons: {
-          create: [
-            {
-              title: 'مقدمه‌ای بر سبک زندگی سالم',
-              duration: 40,
-              order: 1,
-              episodes: {
-                create: [
-                  {
-                    title: 'اصول زندگی متعادل',
-                    duration: 15,
-                    order: 1,
-                    description: 'آشنایی با اصول حفظ تعادل در زندگی روزمره',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                  },
-                  {
-                    title: 'مدیریت استرس و آرامش ذهن',
-                    duration: 25,
-                    order: 2,
-                    description: 'تمرین تکنیک‌های ساده برای کاهش استرس',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                  },
-                ],
-              },
-            },
-            {
-              title: 'مهارت‌های ارتباطی مؤثر',
-              duration: 50,
-              order: 2, // اینو وسط اضافه کردم
-              episodes: {
-                create: [
-                  {
-                    title: 'گوش دادن فعال',
-                    duration: 15,
-                    order: 1,
-                    description:
-                      'یادگیری تکنیک‌های گوش دادن فعال برای ارتباط بهتر',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                  },
-                  {
-                    title: 'ارتباط غیرکلامی',
-                    duration: 20,
-                    order: 2,
-                    description: 'درک زبان بدن و نشانه‌های غیرکلامی در گفتگوها',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                  },
-                  {
-                    title: 'حل تعارض‌ها',
-                    duration: 15,
-                    order: 3,
-                    description: 'روش‌های ساده برای حل تعارض‌های روزمره',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                  },
-                ],
-              },
-            },
-            {
-              title: 'بهبود عادات و بهره‌وری',
-              duration: 60,
-              order: 3,
-              episodes: {
-                create: [
-                  {
-                    title: 'عادت‌های روزانه موثر',
-                    duration: 30,
-                    order: 1,
-                    description: 'روش‌های ایجاد عادت‌های مثبت در زندگی',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                  },
-                  {
-                    title: 'افزایش بهره‌وری شخصی',
-                    duration: 30,
-                    order: 2,
-                    description: 'تکنیک‌های عملی برای انجام بهتر کارها',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                  },
-                  {
-                    title: 'افزایش بهره‌وری',
-                    duration: 20,
-                    order: 3,
-                    description: 'تکنیک‌های عملی برای انجام بهتر',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                  },
-                ],
-              },
-            },
-          ],
-        },
-      },
-    });
+  async addTestCourses() {
+    const courseCategories = ['فناوری', 'کسب‌وکار', 'هنر', 'سبک زندگی'];
 
-    return { status: 201, message: 'create test course successfully' };
+    const courseTitles = [
+      'مبانی برنامه‌نویسی مدرن',
+      'مدیریت زمان در محیط کار',
+      'اصول طراحی گرافیکی خلاق',
+      'توسعه مهارت‌های ارتباطی',
+      'آشنایی با هوش مصنوعی',
+      'راه‌اندازی کسب‌وکار آنلاین',
+      'نقاشی دیجیتال برای مبتدیان',
+      'تکنیک‌های تمرکز و بهره‌وری',
+      'برنامه‌نویسی وب با جاوااسکریپت',
+      'بازاریابی در شبکه‌های اجتماعی',
+      'عکاسی هنری با موبایل',
+      'بهبود سبک زندگی سالم',
+      'آموزش فریم‌ورک React',
+      'اصول برند شخصی',
+      'ویرایش ویدیو برای تولید محتوا',
+    ];
+
+    let courseCount = 0;
+
+    // ساخت حداقل ۳۰ دوره با ترکیب عنوان‌ها و دسته‌ها
+    while (courseCount < 30) {
+      for (let i = 0; i < courseTitles.length && courseCount < 30; i++) {
+        const title = courseTitles[i];
+        const category =
+          courseCategories[courseCount % courseCategories.length];
+        courseCount++;
+
+        await this.prismaService.course.create({
+          data: {
+            status: 'publish',
+            title: `${title} - نسخه ${courseCount}`,
+            image: `https://picsum.photos/seed/course${courseCount}/600/400`,
+            category,
+            description: `در این دوره با مفاهیم ${title} آشنا می‌شوید و یاد می‌گیرید چگونه آن را در دنیای واقعی به کار ببرید.`,
+            duration: 90 + (courseCount % 40),
+            price: 150_000 + courseCount * 5_000,
+            originalPrice: 300_000 + courseCount * 5_000,
+            requirements: [
+              'تمایل به یادگیری موضوعات جدید',
+              'دسترسی به اینترنت و کامپیوتر',
+            ],
+            whatYouLearn: [
+              `آشنایی کامل با مفاهیم ${title}`,
+              'تمرین‌های عملی برای یادگیری عمیق‌تر',
+              'تکنیک‌های حرفه‌ای در دنیای واقعی',
+              'نکات کاربردی برای پیشرفت شخصی و شغلی',
+            ],
+            authorId: 1,
+            lessons: {
+              create: [
+                {
+                  status: 'publish',
+                  title: 'مقدمه و شناخت موضوع',
+                  duration: 30,
+                  order: 1,
+                  episodes: {
+                    create: [
+                      {
+                        status: 'publish',
+                        title: 'آشنایی اولیه با مفاهیم',
+                        duration: 15,
+                        order: 1,
+                        description:
+                          'در این قسمت مقدمه‌ای از موضوع اصلی دوره ارائه می‌شود.',
+                        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                      },
+                      {
+                        status: 'publish',
+                        title: 'مروری بر اهمیت این مهارت',
+                        duration: 15,
+                        order: 2,
+                        description:
+                          'بررسی دلایل اهمیت یادگیری این مهارت در زندگی کاری و شخصی.',
+                        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                      },
+                    ],
+                  },
+                },
+                {
+                  status: 'publish',
+                  title: 'آموزش و تمرین عملی',
+                  duration: 40,
+                  order: 2,
+                  episodes: {
+                    create: [
+                      {
+                        status: 'publish',
+
+                        title: 'تمرین‌های کاربردی',
+                        duration: 20,
+                        order: 1,
+                        description:
+                          'در این بخش تمرین‌هایی عملی برای تسلط بیشتر روی مفاهیم ارائه می‌شود.',
+                        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                      },
+                      {
+                        status: 'publish',
+
+                        title: 'رفع اشکال و نکات پیشرفته',
+                        duration: 20,
+                        order: 2,
+                        description:
+                          'آشنایی با اشتباهات رایج و نکات مهم در اجرای صحیح مهارت.',
+                        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                      },
+                    ],
+                  },
+                },
+                {
+                  status: 'publish',
+                  title: 'جمع‌بندی و پروژه نهایی',
+                  duration: 30,
+                  order: 3,
+                  episodes: {
+                    create: [
+                      {
+                        status: 'publish',
+                        title: 'مرور نکات کلیدی',
+                        duration: 15,
+                        order: 1,
+                        description:
+                          'مروری کوتاه بر مهم‌ترین نکات آموزش داده‌شده در طول دوره.',
+                        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                      },
+
+                      {
+                        status: 'publish',
+                        title: 'پروژه نهایی',
+                        duration: 15,
+                        order: 2,
+                        description:
+                          'در این قسمت یک پروژه عملی کوچک برای تمرین نهایی انجام می‌دهید.',
+                        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        });
+      }
+    }
+
+    return {
+      status: 201,
+      message: `${courseCount} test courses created successfully`,
+    };
   }
 
-  async findFiltered(query: GetCoursesSearchParamsDto, rawCookies: string) {
-    const me = await this.userService.getMe(rawCookies);
+  async findFiltered(query: GetCoursesSearchParamsDto) {
+
 
     const {
       search,
@@ -161,6 +200,8 @@ export class CoursesService {
       };
     }
 
+
+
     let orderBy: any = {};
     switch (sortBy) {
       case 'جدیدترین':
@@ -175,6 +216,8 @@ export class CoursesService {
       default:
         orderBy = { createdAt: 'desc' };
     }
+
+
 
     const courses = await this.prismaService.course.findMany({
       where,
@@ -200,11 +243,6 @@ export class CoursesService {
         _count: {
           select: {
             lessons: true,
-            likes: me
-              ? {
-                  where: { userId: me.id },
-                }
-              : false,
             CourseOrder: {
               where: {
                 status: 'success',
