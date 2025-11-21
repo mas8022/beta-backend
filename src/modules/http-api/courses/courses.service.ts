@@ -168,8 +168,6 @@ export class CoursesService {
   }
 
   async findFiltered(query: GetCoursesSearchParamsDto) {
-
-
     const {
       search,
       selectedCategory,
@@ -200,8 +198,6 @@ export class CoursesService {
       };
     }
 
-
-
     let orderBy: any = {};
     switch (sortBy) {
       case 'جدیدترین':
@@ -216,8 +212,6 @@ export class CoursesService {
       default:
         orderBy = { createdAt: 'desc' };
     }
-
-
 
     const courses = await this.prismaService.course.findMany({
       where,

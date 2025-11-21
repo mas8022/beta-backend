@@ -564,7 +564,7 @@ export class ManagerService {
   }
 
   async rejectCourse(courseId: string) {
-    await this.prismaService.course.update({
+    const course = await this.prismaService.course.update({
       where: {
         id: Number(courseId),
       },
@@ -573,7 +573,11 @@ export class ManagerService {
       },
     });
 
-    return { status: 201, message: 'دوره رد شد' };
+    return {
+      status: 201,
+      message: 'دوره رد شد',
+      revalidateKey: `courses:${course.id}`,
+    };
   }
 
   async accepteCourse(courseId: string, req: FastifyRequest) {
@@ -581,7 +585,7 @@ export class ManagerService {
 
     const course = await this.prismaService.course.findUnique({
       where: { id: Number(courseId) },
-      select: { status: true, author: { select: { id: true } } },
+      select: { id: true, status: true, author: { select: { id: true } } },
     });
 
     if (course?.status === 'publish') {
@@ -609,7 +613,11 @@ export class ManagerService {
       });
     });
 
-    return { status: 201, message: 'دوره پذیرفته شد' };
+    return {
+      status: 201,
+      message: 'دوره پذیرفته شد',
+      revalidateKey: `courses:${course?.id}`,
+    };
   }
 
   async rejectLesson(lessonId: string) {

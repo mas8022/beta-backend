@@ -303,13 +303,17 @@ export class AuthorsService {
   }
 
   async deleteCourse(courseId: string) {
-    await this.prismaService.course.delete({
+    const course = await this.prismaService.course.delete({
       where: {
         id: Number(courseId),
       },
     });
 
-    return { status: 200, message: 'با موفقیت دوره حذف شد' };
+    return {
+      status: 200,
+      message: 'با موفقیت دوره حذف شد',
+      revalidateKey: `courses:${course.id}`,
+    };
   }
 
   async getOverViewCourse(courseId: string) {
