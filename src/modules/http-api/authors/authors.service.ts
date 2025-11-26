@@ -312,7 +312,7 @@ export class AuthorsService {
     return {
       status: 200,
       message: 'با موفقیت دوره حذف شد',
-      revalidateKey: `courses:${course.id}`,
+      revalidateCoursePage: { title: course.title, id: course.id },
     };
   }
 
