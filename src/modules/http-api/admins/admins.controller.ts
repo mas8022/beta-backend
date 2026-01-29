@@ -13,14 +13,16 @@ import {
 } from '@nestjs/common';
 import { AdminsService } from './admins.service';
 import { GetCoursesDto } from './dto/get-courses.dto';
-import { AdminGuard } from './admin.guard';
 import { GetCoursesReportsDto } from './dto/get-courses-reports.dto';
 import type { FastifyRequest } from 'fastify';
 import { RequestFunsDto } from './dto/request-funs.dto';
 import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.interceptor';
 import { ClearCacheCourseLessonsInterceptor } from 'src/common/interceptors/clear-cache-course-lessons.interceptor';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
-@UseGuards(AdminGuard)
+@UseGuards(RolesGuard)
+@Roles("ADMIN")
 @Controller('admins')
 export class AdminsController {
   constructor(private readonly adminsService: AdminsService) {}

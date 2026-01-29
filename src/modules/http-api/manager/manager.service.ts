@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma/prisma.service';
 import { FindUserParamDto } from './dto/find-user-param.dto';
 import type { FastifyRequest } from 'fastify';
@@ -15,6 +15,8 @@ import { RequestFunsDto } from './dto/request-funs.dto';
 import { GetAdminsConfirmsDto } from './dto/get-admins-confirms.dto';
 import { RejectEntityDto } from './dto/reject-entity.dto';
 import { FileValidator } from 'src/common/validators/file.validator';
+import { createCourseCategoryDto } from './dto/create-course-category.dto';
+import { EditCourseCategoryDto } from './dto/edit-course-category';
 
 @Injectable()
 export class ManagerService {
@@ -101,7 +103,7 @@ export class ManagerService {
   }
 
   async getManagerProfile(req: FastifyRequest) {
-    const profile = await req.manager;
+    const profile = await req.user;
 
     const grouped = await this.prismaService.course.groupBy({
       by: ['status'],
@@ -150,7 +152,7 @@ export class ManagerService {
   }
 
   async editProfile(files: any, { name, bio }: any, req: FastifyRequest) {
-    const manager = await req.manager;
+    const manager = await req.user;
 
     let avatarAddress: string | null = null;
 
@@ -352,7 +354,7 @@ export class ManagerService {
         })
       )._sum.price ?? 0;
 
-    const manager = await req.manager;
+    const manager = await req.user;
 
     const totalManagerRequestsFuns =
       (
@@ -496,6 +498,7 @@ export class ManagerService {
         whatYouLearn: true,
       },
       include: {
+        category: true,
         _count: {
           select: {
             lessons: true,
@@ -524,7 +527,7 @@ export class ManagerService {
         id: true,
         image: true,
         title: true,
-        category: true,
+        category: { select: { name: true } },
         description: true,
         price: true,
         originalPrice: true,
@@ -581,7 +584,7 @@ export class ManagerService {
   }
 
   async accepteCourse(courseId: string, req: FastifyRequest) {
-    const manager = await req.manager;
+    const manager = await req.user;
 
     const course = await this.prismaService.course.findUnique({
       where: { id: Number(courseId) },
@@ -639,7 +642,7 @@ export class ManagerService {
   }
 
   async accepteLesson(lessonId: string, req: FastifyRequest) {
-    const manager = await req.manager;
+    const manager = await req.user;
 
     const lesson = await this.prismaService.lesson.findUnique({
       where: { id: Number(lessonId) },
@@ -682,7 +685,7 @@ export class ManagerService {
   }
 
   async accepteEpisode(id: string, req: FastifyRequest) {
-    const manager = await req.manager;
+    const manager = await req.user;
 
     const episode = await this.prismaService.episode.findUnique({
       where: { id: Number(id) },
@@ -744,7 +747,7 @@ export class ManagerService {
     message: string,
     req: FastifyRequest,
   ) {
-    const manager = await req.manager;
+    const manager = await req.user;
 
     await this.prismaService.courseReport.create({
       data: {
@@ -760,7 +763,7 @@ export class ManagerService {
   async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {
     const { status, search, skip, take } = query;
 
-    const manager = await req.manager;
+    const manager = await req.user;
 
     const where: any = { reporterId: manager.id, status };
 
@@ -820,7 +823,7 @@ export class ManagerService {
   }
 
   async RequestFuns(req: FastifyRequest, RequestFunsDto: RequestFunsDto) {
-    const manager = await req.manager;
+    const manager = await req.user;
     const { amount, cardNumber } = RequestFunsDto;
 
     const totalSell =
@@ -849,8 +852,6 @@ export class ManagerService {
     if (amount > walletBalance) {
       return { status: 400, message: 'موجودی کافی نیست' };
     }
-
-    ///////////////////////////////////////////////////////////
 
     await this.prismaService.requestFuns.create({
       data: { requesterId: manager.id, amount, cardNumber, status: 'SUCCESS' },
@@ -1003,5 +1004,38 @@ export class ManagerService {
     await this.prismaService.adminConfirm.delete({ where: { id: Number(id) } });
 
     return { status: 200, message: 'حذف شد' };
+  }
+
+  async createCourseCategory(body: createCourseCategoryDto) {
+    const { category } = body;
+
+    if (!category.trim())
+      throw new HttpException(
+        'دسته بندی درستی وارد کنید',
+        HttpStatus.NOT_MODIFIED,
+      );
+
+    await this.prismaService.courseCategory.create({
+      data: { name: category.trim() },
+    });
+
+    return { status: 200, message: 'دسته بندی ایجاد شد' };
+  }
+
+  async editCourseCategory(body: EditCourseCategoryDto) {
+    const { id, name } = body;
+
+    if (!name.trim())
+      throw new HttpException(
+        'دسته بندی درستی وارد کنید',
+        HttpStatus.NOT_MODIFIED,
+      );
+
+    await this.prismaService.courseCategory.update({
+      where: { id },
+      data: { name },
+    });
+
+    return { status: 201, message: 'ویرایش انجام شد' };
   }
 }

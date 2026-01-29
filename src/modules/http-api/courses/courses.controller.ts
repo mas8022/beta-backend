@@ -14,16 +14,17 @@ import {
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
-import { UserGuard } from '../users/user.Guard';
 import type { FastifyRequest } from 'fastify';
 import { CacheFindFilteredCoursesInterceptor } from './interceptors/find-filtered-courses-cache.interceptor';
-import { ManagerGuard } from '../manager/manager.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Controller('courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
-  @UseGuards(ManagerGuard)
+  @UseGuards(RolesGuard)
+  @Roles('MANAGER')
   @Post('add-test-courses')
   async addTestCourses() {
     return this.coursesService.addTestCourses();
@@ -61,7 +62,8 @@ export class CoursesController {
     return this.coursesService.findBySearchBar(search);
   }
 
-  @UseGuards(UserGuard)
+  @UseGuards(RolesGuard)
+  @Roles('USER')
   @Post('create-course-comment/:courseId')
   async createComment(
     @Param('courseId') courseId: string,
@@ -97,5 +99,10 @@ export class CoursesController {
   @Get('comments/:courseId')
   async getComments(@Param('courseId') courseId: string, @Query() query: any) {
     return await this.coursesService.getComments(courseId, query);
+  }
+
+  @Get('categories')
+  async getCategories() {
+    return await this.coursesService.getCategories();
   }
 }

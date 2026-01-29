@@ -53,6 +53,7 @@ export class AdminsService {
         whatYouLearn: true,
       },
       include: {
+        category: true,
         _count: {
           select: {
             lessons: true,
@@ -89,7 +90,7 @@ export class AdminsService {
   }
 
   async accepteCourse(courseId: string, req: FastifyRequest) {
-    const admin = await req.admin;
+    const admin = await req.user;
 
     const course = await this.prismaService.course.findUnique({
       where: { id: Number(courseId) },
@@ -138,7 +139,7 @@ export class AdminsService {
     message: string,
     req: FastifyRequest,
   ) {
-    const admin = await req.admin;
+    const admin = await req.user;
 
     await this.prismaService.courseReport.create({
       data: {
@@ -161,7 +162,11 @@ export class AdminsService {
         id: true,
         image: true,
         title: true,
-        category: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
         description: true,
         price: true,
         originalPrice: true,
@@ -214,7 +219,7 @@ export class AdminsService {
   }
 
   async accepteEpisode(id: string, req: FastifyRequest) {
-    const admin = await req.admin;
+    const admin = await req.user;
 
     const episode = await this.prismaService.episode.findUnique({
       where: { id: Number(id) },
@@ -274,7 +279,7 @@ export class AdminsService {
   }
 
   async accepteLesson(lessonId: string, req: FastifyRequest) {
-    const admin = await req.admin;
+    const admin = await req.user;
 
     const lesson = await this.prismaService.lesson.findUnique({
       where: { id: Number(lessonId) },
@@ -319,7 +324,7 @@ export class AdminsService {
   async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {
     const { status, search, skip, take } = query;
 
-    const admin = await req.admin;
+    const admin = await req.user;
 
     const where: any = { reporterId: admin.id, status: status };
 
@@ -368,7 +373,7 @@ export class AdminsService {
   }
 
   async getWallet(req: FastifyRequest) {
-    const admin = await req.admin;
+    const admin = await req.user;
 
     const totalSell =
       (
@@ -415,7 +420,7 @@ export class AdminsService {
   }
 
   async RequestFuns(req: FastifyRequest, RequestFunsDto: RequestFunsDto) {
-    const admin = await req.admin;
+    const admin = await req.user;
     const { amount, cardNumber } = RequestFunsDto;
 
     const totalSell =

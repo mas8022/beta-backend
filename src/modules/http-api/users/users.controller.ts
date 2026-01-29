@@ -11,9 +11,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UserGuard } from './user.Guard';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { Throttle } from '@nestjs/throttler';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -26,14 +27,16 @@ export class UsersController {
     return { status: 403, data: result };
   }
 
-  @UseGuards(UserGuard)
+  @UseGuards(RolesGuard)
+  @Roles('USER')
   @Get('get-my-profile-data')
   async GetMyProfileData(@Req() req: FastifyRequest) {
     return this.userService.GetMyProfileData(req);
   }
 
   @Throttle({ default: { limit: 3, ttl: 60 } })
-  @UseGuards(UserGuard)
+  @UseGuards(RolesGuard)
+  @Roles('USER')
   @Post('request-user-payment/:id')
   async paymentRequest(
     @Param('id') id: string,
@@ -56,5 +59,13 @@ export class UsersController {
       .redirect(
         `${process.env.FRONTEND_URL}/payment-result?status=${String(result.status)}`,
       );
+  }
+
+  @Get('access-course/:courseId')
+  async getAccessCourse(
+    @Param('courseId') courseId: string,
+    @Headers('cookie') rawCookies: string,
+  ) {
+    return await this.userService.getAccessCourse(courseId, rawCookies);
   }
 }

@@ -14,8 +14,6 @@ export class CoursesService {
   ) {}
 
   async addTestCourses() {
-    const courseCategories = ['فناوری', 'کسب‌وکار', 'هنر', 'سبک زندگی'];
-
     const courseTitles = [
       'مبانی برنامه‌نویسی مدرن',
       'مدیریت زمان در محیط کار',
@@ -40,8 +38,7 @@ export class CoursesService {
     while (courseCount < 30) {
       for (let i = 0; i < courseTitles.length && courseCount < 30; i++) {
         const title = courseTitles[i];
-        const category =
-          courseCategories[courseCount % courseCategories.length];
+
         courseCount++;
 
         await this.prismaService.course.create({
@@ -49,7 +46,7 @@ export class CoursesService {
             status: 'publish',
             title: `${title} - نسخه ${courseCount}`,
             image: `https://picsum.photos/seed/course${courseCount}/600/400`,
-            category,
+            categoryId: 2,
             description: `در این دوره با مفاهیم ${title} آشنا می‌شوید و یاد می‌گیرید چگونه آن را در دنیای واقعی به کار ببرید.`,
             duration: 90 + (courseCount % 40),
             price: 150_000 + courseCount * 5_000,
@@ -186,7 +183,9 @@ export class CoursesService {
     }
 
     if (selectedCategory && selectedCategory !== 'all') {
-      where.category = selectedCategory;
+      where.category = {
+        name: selectedCategory,
+      };
     }
 
     if (showFreeOnly === 'true') {
@@ -220,7 +219,7 @@ export class CoursesService {
         id: true,
         title: true,
         price: true,
-        category: true,
+        category: { select: { name: true } },
         createdAt: true,
         description: true,
         image: true,
@@ -292,6 +291,7 @@ export class CoursesService {
     const course = await this.prismaService.course.findUnique({
       where: { id: Number(courseId), status: 'publish' },
       include: {
+        category: true,
         author: {
           select: {
             id: true,
@@ -532,7 +532,7 @@ export class CoursesService {
       select: {
         id: true,
         image: true,
-        category: true,
+        category: { select: { name: true } },
         title: true,
         description: true,
         price: true,
@@ -590,5 +590,11 @@ export class CoursesService {
       status: 200,
       data,
     };
+  }
+
+  async getCategories() {
+    const categories = await this.prismaService.courseCategory.findMany();
+
+    return { status: 200, data: categories };
   }
 }

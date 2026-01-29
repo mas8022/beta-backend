@@ -14,7 +14,6 @@ import {
 } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { FindUserParamDto } from './dto/find-user-param.dto';
-import { ManagerGuard } from './manager.guard';
 import type { FastifyRequest } from 'fastify';
 import {
   FileFieldsInterceptor,
@@ -33,8 +32,13 @@ import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.inter
 import { GetAdminsConfirmsDto } from './dto/get-admins-confirms.dto';
 import { RejectEntityDto } from './dto/reject-entity.dto';
 import { ClearCacheCourseLessonsInterceptor } from 'src/common/interceptors/clear-cache-course-lessons.interceptor';
+import { createCourseCategoryDto } from './dto/create-course-category.dto';
+import { EditCourseCategoryDto } from './dto/edit-course-category';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
-@UseGuards(ManagerGuard)
+@UseGuards(RolesGuard)
+@Roles("MANAGER")
 @Controller('manager')
 export class ManagerController {
   constructor(private readonly managerService: ManagerService) {}
@@ -238,5 +242,15 @@ export class ManagerController {
   @Delete('admin-confirm/:id')
   async deleteAdminConfirm(@Param('id') id: string) {
     return await this.managerService.deleteAdminConfirm(id);
+  }
+
+  @Post('create-course-category')
+  async createCourseCategory(@Body() body: createCourseCategoryDto) {
+    return await this.managerService.createCourseCategory(body);
+  }
+
+  @Patch('edit-course-category')
+  async editCourseCategory(@Body() body: EditCourseCategoryDto) {
+    return await this.managerService.editCourseCategory(body);
   }
 }

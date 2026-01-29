@@ -13,7 +13,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthorsService } from './authors.service';
-import { AuthorGuard } from './author.guard';
 import type { FastifyRequest } from 'fastify';
 import {
   FileFieldsInterceptor,
@@ -33,8 +32,11 @@ import { RequestFunsDto } from './dto/request-funs.dto';
 import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.interceptor';
 import { JsonSerializerInterceptor } from 'src/common/interceptors/json-serializer.interceptor';
 import { ClearCacheCourseLessonsInterceptor } from 'src/common/interceptors/clear-cache-course-lessons.interceptor';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
-@UseGuards(AuthorGuard)
+@UseGuards(RolesGuard)
+@Roles('AUTHOR')
 @Controller('authors')
 export class AuthorsController {
   constructor(private readonly authorsService: AuthorsService) {}
@@ -81,7 +83,7 @@ export class AuthorsController {
     return await this.authorsService.replyComment(commentId, replyText);
   }
 
-  @Get('author-courses')
+  @Get('courses')
   async getAuthorCourses(
     @Req() req: FastifyRequest,
     @Query() query: GetCoursesDto,

@@ -39,7 +39,7 @@ export class UsersService {
             course: {
               select: {
                 id: true,
-                category: true,
+                category: { select: { name: true } },
                 title: true,
                 description: true,
                 author: {
@@ -60,7 +60,7 @@ export class UsersService {
             course: {
               select: {
                 id: true,
-                category: true,
+                category: { select: { name: true } },
                 title: true,
                 description: true,
                 author: {
@@ -203,5 +203,27 @@ export class UsersService {
 
       return { status: 201 };
     });
+  }
+
+  async getAccessCourse(courseId: string, rawCookies: string) {
+    if (!rawCookies) return { status: 200, data: { isAccess: false } };
+
+    const me = await this.getMe(rawCookies);
+
+    if (!me) return { status: 200, data: { isAccess: false } };
+
+    const myCourse = await this.prismaService.courseOrder.findFirst({
+      where: {
+        userId: me.id,
+        courseId: Number(courseId),
+      },
+      select: { id: true },
+    });
+
+    if (myCourse) {
+      return { status: 200, data: { isAccess: true } };
+    }
+
+    return { status: 200, data: { isAccess: false } };
   }
 }

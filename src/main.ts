@@ -7,21 +7,21 @@ import {
 import fastifyCookie from '@fastify/cookie';
 import multipart from '@fastify/multipart';
 import helmet from '@fastify/helmet';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter({ trustProxy: true });
-
-  await fastifyAdapter.register(fastifyCookie, {
-    secret: process.env.FASTIFY_COOKIE_SECRET,
-  });
-  await fastifyAdapter.register(multipart);
-
-  await fastifyAdapter.register(helmet);
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fastifyAdapter,
   );
+
+  await app.register(fastifyCookie, {
+    secret: process.env.FASTIFY_COOKIE_SECRET,
+  });
+  await app.register(helmet);
+  await app.register(multipart);
 
   app.enableCors({
     origin: process.env.FRONTEND_URL,
@@ -29,6 +29,14 @@ async function bootstrap() {
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   await app.listen(process.env.PORT ?? 3000);
 }

@@ -95,7 +95,6 @@ model Course {
   status        CourseStatusEnum @default(creating)
   image         String
   title         String
-  category      String
   description   String
   duration      Int              @default(0)
   price         Int
@@ -103,11 +102,13 @@ model Course {
   requirements  String[]
   whatYouLearn  String[]
 
-  authorId Int
-  author   User @relation(fields: [authorId], references: [id])
+  categoryId Int
+  category   CourseCategory @relation(fields: [categoryId], references: [id])
 
-  lessons Lesson[]
-  likes   Like[]
+  authorId Int
+  author   User     @relation(fields: [authorId], references: [id])
+  lessons  Lesson[]
+  likes    Like[]
 
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -123,6 +124,12 @@ enum CourseStatusEnum {
   waiting
   publish
   rejected
+}
+
+model CourseCategory {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  courses Course[]
 }
 
 model Lesson {

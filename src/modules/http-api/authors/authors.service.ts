@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { BucketService } from 'src/common/services/bucket/bucket.service';
 import { PrismaService } from 'src/common/services/prisma/prisma.service';
@@ -25,7 +25,7 @@ export class AuthorsService {
   ) {}
 
   async getAuthorProfile(req: FastifyRequest) {
-    const { id } = await req.author;
+    const { id } = await req.user;
 
     const data = await this.prismaService.user.findUnique({
       where: { id },
@@ -77,7 +77,7 @@ export class AuthorsService {
   }
 
   async editProfile(files: any, { name, bio }: any, req: FastifyRequest) {
-    const author = await req.author;
+    const author = await req.user;
 
     let avatarAddress: string | null = null;
 
@@ -112,7 +112,7 @@ export class AuthorsService {
   }
 
   async getAuthorComments(req: FastifyRequest, { skip, take }: any) {
-    const author = await req.author;
+    const author = await req.user;
 
     const comments = await this.prismaService.courseComment.findMany({
       where: {
@@ -147,7 +147,7 @@ export class AuthorsService {
   }
 
   async getAuthorCommentsCount(req: FastifyRequest) {
-    const author = await req.author;
+    const author = await req.user;
 
     const rawCounts = await this.prismaService.courseComment.groupBy({
       by: 'status',
@@ -215,7 +215,7 @@ export class AuthorsService {
   }
 
   async getAuthorCourses(req: FastifyRequest, query: GetCoursesDto) {
-    const { id } = await req.author;
+    const { id } = await req.user;
 
     const { status, skip, take } = query;
 
@@ -253,6 +253,7 @@ export class AuthorsService {
         whatYouLearn: true,
       },
       include: {
+        category: true,
         _count: {
           select: {
             lessons: true,
@@ -281,16 +282,24 @@ export class AuthorsService {
   ) {
     const { category, title, description } = createCourseDto;
 
-    const author = await req.author;
+    const author = await req.user;
 
     const imageAddress: any = await this.bucketService.uploadFile(
       files.image[0],
     );
 
+    const courseCategory = await this.prismaService.courseCategory.findUnique({
+      where: { name: category.trim() },
+      select: { id: true },
+    });
+
+    if (!courseCategory?.id)
+      throw new NotFoundException('این دسته بندی مورد قبول نیست');
+
     await this.prismaService.course.create({
       data: {
         authorId: author.id,
-        category,
+        categoryId: courseCategory.id,
         title,
         description,
         image: imageAddress,
@@ -326,7 +335,7 @@ export class AuthorsService {
         id: true,
         image: true,
         title: true,
-        category: true,
+        category: { select: { name: true } },
         description: true,
         price: true,
         originalPrice: true,
@@ -367,23 +376,29 @@ export class AuthorsService {
       },
     });
 
-    const updateData: any = {
-      title,
-      description,
-      category,
-      originalPrice: Number(originalPrice),
-      price: Number(price),
-      requirements: JSON.parse(String(requirements)),
-      whatYouLearn: JSON.parse(String(whatYouLearn)),
-      status: 'waiting',
-      image: imageAddress ?? course?.image,
-    };
+    const courseCategory = await this.prismaService.courseCategory.findUnique({
+      where: { name: category?.trim() },
+      select: { id: true },
+    });
+
+    if (!courseCategory?.id)
+      throw new NotFoundException('این دسته بندی مورد قبول نیست');
 
     await this.prismaService.course.update({
       where: {
         id: Number(courseId),
       },
-      data: updateData,
+      data: {
+        title,
+        description,
+        categoryId: courseCategory.id,
+        originalPrice: Number(originalPrice),
+        price: Number(price),
+        requirements: JSON.parse(String(requirements)),
+        whatYouLearn: JSON.parse(String(whatYouLearn)),
+        status: 'waiting',
+        image: imageAddress ?? course?.image,
+      },
     });
 
     return { status: 200, message: 'با موفقیت ویرایش شد' };
@@ -558,7 +573,7 @@ export class AuthorsService {
   }
 
   async getCoursesReports(query: GetCoursesReportsDto, req: FastifyRequest) {
-    const author = await req.author;
+    const author = await req.user;
 
     const { status, search, skip, take } = query;
 
@@ -630,7 +645,7 @@ export class AuthorsService {
     body: CreateCoursePromotionDto,
     req: FastifyRequest,
   ) {
-    const author = await req.author;
+    const author = await req.user;
 
     const { code, expireAt, percent, courseId, usageLimit } = body;
 
@@ -649,7 +664,7 @@ export class AuthorsService {
   }
 
   async getCoursesPromotions(search: string, req: FastifyRequest) {
-    const author = await req.author;
+    const author = await req.user;
 
     const where: any = { authorId: author.id };
 
@@ -698,7 +713,7 @@ export class AuthorsService {
   }
 
   async RequestFuns(req: FastifyRequest, RequestFunsDto: RequestFunsDto) {
-    const author = await req.author;
+    const author = await req.user;
     const { amount, cardNumber } = RequestFunsDto;
 
     const totalIncomesResult = await this.prismaService.courseOrder.aggregate({
@@ -731,7 +746,7 @@ export class AuthorsService {
   }
 
   async getAuthorWallet(req: FastifyRequest) {
-    const author = await req.author;
+    const author = await req.user;
 
     const totalIncomesResult = await this.prismaService.courseOrder.aggregate({
       where: {
