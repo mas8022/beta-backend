@@ -8,7 +8,6 @@ import {
   Post,
   Query,
   Req,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AdminsService } from './admins.service';
@@ -18,11 +17,9 @@ import type { FastifyRequest } from 'fastify';
 import { RequestFunsDto } from './dto/request-funs.dto';
 import { ClearCacheInterceptor } from 'src/common/interceptors/clear-cache.interceptor';
 import { ClearCacheCourseLessonsInterceptor } from 'src/common/interceptors/clear-cache-course-lessons.interceptor';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { Auth } from 'src/common/decorators/auth.decorator';
 
-@UseGuards(RolesGuard)
-@Roles("ADMIN")
+@Auth('ADMIN')
 @Controller('admins')
 export class AdminsController {
   constructor(private readonly adminsService: AdminsService) {}
@@ -71,7 +68,10 @@ export class AdminsController {
 
   @UseInterceptors(ClearCacheCourseLessonsInterceptor)
   @Patch('accepte-episode/:episodeId')
-  async accepteEpisode(@Param('episodeId') id: string, @Req() req: FastifyRequest) {
+  async accepteEpisode(
+    @Param('episodeId') id: string,
+    @Req() req: FastifyRequest,
+  ) {
     return await this.adminsService.accepteEpisode(id, req);
   }
 

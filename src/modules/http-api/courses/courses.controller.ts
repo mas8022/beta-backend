@@ -9,22 +9,19 @@ import {
   Post,
   Query,
   Req,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { GetCoursesSearchParamsDto } from './dto/get-Courses-search-params.dto';
 import type { FastifyRequest } from 'fastify';
 import { CacheFindFilteredCoursesInterceptor } from './interceptors/find-filtered-courses-cache.interceptor';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { Auth } from 'src/common/decorators/auth.decorator';
 
 @Controller('courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
-  @UseGuards(RolesGuard)
-  @Roles('MANAGER')
+  @Auth('MANAGER')
   @Post('add-test-courses')
   async addTestCourses() {
     return this.coursesService.addTestCourses();
@@ -62,8 +59,7 @@ export class CoursesController {
     return this.coursesService.findBySearchBar(search);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('USER')
+  @Auth('USER')
   @Post('create-course-comment/:courseId')
   async createComment(
     @Param('courseId') courseId: string,

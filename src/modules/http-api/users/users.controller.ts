@@ -8,13 +8,11 @@ import {
   Query,
   Req,
   Res,
-  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { Throttle } from '@nestjs/throttler';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { Auth } from 'src/common/decorators/auth.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -27,16 +25,14 @@ export class UsersController {
     return { status: 403, data: result };
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('USER')
+  @Auth('USER')
   @Get('get-my-profile-data')
   async GetMyProfileData(@Req() req: FastifyRequest) {
     return this.userService.GetMyProfileData(req);
   }
 
   @Throttle({ default: { limit: 3, ttl: 60 } })
-  @UseGuards(RolesGuard)
-  @Roles('USER')
+  @Auth('USER')
   @Post('request-user-payment/:id')
   async paymentRequest(
     @Param('id') id: string,

@@ -9,7 +9,6 @@ import {
   Put,
   Query,
   Req,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ManagerService } from './manager.service';
@@ -34,11 +33,9 @@ import { RejectEntityDto } from './dto/reject-entity.dto';
 import { ClearCacheCourseLessonsInterceptor } from 'src/common/interceptors/clear-cache-course-lessons.interceptor';
 import { createCourseCategoryDto } from './dto/create-course-category.dto';
 import { EditCourseCategoryDto } from './dto/edit-course-category';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { Auth } from 'src/common/decorators/auth.decorator';
 
-@UseGuards(RolesGuard)
-@Roles("MANAGER")
+@Auth('MANAGER')
 @Controller('manager')
 export class ManagerController {
   constructor(private readonly managerService: ManagerService) {}
