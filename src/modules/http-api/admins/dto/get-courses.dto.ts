@@ -2,8 +2,8 @@ import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class GetCoursesDto {
-  @IsEnum(['creating', 'waiting', 'publish', 'simpleEdit'])
-  status: 'creating' | 'waiting' | 'publish' | 'simpleEdit';
+  @IsEnum(['creating', 'waiting', 'publish', 'simpleEdit', 'rejected'])
+  status: 'creating' | 'waiting' | 'publish' | 'simpleEdit' | 'rejected';
 
   @IsString()
   @IsOptional()
