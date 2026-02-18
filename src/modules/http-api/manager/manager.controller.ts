@@ -12,7 +12,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ManagerService } from './manager.service';
-import { FindUserParamDto } from './dto/find-user-param.dto';
 import type { FastifyRequest } from 'fastify';
 import {
   FileFieldsInterceptor,
@@ -34,15 +33,16 @@ import { ClearCacheCourseLessonsInterceptor } from 'src/common/interceptors/clea
 import { createCourseCategoryDto } from './dto/create-course-category.dto';
 import { EditCourseCategoryDto } from './dto/edit-course-category';
 import { Auth } from 'src/common/decorators/auth.decorator';
+import { GetUsersDto } from './dto/get-users.dto';
 
 @Auth('MANAGER')
 @Controller('manager')
 export class ManagerController {
   constructor(private readonly managerService: ManagerService) {}
 
-  @Get('find-users/:phone')
-  async findUser(@Param() param: FindUserParamDto) {
-    return await this.managerService.findUser(param);
+  @Get('find-users')
+  async findUser(@Query() query: GetUsersDto) {
+    return await this.managerService.findUser(query);
   }
 
   @Get('contact-us-comments')

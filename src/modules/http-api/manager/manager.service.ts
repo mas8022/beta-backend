@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma/prisma.service';
-import { FindUserParamDto } from './dto/find-user-param.dto';
 import type { FastifyRequest } from 'fastify';
 import { BucketService } from 'src/common/services/bucket/bucket.service';
 import { GetRequestsCollaborateDto } from './dto/get-request-collaborate.dto';
@@ -17,6 +16,7 @@ import { RejectEntityDto } from './dto/reject-entity.dto';
 import { FileValidator } from 'src/common/validators/file.validator';
 import { createCourseCategoryDto } from './dto/create-course-category.dto';
 import { EditCourseCategoryDto } from './dto/edit-course-category';
+import { GetUsersDto } from './dto/get-users.dto';
 
 @Injectable()
 export class ManagerService {
@@ -25,18 +25,29 @@ export class ManagerService {
     private readonly bucketService: BucketService,
   ) {}
 
-  async findUser(param: FindUserParamDto) {
-    const phone = param.phone;
+  async findUser(query: GetUsersDto) {
+    const { skip, take, search } = query;
 
-    const user = await this.prismaService.user.findUnique({
-      where: {
-        phone,
-      },
-    });
+    let users: any = [];
+
+    if (!search?.trim()) {
+      users = await this.prismaService.user.findMany({
+        skip,
+        take,
+      });
+    } else {
+      users = await this.prismaService.user.findMany({
+        where: {
+          phone: { contains: search, mode: 'insensitive' },
+        },
+        skip,
+        take,
+      });
+    }
 
     return {
       status: 200,
-      data: user,
+      data: users,
     };
   }
 
