@@ -55,11 +55,13 @@ export class ManagerController {
     return await this.managerService.deleteContactUsComment(commentId);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Get('profile')
   async getManagerProfile(@Req() req: FastifyRequest) {
     return await this.managerService.getManagerProfile(req);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @UseInterceptors(FileFieldsInterceptor([{ name: 'avatar', maxCount: 1 }]))
   @Put('edit-profile')
   async editProfile(

@@ -33,10 +33,11 @@ model User {
 }
 
 enum UserRoleEnum {
-  USER
   MANAGER
-  AUTHOR
+  SUPERVISOR
   ADMIN
+  AUTHOR
+  USER
 }
 
 model ContactUs {

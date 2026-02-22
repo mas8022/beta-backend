@@ -2,7 +2,7 @@ import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
 import { RolesGuard } from '../guards/roles.guard';
 import { ROLES_KEY } from '../keys/refelctors';
 
-type RoleType = 'MANAGER' | 'ADMIN' | 'AUTHOR' | 'USER';
+type RoleType = 'MANAGER' | "SUPERVISOR" | 'ADMIN' | 'AUTHOR' | 'USER';
 
 
 

@@ -47,6 +47,7 @@ export class AuthService {
   }
 
   async verifyOtp({ code, phone }: VerifyOtpCodeDto) {
+    
     const savedCode = await this.redisService.get(`otp:${phone}`);
 
     if (!savedCode) {
@@ -73,6 +74,7 @@ export class AuthService {
         },
       });
     }
+
 
     const sessionId = randomUUID();
 
