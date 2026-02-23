@@ -40,6 +40,7 @@ import { GetUsersDto } from './dto/get-users.dto';
 export class ManagerController {
   constructor(private readonly managerService: ManagerService) {}
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Get('find-users')
   async findUser(@Query() query: GetUsersDto) {
     return await this.managerService.findUser(query);
