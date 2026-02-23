@@ -46,11 +46,13 @@ export class ManagerController {
     return await this.managerService.findUser(query);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Get('contact-us-comments')
   async getContactUsComments(@Query() query: GetContactUsMessageDto) {
     return await this.managerService.getContactUsComments(query);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Delete('contact-us-comment/:commentId')
   async deleteContactUsComment(@Param('commentId') commentId: string) {
     return await this.managerService.deleteContactUsComment(commentId);
