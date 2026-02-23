@@ -118,27 +118,32 @@ export class ManagerController {
     return await this.managerService.getFinancialsOverView(req);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Get('courses')
   async getCourses(@Query() query: GetCoursesDto) {
     return await this.managerService.getCourses(query);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Get('over-view-course/:courseId')
   async getOverViewCourse(@Param('courseId') courseId: string) {
     return this.managerService.getOverViewCourse(courseId);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Get('course-lessons/:courseId')
   async getCourseLessons(@Param('courseId') courseId: string) {
     return this.managerService.getCourseLessons(courseId);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('reject-course/:courseId')
   async rejectCourse(@Param('courseId') courseId: string) {
     return await this.managerService.rejectCourse(courseId);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @UseInterceptors(ClearCacheInterceptor('cache:courses:*'))
   @Patch('accepte-course/:courseId')
   async accepteCourse(
@@ -148,12 +153,14 @@ export class ManagerController {
     return await this.managerService.accepteCourse(courseId, req);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @UseInterceptors(ClearCacheCourseLessonsInterceptor)
   @Patch('reject-lesson/:lessonId')
   async rejectLesson(@Param('lessonId') lessonId: string) {
     return await this.managerService.rejectLesson(lessonId);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @UseInterceptors(ClearCacheCourseLessonsInterceptor)
   @Patch('accepte-lesson/:lessonId')
   async accepteLesson(
@@ -163,6 +170,7 @@ export class ManagerController {
     return await this.managerService.accepteLesson(lessonId, req);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @UseInterceptors(ClearCacheCourseLessonsInterceptor)
   @Patch('accepte-episode/:episodeId')
   async accepteEpisode(
@@ -172,12 +180,14 @@ export class ManagerController {
     return await this.managerService.accepteEpisode(id, req);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @UseInterceptors(ClearCacheCourseLessonsInterceptor)
   @Patch('reject-episode/:episodeId')
   async rejectEpisode(@Param('episodeId') id: string) {
     return await this.managerService.rejectEpisode(id);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Post('send-course-report/:courseId')
   async sendCourseReport(
     @Param('courseId') courseId: string,
