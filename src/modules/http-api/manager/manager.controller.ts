@@ -197,6 +197,7 @@ export class ManagerController {
     return await this.managerService.sendCourseReport(courseId, message, req);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Get('courses-reports')
   async getCoursesReports(
     @Query() query: GetCoursesReportsDto,
@@ -205,11 +206,13 @@ export class ManagerController {
     return await this.managerService.getCoursesReports(query, req);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Patch('accepte-correction-course-of-courses-reports/:reportId')
   async accepteCorrectionCourseReport(@Param('reportId') reportId: string) {
     return await this.managerService.accepteCorrectionCourseReport(reportId);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Delete('delete-correction-course-of-courses-reports/:reportId')
   async deleteCorrectionCourseReport(@Param('reportId') reportId: string) {
     return await this.managerService.deleteCorrectionCourseReport(reportId);
