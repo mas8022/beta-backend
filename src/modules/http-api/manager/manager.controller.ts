@@ -75,11 +75,13 @@ export class ManagerController {
     return this.managerService.editProfile(files, body, req);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Get('requests-collaborate')
   async getRequestsCollaborate(@Query() query: GetRequestsCollaborateDto) {
     return await this.managerService.getRequestsCollaborate(query);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Patch('set-collaborate-permisson/:requestId/:status')
   async setCollaboratePermisson(
     @Param() params: SetAuthorPermissionParamDto,
@@ -88,6 +90,7 @@ export class ManagerController {
     return await this.managerService.setCollaboratePermisson(params, request);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Delete('request-collaborate/:requestId')
   async deleteRequestCollaborate(@Param('requestId') requestId: string) {
     return await this.managerService.deleteRequestCollaborate(requestId);
