@@ -231,16 +231,19 @@ export class ManagerController {
     return await this.managerService.RequestFuns(req, RequestFunsDto);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Get('monitor-admins')
   async getMonitorAdmins(@Query() query: any) {
     return await this.managerService.getMonitorAdmins(query);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Delete('course-report/:id')
   async deleteAcceptedCourseReport(@Param('id') id: string) {
     return await this.managerService.deleteAcceptedCourseReport(id);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Patch('block-admin/:id')
   async blockAdmin(@Param('id') id: string) {
     return await this.managerService.blockAdmin(id);
