@@ -268,11 +268,13 @@ export class ManagerController {
     return await this.managerService.deleteAdminConfirm(id);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Post('create-course-category')
   async createCourseCategory(@Body() body: createCourseCategoryDto) {
     return await this.managerService.createCourseCategory(body);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Patch('edit-course-category')
   async editCourseCategory(@Body() body: EditCourseCategoryDto) {
     return await this.managerService.editCourseCategory(body);
