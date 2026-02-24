@@ -249,17 +249,20 @@ export class ManagerController {
     return await this.managerService.blockAdmin(id);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Get('admins-confirms')
   async getAdminsConfirms(@Query() query: GetAdminsConfirmsDto) {
     return await this.managerService.getAdminsConfirms(query);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @UseInterceptors(ClearCacheInterceptor('cache:courses:get-course-lessons-*'))
   @Patch('reject-entity')
   async rejectEntity(@Query() query: RejectEntityDto) {
     return await this.managerService.rejectEntity(query);
   }
 
+  @Auth('MANAGER', 'SUPERVISOR')
   @Delete('admin-confirm/:id')
   async deleteAdminConfirm(@Param('id') id: string) {
     return await this.managerService.deleteAdminConfirm(id);
