@@ -101,4 +101,9 @@ export class CoursesController {
   async getCategories() {
     return await this.coursesService.getCategories();
   }
+
+  @Get("new-courses")
+  async getNewCourses(){
+    return await this.coursesService.getNewCourses();
+  }
 }

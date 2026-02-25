@@ -597,4 +597,16 @@ export class CoursesService {
 
     return { status: 200, data: categories };
   }
+
+  async getNewCourses() {
+    const newCourses = await this.prismaService.course.findMany({
+      include: {
+        category:true
+      },
+      take: 5,
+      orderBy: { id: 'desc' },
+    });
+
+    return { status: 200, data: newCourses };
+  }
 }
