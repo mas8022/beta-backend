@@ -102,8 +102,12 @@ export class CoursesController {
     return await this.coursesService.getCategories();
   }
 
-  @Get("new-courses")
-  async getNewCourses(){
+  @Get('new-courses')
+  async getNewCourses() {
+    return await this.coursesService.getNewCourses();
+  }
+  @Get('favorite-courses')
+  async getFavoriteCourses() {
     return await this.coursesService.getNewCourses();
   }
 }

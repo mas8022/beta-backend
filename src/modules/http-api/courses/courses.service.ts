@@ -208,6 +208,13 @@ export class CoursesService {
       case 'ارزان‌ترین':
         orderBy = { price: 'asc' };
         break;
+      case 'محبوب ترین':
+        orderBy = {
+          likes: {
+            _count: 'desc',
+          },
+        };
+        break;
       default:
         orderBy = { createdAt: 'desc' };
     }
@@ -601,10 +608,22 @@ export class CoursesService {
   async getNewCourses() {
     const newCourses = await this.prismaService.course.findMany({
       include: {
-        category:true
+        category: true,
       },
-      take: 5,
+      take: 10,
       orderBy: { id: 'desc' },
+    });
+
+    return { status: 200, data: newCourses };
+  }
+
+  async getFavoriteCourses() {
+    const newCourses = await this.prismaService.course.findMany({
+      include: {
+        category: true,
+      },
+      take: 10,
+      orderBy: { likes: { _count: 'desc' } },
     });
 
     return { status: 200, data: newCourses };
