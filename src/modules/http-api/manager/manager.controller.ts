@@ -218,9 +218,14 @@ export class ManagerController {
     return await this.managerService.deleteCorrectionCourseReport(reportId);
   }
 
+  @Auth("MANAGER", "SUPERVISOR")
   @Patch('edit-roles/:userId')
-  async editRoles(@Body('roles') roles: any, @Param('userId') userId: string) {
-    return await this.managerService.editRoles(roles, userId);
+  async editRoles(
+    @Body('roles') roles: any,
+    @Param('userId') userId: string,
+    @Req() req: FastifyRequest,
+  ) {
+    return await this.managerService.editRoles(roles, userId, req);
   }
 
   @Post('request-funs')

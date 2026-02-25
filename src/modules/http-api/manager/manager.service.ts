@@ -17,6 +17,7 @@ import { FileValidator } from 'src/common/validators/file.validator';
 import { createCourseCategoryDto } from './dto/create-course-category.dto';
 import { EditCourseCategoryDto } from './dto/edit-course-category';
 import { GetUsersDto } from './dto/get-users.dto';
+import { UserRoleEnum } from '@prisma/client';
 
 @Injectable()
 export class ManagerService {
@@ -822,14 +823,45 @@ export class ManagerService {
     return { status: 201, message: 'حذف شد' };
   }
 
-  async editRoles(roles: any, userId: string) {
-    await this.prismaService.user.update({
-      where: { id: Number(userId) },
-      data: {
-        roles: [...roles],
-      },
-    });
+  async editRoles(roles: UserRoleEnum[], userId: string, req: FastifyRequest) {
+    const me = await req.user;
 
+    // this api for manager
+    if (me.roles.includes('MANAGER')) {
+      await this.prismaService.user.update({
+        where: { id: Number(userId) },
+        data: {
+          roles,
+        },
+      });
+    } else {
+      // this api for supervisor
+
+      const user = await this.prismaService.user.findUnique({
+        where: { id: Number(userId) },
+      });
+
+      if (user?.roles.includes('MANAGER')) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+          message: 'شما اجازه تغییر نقش های مدیر سایت رو ندارید',
+        };
+      }
+
+      if (roles.includes('MANAGER')) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+          message: 'شما اجازه تغییر نقش مدیر سایت رو ندارید',
+        };
+      }
+
+      await this.prismaService.user.update({
+        where: { id: Number(userId) },
+        data: {
+          roles,
+        },
+      });
+    }
     return { status: 201, message: 'نقش ویرایش شد' };
   }
 

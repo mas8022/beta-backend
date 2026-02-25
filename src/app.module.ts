@@ -14,7 +14,6 @@ import { UploadModule } from './modules/http-api/upload/upload.module';
 import { AdminsModule } from './modules/http-api/admins/admins.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { SupervisorModule } from './modules/http-api/supervisor/supervisor.module';
 
 @Module({
   imports: [
@@ -40,7 +39,6 @@ import { SupervisorModule } from './modules/http-api/supervisor/supervisor.modul
     ManagerModule,
     UploadModule,
     AdminsModule,
-    SupervisorModule,
   ],
   providers: [
     {
