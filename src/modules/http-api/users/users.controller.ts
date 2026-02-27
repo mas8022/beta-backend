@@ -64,4 +64,23 @@ export class UsersController {
   ) {
     return await this.userService.getAccessCourse(courseId, rawCookies);
   }
+
+  @Post('complete-episode/:episodeId')
+  async completeEpisode(
+    @Param('episodeId') episodeId: string,
+    @Headers('cookie') rawCookies: string,
+  ) {
+    return await this.userService.completeEpisode(episodeId, rawCookies);
+  }
+
+  @Get('course-completion-percent/:courseId')
+  async getCourseCompletionPercent(
+    @Param('courseId') courseId: string,
+    @Headers("cookie") rawCookies: string,
+  ) {
+    return await this.userService.getCourseCompletionPercent(
+      courseId,
+      rawCookies,
+    );
+  }
 }

@@ -1,9 +1,10 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../common/services/prisma/prisma.service';
 import { parse } from 'cookie';
 import { JwtService } from '../../../common/services/jwt/jwt.service';
 import type { FastifyRequest } from 'fastify';
 import { ZibalService } from 'src/common/services/zibal/zibal.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -225,5 +226,64 @@ export class UsersService {
     }
 
     return { status: 200, data: { isAccess: false } };
+  }
+
+  async completeEpisode(episodeId: string, rawCookies: string) {
+    try {
+      const me: User | null = await this.getMe(rawCookies);
+
+      if (!me) return { status: HttpStatus.FORBIDDEN };
+      const beforCompleteEposode =
+        await this.prismaService.completeEpisode.findUnique({
+          where: {
+            userId_episodeId: {
+              userId: Number(me.id),
+              episodeId: Number(episodeId),
+            },
+          },
+        });
+      if (beforCompleteEposode) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+        };
+      }
+
+      await this.prismaService.completeEpisode.create({
+        data: { userId: me.id, episodeId: Number(episodeId) },
+      });
+    } catch (error) {}
+  }
+
+  async getCourseCompletionPercent(courseId: string, rawCookies: string) {
+    const me = await this.getMe(rawCookies);
+
+    if (!me) return { status: HttpStatus.FORBIDDEN, data: null };
+
+    const isStudentForThisCourse =
+      await this.prismaService.courseOrder.findFirst({
+        where: { userId: Number(me.id), courseId: Number(courseId) },
+      });
+
+    if (!isStudentForThisCourse)
+      return { status: HttpStatus.FORBIDDEN, data: null };
+
+    const courseEpisodesCount =
+      (await this.prismaService.episode.count({
+        where: { lesson: { courseId: Number(courseId) } },
+      })) ?? 0;
+
+    const courseCompleteEpisodesCount =
+      (await this.prismaService.completeEpisode.count({
+        where: {
+          userId: me.id,
+          episode: { lesson: { courseId: Number(courseId) } },
+        },
+      })) ?? 0;
+
+    const percent = Math.round(
+      (courseCompleteEpisodesCount / courseEpisodesCount) * 100,
+    );
+
+    return { status: 200, data: percent };
   }
 }

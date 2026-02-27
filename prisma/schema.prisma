@@ -28,8 +28,9 @@ model User {
   CourseReport CourseReport[]
   Promotion    Promotion[]
 
-  approvalsGiven    AdminConfirm[] @relation("approvalsGiven")
-  approvalsReceived AdminConfirm[] @relation("approvalsReceived")
+  approvalsGiven    AdminConfirm[]    @relation("approvalsGiven")
+  approvalsReceived AdminConfirm[]    @relation("approvalsReceived")
+  completeEpisodes  CompleteEpisode[]
 }
 
 enum UserRoleEnum {
@@ -172,7 +173,8 @@ model Episode {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  AdminAction AdminConfirm[]
+  AdminAction      AdminConfirm[]
+  completeEpisodes CompleteEpisode[]
 }
 
 enum EpisodeStatusEnum {
@@ -329,4 +331,16 @@ enum AdminConfirmStatusEnum {
   WAITING
   DELETE
   REJECTED
+}
+
+model CompleteEpisode {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  episodeId Int
+  episode   Episode @relation(fields: [episodeId], references: [id])
+
+  @@unique([userId, episodeId])
 }
